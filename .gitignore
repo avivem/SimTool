@@ -1,1 +1,2 @@
-SimPy/.venv/
+# Ignore virtual environments called .venv in any subdirectory
+**/.venv/
