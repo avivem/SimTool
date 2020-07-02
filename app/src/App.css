@@ -12,28 +12,3 @@
   text-align: right;
 }
 
-.button {
-  border: none;
-  color: white;
-  padding: 10px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 18px;
-  margin: 20px 5px;
-  border-radius: 20%;
-  height: 50px;
-  width: 60px;
-}
-
-.textbox{
-  width: 20%;
-  padding: 12px 20px;
-  margin: 8px 0;
-  box-sizing: border-box;
-  font-size: 18px;
-}
-
-.label{
-  font-size: 18px;
-}

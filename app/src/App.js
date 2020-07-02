@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import Navigation from './components/navigationbar'
 
 
 class App extends Component{
@@ -15,13 +16,13 @@ class App extends Component{
 
   }
 
-  handleIteration(e){
-    var iter = parseInt(e.target.value, 10);
+  handleIteration(val){
+    var iter = parseInt(val, 10);
     if(!isNaN(iter)){
       this.setState({iteration: iter});
     }
     else{
-      if(e.target.value == ""){
+      if(val == ""){
         this.setState({iteration: 0});
       }
     }
@@ -31,65 +32,11 @@ class App extends Component{
     return (
       <div className="App">
         <div className="head">
-        <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-          
-
-
-        {/*navbar*/}
-          <div class="collapse navbar-collapse " id="navbarsExampleDefault">
-            <ul class="navbar-nav mr-auto ">
-              <li class="nav-item active">
-                <button className="button" style={{backgroundColor:'#2cbebe'}}>+</button>
-              </li>
-              <li class="nav-item">
-                <button className="button" style={{backgroundColor:'#2cbebe'}}>→</button>
-              </li>
-              <li class="nav-item">
-                <button className="button" style={{backgroundColor:'red'}}>x</button>
-              </li>
-            </ul>
-
-            <ul class="navbar-nav  " style={{float: 'right'}}>
-              {/*fix format*/}
-                <li class="nav-item">
-                  <label className="label" style={{color:'white'}}>Iterations: </label>
-                </li>
-                <li class="nav-item active">    
-                  <input type="text" id="iteration" className="textbox" value={this.state.iteration} onChange={this.handleIteration}></input>
-                </li>
-                <li class="nav-item active">
-                  <button className="button" style={{backgroundColor:'#4CAF50'}}>Start</button>
-                </li>
-                <li class="nav-item active">
-                  <button className="button" style={{backgroundColor:'red'}}>Stop</button>
-                </li>
-                <li class="nav-item active">
-                  <button className="button" style={{backgroundColor:'yellow', color:"black"}}>Data</button>
-                </li>
-                <li class="nav-item active">
-                  <button className="button" style={{backgroundColor:'yellow', color:"black"}}>Clear</button>
-                </li>
-            </ul>
-
-          </div>
-        </nav>
-
-
-
-              <div className="set1">
-                
-                
-                
-              </div>
-              <div className="set2">
-
-              
-              </div>
-
- 
+          <Navigation iteration={this.state.iteration} handleIteration={this.handleIteration} />
         </div>
       {/*main content*/}
         <main role="main">
+          
         </main>
       </div>
     );
