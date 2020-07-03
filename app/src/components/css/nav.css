@@ -1,0 +1,28 @@
+
+.button {
+  border: none;
+  color: white;
+  padding: 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 18px;
+  margin: 20px 5px;
+  border-radius: 20%;
+  height: 50px;
+  width: 60px;
+}
+
+.textbox{
+  width: 40%;
+  padding: 12px 12px;
+  margin: 8px 8px;
+  box-sizing: border-box;
+  font-size: 18px;
+}
+
+.label{
+  font-size: 30px;
+  margin: 8px 8px;
+}
+
