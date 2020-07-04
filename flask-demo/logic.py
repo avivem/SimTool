@@ -17,21 +17,21 @@ line, etc.
 
 """
 class BasicFlowEntity(object):
-    def __init__(self, id:str, env:simpy.Environment, nextLoc:Node, currentLoc:Node):
+    def __init__(self, env:simpy.Environment,name:str, nextLoc:Node, currentLoc:Node):
         self.env = env
-        self.id = id
+        self.name = name
         self.nextLoc = nextLoc
         self.currentLoc = currentLoc
         
     def __str__(self):
-        return f'{self.id}'
+        return f'{self.name}'
 
     def run(self):
         while not isinstance(self.currentLoc,EndingPoint):
             #For simple demo, components only take time to work.
             with self.currentLoc.resource.request() as req:
                 yield req
-                yield self.currentLoc.get_timer()
+                yield self.currentLoc.get_timer(self)
         self.currentLoc.entities.append(self)
 
 #Node that generates flowing entities.
@@ -42,13 +42,14 @@ class StartingPoint(Node):
         self.directed_to = None
         self.entities = []
         self.count = 0
+        self.action = env.process(self.run())
     
     def run(self):
         while True:
             yield self.env.timeout(self.gen_func)
-            currEntity = BasicFlowEntity(self.env,f'Flow Entity {self.count}',self.directed_to.directed_to, self.directed_to)
+            cur = BasicFlowEntity(self.env,f'Flow Entity {self.count}',self.directed_to.directed_to, self.directed_to)
+            self.env.process(cur.run())
             self.count += 1
-            self.env.process(currEntity)
             
             
 #A Node that represents a "cog in a machine" such as a bank teller in a bank, or
@@ -82,5 +83,5 @@ b1 = BasicComponent(env,"Basic Component #1", 3, 7)
 ed = EndingPoint(env)
 st.set_directed_to(b1)
 b1.set_directed_to(ed)
-env.process(st)
+env.process(st.run())
 env.run(until=100)
