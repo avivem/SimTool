@@ -1,4 +1,12 @@
 import simpy
+import sys
+import io
+
+""" if __name__ is not "__main__":
+    old_stdout = sys.stdout
+    new_stdout = io.StringIO()
+    sys.stdout = new_stdout """
+
 #Basic building block of a system. It knows where an entity should go next.
 class Node(object):
     def __init__(self, env, name):
