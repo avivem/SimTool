@@ -24,6 +24,8 @@ class App extends Component{
     this.addNode = this.addNode.bind(this);
     this.confirmAdded = this.confirmAdded.bind(this);
 
+    this.handleChangeNode = this.handleChangeNode.bind(this);
+
   }
 
   handleIteration(val){
@@ -39,8 +41,8 @@ class App extends Component{
   }
 
   addNode(nodeType){
-    var xPos = 500;
-    var yPos = 300;
+    var xPos = 200;
+    var yPos = 200;
     switch(nodeType){
       case "start":
         var node = this.state.startNode;
@@ -49,7 +51,7 @@ class App extends Component{
           x: xPos,
           y: yPos,
           rate: 0,
-          unit: "second",
+          unit: "Second",
         });
         this.setState({startNode: node, addedStart: true});
         console.log("start-" + this.state.startNode.length);
@@ -62,7 +64,7 @@ class App extends Component{
           x: xPos,
           y: yPos,
           rate: 0,
-          unit: "second",
+          unit: "Second",
         });
         this.setState({stationNode: node, addedStation: true});
         console.log("station-" + this.state.stationNode.length);
@@ -74,7 +76,7 @@ class App extends Component{
           id: "end-" + node.length,
           x: xPos,
           y: yPos,
-          unit: "second",
+          unit: "Second",
         });
         this.setState({endNode: node, addedEnd: true});
         console.log("end-" + this.state.endNode.length);
@@ -91,6 +93,40 @@ class App extends Component{
     });
   }
 
+  handleChangeNode(id, unit, rate){
+    if(id.includes('start')){
+      var lst = this.state.startNode;
+      lst.forEach(target =>{
+        if(target.id == id){
+          target.unit = unit;
+          target.rate = rate;
+        }
+      });
+
+      this.setState({startNode: lst});
+    }
+    if(id.includes('station')){
+      var lst = this.state.stationNode;
+      lst.forEach(target =>{
+        if(target.id == id){
+          target.unit = unit;
+          target.rate = rate;
+        }
+      });
+      this.setState({stationNode: lst});
+    }
+    if(id.includes('end')){
+      var lst = this.state.endNode;
+      lst.forEach(target =>{
+        if(target.id == id){
+          target.unit = unit;
+          target.rate = rate;
+        }
+      });
+      this.setState({endNode: lst});
+    }
+  }
+
   render(){
     return (
       <div className="App">
@@ -105,7 +141,8 @@ class App extends Component{
           addedStart={this.state.addedStart}
           addedStation={this.state.addedStation}
           addedEnd={this.state.addedEnd}
-          confirmAdded={this.confirmAdded}></Canvas>
+          confirmAdded={this.confirmAdded}
+          handleChangeNode={this.handleChangeNode}></Canvas>
 
       </div>
     );

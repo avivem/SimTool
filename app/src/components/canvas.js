@@ -5,6 +5,8 @@ import StationImage from "../image/station.png";
 import EndImage from "../image/end.png";
 
 import Konva from 'konva';
+import Popup from "reactjs-popup";
+
 
 class Canvas extends Component{
     constructor(props){
@@ -12,11 +14,73 @@ class Canvas extends Component{
 
         this.state = {
             stage: "",
-            layer: ""
+            layer: "",
+            open: false,
+            targetId: "",
+            type: "",
+            rate: 0,
+            unit: "Second"
+        }
+
+        this.openPopup = this.openPopup.bind(this);
+        this.closePopup = this.closePopup.bind(this);
+
+        this.handleChangeUnit = this.handleChangeUnit.bind(this)
+        this.handleChangeRate = this.handleChangeRate.bind(this)
+        
+        this.handleChangeNode = this.handleChangeNode.bind(this);
+    
+    }
+
+    openPopup(){
+        this.setState({
+            open: true
+        });
+        console.log("Open Popup");
+    }
+      
+    closePopup(){
+        this.setState({
+            open: false
+        });
+        console.log("Close Popup");
+    }
+
+    handleChangeRate(e){
+        this.setState({rate: e.target.value});
+    }
+
+    handleChangeUnit(e){
+        
+        switch(e.target.value){
+            case "Second":
+                this.setState({unit: "Second"});
+                break;
+
+            case "Minute":
+                this.setState({unit: "Minute"});
+                break;
+
+            case "Hour":
+                this.setState({unit: "Hour"});
+                break;
+
+            case "Day":
+                this.setState({unit: "Day"});
+                break;
         }
     }
 
+    handleChangeNode(){
+        this.setState({
+            open: false
+        });
+        console.log("Close Popup");
 
+
+        this.props.handleChangeNode(this.state.targetId, this.state.unit, this.state.rate);
+
+    }
 
     componentDidMount(){
         
@@ -89,6 +153,16 @@ class Canvas extends Component{
                 // update nodes from the new state
                 layer.batchDraw();
             });
+
+            nodeStart.on('click', () =>{
+                this.setState({
+                    unit: target.unit,
+                    rate: target.rate,
+                    targetId: target.id,
+                    type: "Start Node" 
+                })
+                this.openPopup();
+            })
             
             layer.batchDraw();
             this.props.confirmAdded();
@@ -115,6 +189,16 @@ class Canvas extends Component{
                 // update nodes from the new state
                 layer.batchDraw();
             });
+
+            nodeStation.on('click', () =>{
+                this.setState({
+                    unit: target.unit,
+                    rate: target.rate,
+                    targetId: target.id,
+                    type: "Station Node" 
+                })
+                this.openPopup();
+            })
             
             layer.batchDraw();
             this.props.confirmAdded();
@@ -141,6 +225,16 @@ class Canvas extends Component{
                 // update nodes from the new state
                 layer.batchDraw();
             });
+
+            nodeEnd.on('click', () =>{
+                this.setState({
+                    unit: target.unit,
+                    rate: target.rate,
+                    targetId: target.id,
+                    type: "End Node" 
+                })
+                this.openPopup();
+            })
             
             layer.batchDraw();
             this.props.confirmAdded();
@@ -150,18 +244,45 @@ class Canvas extends Component{
     }
 
     render(){
-
-
-
         return(
-          <div>
-            <p>  .  </p>
-            <p> .     </p>
-            <p>. </p>
-         
-            <div id="container"></div>
-              
-          </div>
+            <div>
+
+                <p>.</p>
+                <p>.</p>
+                <p>.</p>
+                <div id="container"></div>
+
+                <div>
+                    <Popup open={this.state.open} closeOnDocumentClick = {true} onClose={this.closePopup}>
+                        <h1>{this.state.type}</h1>
+                        <label className="label">Unit:&nbsp;
+                            <select 
+                            id="unit" 
+                            onChange={this.handleChangeUnit} 
+                            value={this.state.unit}>
+                                <option value="Second">Second</option>
+                                <option value="Minute">Minute</option>
+                                <option value="Hour">Hour</option>
+                                <option value="Day">Day</option>
+                            </select>
+                        </label><br />
+
+                        {this.state.type !== "End Node" ? 
+                        <label className="label">Rate:&nbsp;
+                        <input 
+                            type="text" 
+                            id="rate" 
+                            value={this.state.rate} 
+                            onChange={this.handleChangeRate} />
+                        </label> : <div></div>}
+
+                        <button className="submit-button" onClick={this.handleChangeNode}>
+                            Apply
+                        </button>
+                    </Popup>
+                </div>
+                
+            </div>
         );
     }
 
