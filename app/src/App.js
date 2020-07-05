@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
+
 import Navigation from './components/navigationbar'
+import Canvas from './components/canvas'
 
 
 class App extends Component{
@@ -34,10 +36,9 @@ class App extends Component{
         <div className="head">
           <Navigation iteration={this.state.iteration} handleIteration={this.handleIteration} />
         </div>
-      {/*main content*/}
-        <main role="main">
-          
-        </main>
+
+        <Canvas></Canvas>
+
       </div>
     );
   }
