@@ -35,8 +35,8 @@ class App extends Component{
   }
 
   addNode(nodeType){
-    var xPos = 30;
-    var yPos = 30;
+    var xPos = 200;
+    var yPos = 200;
     switch(nodeType){
       case "start":
         var node = this.state.startNode;
@@ -76,7 +76,7 @@ class App extends Component{
         console.log("end-" + this.state.endNode.length);
         break;
     }
-    
+    console.log(this.state.startNode);
   }
 
   render(){
@@ -86,7 +86,7 @@ class App extends Component{
           <Navigation iteration={this.state.iteration} handleIteration={this.handleIteration} handleAddNode={this.addNode} />
         </div>
 
-        <Canvas></Canvas>
+        <Canvas startNode={this.state.startNode} stationNode={this.state.stationNode} endStation={this.state.endNode}></Canvas>
 
       </div>
     );
