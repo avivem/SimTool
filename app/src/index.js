@@ -6,7 +6,12 @@ import * as serviceWorker from './serviceWorker';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <head>
+      <script src="https://unpkg.com/konva@7.0.2/konva.min.js"></script>
+    </head>
+    <body>
+      <App />
+    </body>
   </React.StrictMode>,
   document.getElementById('root')
 );
