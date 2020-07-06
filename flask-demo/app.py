@@ -26,10 +26,11 @@ class DataStore():
 	st = None
 	bc = []
 	ed = None
+	env = simpy.Environment()
 
 data = DataStore()
 
-env = simpy.Environment()
+
 
 
 # create starting node
@@ -38,7 +39,7 @@ class Start(Resource):
 	# it will call StartingPoint and create the starting node
 	def get(self):
 		
-		data.st = StartingPoint(env, "Starting Point 1",2, 100)
+		data.st = StartingPoint(data.env, "Starting Point 1",2, 100)
 		return "Starting Point 1 added"
 
 # create basic component
@@ -46,7 +47,7 @@ class Basic(Resource):
 	# 'get' function, but when you run http://127.0.0.1:5000/api/basiccomponent in the browser
 	# it will call StartingPoint and create the starting node
 	def get(self):
-		data.bc.append(BasicComponent(env,f"Basic Component #{len(data.bc) + 1}", 3, 7))
+		data.bc.append(BasicComponent(data.env,f"Basic Component #{len(data.bc) + 1}", 3, 7))
 		if len(data.bc) == 1:
 			data.st.set_directed_to(data.bc[0])
 		else:
@@ -59,16 +60,30 @@ class End(Resource):
 	# 'get' function, but when you run http://127.0.0.1:5000/api/basiccomponent in the browser
 	# it will call StartingPoint and create the starting node
 	def get(self):
-		data.ed = EndingPoint(env,"Ending Point 1")
-		data.bc[len(data.bc)-1].set_directed_to(data.ed)
+		data.ed = EndingPoint(data.env,"Ending Point 1")
+		if len(data.bc) == 0:
+			data.st.set_directed_to(data.ed)
+		else:
+			data.bc[len(data.bc)-1].set_directed_to(data.ed)
 		return f"Ending Point #{len(data.bc)} added"
 		
 
 class Run(Resource):
 	def get(self):
-		env.process(data.st.run())
-		env.run(until=300)
+		if data.st == None:
+			return "Please create a starting node."
+		if data.ed == None:
+			return "Please create an ending node."
+		data.env.process(data.st.run())
+		data.env.run(until=300)
 		return new_stdout.getvalue().split('\n')
+
+class Reset(Resource):
+	def get(self):
+		global data
+		data = DataStore()
+		return "Graph has been reset."
+
 
 
 # resource, route
@@ -76,6 +91,9 @@ api.add_resource(Start, "/api/start")
 api.add_resource(Basic, "/api/basic")
 api.add_resource(End, "/api/end")
 api.add_resource(Run, "/api/run")
+api.add_resource(Reset, "/api/reset")
+
+
 
 
 
