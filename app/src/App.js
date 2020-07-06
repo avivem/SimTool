@@ -40,6 +40,8 @@ class App extends Component{
     }
   }
 
+  /* Add node, determine what node to add by checking nodeType
+  nodeType can be start, station, or end */
   addNode(nodeType){
     var xPos = 200;
     var yPos = 200;
