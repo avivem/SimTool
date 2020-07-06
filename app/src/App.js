@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
 
 import Navigation from './components/navigationbar'
@@ -18,6 +17,7 @@ class App extends Component{
       addedStart: false,
       addedStation: false,
       addedEnd: false,
+      count: 0,
     }
 
     this.handleIteration = this.handleIteration.bind(this);
@@ -47,7 +47,7 @@ class App extends Component{
       case "start":
         var node = this.state.startNode;
         node.push({
-          id: "start-" + node.length,
+          id: "start-" + this.state.count,
           x: xPos,
           y: yPos,
           rate: 0,
@@ -60,7 +60,7 @@ class App extends Component{
       case "station":
         var node = this.state.stationNode;
         node.push({
-          id: "station-" + node.length,
+          id: "station-" + this.state.count,
           x: xPos,
           y: yPos,
           rate: 0,
@@ -73,15 +73,17 @@ class App extends Component{
       case "end":
         var node = this.state.endNode;
         node.push({
-          id: "end-" + node.length,
+          id: "end-" + this.state.count,
           x: xPos,
           y: yPos,
           unit: "Second",
         });
-        this.setState({endNode: node, addedEnd: true});
+        this.setState({ endNode: node, addedEnd: true});
         console.log("end-" + this.state.endNode.length);
         break;
     }
+
+    this.setState({count: this.state.count + 1});
     
   }
 
@@ -125,6 +127,10 @@ class App extends Component{
       });
       this.setState({endNode: lst});
     }
+
+    console.log(this.state.startNode);
+    console.log(this.state.stationNode);
+    console.log(this.state.endNode);
   }
 
   render(){

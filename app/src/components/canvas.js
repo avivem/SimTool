@@ -68,6 +68,9 @@ class Canvas extends Component{
             case "Day":
                 this.setState({unit: "Day"});
                 break;
+
+            default:
+                break;
         }
     }
 
@@ -86,7 +89,6 @@ class Canvas extends Component{
         
         var width = window.innerWidth;
         var height = window.innerHeight;
-        var nodeList = [];
 
         var stage = new Konva.Stage({
             container: 'container',
@@ -95,30 +97,6 @@ class Canvas extends Component{
         });
         var layer = new Konva.Layer();
         stage.add(layer);
-
-        console.log(nodeList);
-
-
-        nodeList.forEach(target => {
-            var node = new Konva.Circle({
-                id: target.id,
-                fill: Konva.Util.getRandomColor(),
-                radius: 20 + Math.random() * 20,
-                shadowBlur: 10,
-                draggable: true,
-              });
-              layer.add(node);
-      
-              node.on('dragmove', () => {
-                // mutate the state
-                target.x = node.x();
-                target.y = node.y();
-                // update nodes from the new state
-                layer.batchDraw();
-            });
-            
-        });        
-        layer.batchDraw();
 
         this.setState({
             stage: stage,
