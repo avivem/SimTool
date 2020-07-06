@@ -85,7 +85,25 @@ class Canvas extends Component{
         console.log("Close Popup");
 
         /**Call a function in App.js to change a node unit/rate */
-        this.props.handleChangeNode(this.state.targetId, this.state.unit, this.state.rate);
+        var r = 1
+        switch(this.state.unit){
+            case "Minute":
+                r = 60;
+                break;
+
+            case "Hour":
+                r = 60 * 60; 
+                break;
+
+            case "Day":
+                r = 60 * 60 * 24;
+                this.setState({unit: "Day"});
+                break;
+
+            default:
+                break;
+        }
+        this.props.handleChangeNode(this.state.targetId, this.state.unit, this.state.rate, r);
 
     }
 

@@ -97,13 +97,17 @@ class App extends Component{
     });
   }
 
-  handleChangeNode(id, unit, rate){
+  /* 
+  Change the unit or rate of the node, the r is used to convert the rate to second,
+  so r can be 1, 60, 60 * 60, or 60 * 60 * 24 
+  */
+  handleChangeNode(id, unit, rate, r){
     if(id.includes('start')){
       var lst = this.state.startNode;
       lst.forEach(target =>{
         if(target.id == id){
           target.unit = unit;
-          target.rate = rate;
+          target.rate = rate / r;
         }
       });
 
@@ -114,7 +118,7 @@ class App extends Component{
       lst.forEach(target =>{
         if(target.id == id){
           target.unit = unit;
-          target.rate = rate;
+          target.rate = rate / r;
         }
       });
       this.setState({stationNode: lst});
@@ -124,7 +128,7 @@ class App extends Component{
       lst.forEach(target =>{
         if(target.id == id){
           target.unit = unit;
-          target.rate = rate;
+          target.rate = rate / r;
         }
       });
       this.setState({endNode: lst});
