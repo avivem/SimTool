@@ -19,28 +19,54 @@ parser = reqparse.RequestParser()
 
 # just output to see if the function ran
 NODES = {
-	'todo1': {'task': 'build an API'},
-	'todo2': {'task': '?????'},
-	'todo3': {'task': 'profit!'},
+	'start': {'start': 'start'}
 }
 
-# create node
-class Create(Resource):
+class DataStore():
+    st = None
+    b1 = None
+    ed = None
+
+data = DataStore()
+
+env = simpy.Environment()
+
+
+# create starting node
+class Start(Resource):
     # 'get' function, but when you run http://127.0.0.1:5000/api/create in the browser
     # it will call StartingPoint and create the starting node
 	def get(self):
-		env = simpy.Environment()
-		st = StartingPoint(env, "Starting Point 1",2, 100)
-		b1 = BasicComponent(env,"Basic Component #1", 3, 7) 
-		ed = EndingPoint(env,"Ending Point 1")
-		st.set_directed_to(b1)
-		b1.set_directed_to(ed)
-		env.process(st.run())
+		
+		data.st = StartingPoint(env, "Starting Point 1",2, 100)
+		return NODES
+
+# create basic component
+class Basic(Resource):
+	# 'get' function, but when you run http://127.0.0.1:5000/api/basiccomponent in the browser
+    # it will call StartingPoint and create the starting node
+	def get(self):
+		data.b1 = BasicComponent(env,"Basic Component #1", 3, 7) 
+		return NODES
+
+
+# create ending component
+class End(Resource):
+	# 'get' function, but when you run http://127.0.0.1:5000/api/basiccomponent in the browser
+    # it will call StartingPoint and create the starting node
+	def get(self):
+		data.ed = EndingPoint(env,"Ending Point 1")
+		data.st.set_directed_to(data.b1)
+		data.b1.set_directed_to(data.ed)
+		env.process(data.st.run())
 		env.run(until=300)
 		return jsonify(new_stdout.getvalue().splitlines())
 
+
 # resource, route
-api.add_resource(Create, "/api/create")
+api.add_resource(Start, "/api/start")
+api.add_resource(Basic, "/api/basic")
+api.add_resource(End, "/api/end")
 
 
 
