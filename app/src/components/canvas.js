@@ -91,7 +91,7 @@ class Canvas extends Component{
 
         /**Call a function in App.js to change a node unit/rate */
         var r = 1
-        switch(this.state.unit){
+/*        switch(this.state.unit){
             case "Minute":
                 r = 60;
                 break;
@@ -108,7 +108,9 @@ class Canvas extends Component{
             default:
                 break;
         }
-        this.props.handleChangeNode(this.state.targetId, this.state.unit, this.state.rate, r);
+*/
+        //this.props.handleChangeNode(this.state.targetId, this.state.unit, this.state.rate, r);
+        this.props.handleChangeNode(this.state.targetId, "void", this.state.rate, r);
 
     }
 
@@ -491,20 +493,20 @@ class Canvas extends Component{
                     {/*Popup for the node*/ }
                     <Popup open={this.state.open} closeOnDocumentClick = {true} onClose={this.closePopup}>
                         <h1>{this.state.type}</h1>
-                        <label className="label">Unit:&nbsp;
-                            <select 
-                            id="unit" 
-                            onChange={this.handleChangeUnit} 
-                            value={this.state.unit}>
-                                <option value="Second">Second</option>
-                                <option value="Minute">Minute</option>
-                                <option value="Hour">Hour</option>
-                                <option value="Day">Day</option>
-                            </select>
-                        </label><br />
-
+ {//                       <label className="label">Unit:&nbsp;
+  //                          <select 
+  //                          id="unit" 
+  //                          onChange={this.handleChangeUnit} 
+  //                          value={this.state.unit}>
+  //                              <option value="Second">Second</option>
+  //                              <option value="Minute">Minute</option>
+  //                              <option value="Hour">Hour</option>
+  //                              <option value="Day">Day</option>
+  //                          </select>
+  //                      </label><br />
+    }
                         {this.state.type !== "End Node" ? 
-                        <label className="label">Rate:&nbsp;
+                        <label className="label">Period:&nbsp;
                         <input 
                             type="text" 
                             id="rate" 
