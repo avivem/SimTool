@@ -17,7 +17,8 @@ app = Flask(__name__)
 api = Api(app)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-parser = reqparse.RequestParser()
+# dont use this
+# parser = reqparse.RequestParser()
 
 # just output to see if the function ran
 NODES = {
