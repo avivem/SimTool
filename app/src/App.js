@@ -18,6 +18,10 @@ class App extends Component{
       addedStation: false,
       addedEnd: false,
       count: 0,
+      arrows: [],
+      createArrowMode: false,
+      createArrow: false,
+      removeMode: false
     }
 
     this.handleIteration = this.handleIteration.bind(this);
@@ -25,6 +29,14 @@ class App extends Component{
     this.confirmAdded = this.confirmAdded.bind(this);
 
     this.handleChangeNode = this.handleChangeNode.bind(this);
+
+    this.addArrowMode = this.addArrowMode.bind(this);
+    this.addArrowState = this.addArrowState.bind(this);
+
+    this.handleRemoveMode = this.handleRemoveMode.bind(this);
+    this.handleRemove = this.handleRemove.bind(this);
+
+    this.handleReset= this.handleReset.bind(this);
 
   }
 
@@ -56,7 +68,6 @@ class App extends Component{
           unit: "Second",
         });
         this.setState({startNode: node, addedStart: true});
-        console.log("start-" + this.state.startNode.length);
         break;
 
       case "station":
@@ -69,7 +80,6 @@ class App extends Component{
           unit: "Second",
         });
         this.setState({stationNode: node, addedStation: true});
-        console.log("station-" + this.state.stationNode.length);
         break;
 
       case "end":
@@ -81,19 +91,24 @@ class App extends Component{
           unit: "Second",
         });
         this.setState({ endNode: node, addedEnd: true});
-        console.log("end-" + this.state.endNode.length);
         break;
     }
 
-    this.setState({count: this.state.count + 1});
+    this.setState({
+      count: this.state.count + 1,
+      createArrowMode: false,
+      removeMode: false
+    });
     
   }
 
+  /*Confirm that the node/arrow was added - which is done by setting the 4 state to false */
   confirmAdded(){
     this.setState({
       addedStation: false,
       addedStart: false,
-      addedEnd: false
+      addedEnd: false,
+      createArrow: false 
     });
   }
 
@@ -128,7 +143,6 @@ class App extends Component{
       lst.forEach(target =>{
         if(target.id == id){
           target.unit = unit;
-          target.rate = rate / r;
         }
       });
       this.setState({endNode: lst});
@@ -139,11 +153,132 @@ class App extends Component{
     console.log(this.state.endNode);
   }
 
+  /*State is used to let the click event on the 
+  node know that it should not open the popup but to be used to create arrow */
+  addArrowMode(){
+    this.setState({createArrowMode: true});
+  }
+
+  /* Add the arrow to the list, this function is passed to 
+  canvas where it is called when the to node is determined in 
+  the componentDidUpdate. The from and to are the id given to the node */
+  addArrowState(from, to){
+    var lst = this.state.arrows;
+    lst.push({
+      id: "arrow-" + this.state.count,
+      from: from,
+      to: to
+    });
+    this.setState({
+      arrows: lst, 
+      count: this.state.count + 1
+    });
+    this.setState({createArrow: true});
+    console.log(this.state.arrows);
+  }
+
+  // Change to remove mode.
+  // In remove mode, when click on a node/arrow, it will remove the node/arrow
+  handleRemoveMode(e){
+    this.setState({
+      removeMode: true,
+      createArrowMode: false
+    });
+    console.log("Handle Remove");
+  }
+
+  // Handle removing the node/arrow
+  handleRemove(id){
+    console.log(id);
+    if(id.includes('arrow')){
+      // Remove arrow
+      var lst = []
+      this.state.arrows.forEach(target =>{
+        if(target.id != id){
+          lst.push({
+            id: target.id,
+            from: target.from,
+            to: target.to
+          });
+        }
+      });
+      this.setState({arrows: lst});
+    }
+    else{
+      // Remove node
+      var lst = [];
+      var original = [];
+
+      // Determine which list to look at 
+      if(id.includes('start')){
+        original = this.state.startNode;
+      }
+      if(id.includes('station')){
+        original = this.state.stationNode;
+      }
+      if(id.includes('end')){
+        original = this.state.endNode;
+      }
+
+      // Remove the given node from the list
+      original.forEach(target => {
+        if(target.id != id){
+          if(id.includes('end')){
+            lst.push({
+              id: target.id,
+              x: target.x,
+              y: target.y,
+              unit: target.unit,
+            });
+          }
+          else{
+            lst.push({
+              id: target.id,
+              x: target.x,
+              y: target.y,
+              rate: target.rate,
+              unit: target.unit,
+            });
+          }
+        }
+      })
+
+      if(id.includes('start')){
+        this.setState({startNode: lst});
+      }
+      if(id.includes('station')){
+        this.setState({stationNode: lst});
+      }
+      if(id.includes('end')){
+        this.setState({endNode: lst});
+      }
+      console.log("remove");
+      console.log(this.state.arrows);
+      console.log(this.state.stationNode);
+      console.log(this.state.startNode);
+      console.log(this.state.endNode);
+
+    }
+  }
+
+  handleReset(){
+    this.setState({
+      createArrowMode: false, 
+      removeMode: false
+    });
+  }
+
   render(){
     return (
       <div className="App">
         <div className="head">
-          <Navigation iteration={this.state.iteration} handleIteration={this.handleIteration} handleAddNode={this.addNode} />
+          <Navigation 
+            iteration={this.state.iteration} 
+            handleIteration={this.handleIteration} 
+            handleAddNode={this.addNode}
+            addArrowMode={this.addArrowMode}
+            handleRemoveMode={this.handleRemoveMode}
+            handleReset={this.handleReset} />
         </div>
 
         <Canvas 
@@ -154,7 +289,13 @@ class App extends Component{
           addedStation={this.state.addedStation}
           addedEnd={this.state.addedEnd}
           confirmAdded={this.confirmAdded}
-          handleChangeNode={this.handleChangeNode}></Canvas>
+          handleChangeNode={this.handleChangeNode}
+          createArrowMode={this.state.createArrowMode}
+          addArrowState={this.addArrowState}
+          createArrow={this.state.createArrow}
+          arrows={this.state.arrows}
+          removeMode={this.state.removeMode}
+          handleRemove={this.handleRemove} ></Canvas>
 
       </div>
     );
