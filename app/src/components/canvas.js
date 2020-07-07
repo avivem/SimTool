@@ -56,6 +56,21 @@ class Canvas extends Component{
     /** Keep track of the rate entered */
     handleChangeRate(e){
         this.setState({rate: e.target.value});
+
+        // // post request options
+        // const requestOptions = {
+        //   method: 'POST',
+        //   headers: { 'Content-Type': 'application/json' },
+        //   body: JSON.stringify({
+        //     period: '',
+        //   })
+        // };
+
+        // // post request here to connect to api
+        // fetch('http://127.0.0.1:5000/api/setpost', requestOptions).then(res => res.json()).then(gotUser => {
+        //     console.log("post success");
+
+        // }).catch(console.log)
     }
 
     /**Keep track of the unit selected in the dropdown menu */

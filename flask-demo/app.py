@@ -34,8 +34,6 @@ class DataStore():
 data = DataStore()
 
 
-
-
 # create starting node
 class Start(Resource):
 	# 'get' function, but when you run http://127.0.0.1:5000/api/start in the browser
