@@ -116,7 +116,6 @@ class Navigation extends Component{
 
             <ul class="navbar-nav  " style={{float: 'right'}}>
               {/*fix format*/}
-<<<<<<< HEAD
               <li class="nav-item">
                 <label className="label" style={{color:'white'}}>Iterations: </label>
               </li>
@@ -125,16 +124,6 @@ class Navigation extends Component{
               </li>
               <li class="nav-item active">
                 <button className="button" style={{backgroundColor:'#4CAF50'}} onClick={this.handleRun}>Start</button>
-=======
- {//             <li class="nav-item">
-  //              <label className="label" style={{color:'white'}}>Iterations: </label>
-  //            </li>
-  //            <li class="nav-item active">    
-  //              <input type="text" id="iteration" className="textbox" value={this.props.iteration} onChange={this.handleChange}></input>
-  //            </li>
-}             <li class="nav-item active">
-                <button className="button" style={{backgroundColor:'#4CAF50'}}>Start</button>
->>>>>>> 37014890c1259d97997de943517c0e977ba3ab7e
               </li>
               <li class="nav-item active">
                 <button className="button" style={{backgroundColor:'red'}}>Stop</button>
