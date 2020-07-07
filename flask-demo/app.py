@@ -55,6 +55,10 @@ class Basic(Resource):
 			data.bc[len(data.bc)-2].set_directed_to(data.bc[len(data.bc)-1])
 		return f"Basic Component #{len(data.bc)} added"
 
+	def post(self):
+		args = request.args.get('period')
+		return args, 201
+
 
 # create ending component
 class End(Resource):
