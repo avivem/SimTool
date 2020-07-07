@@ -90,20 +90,19 @@ class Canvas extends Component{
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            period: '',
+            period: 'exmaple value',
           })
         };
 
         // post request here to connect to api
         fetch('http://127.0.0.1:5000/api/basic', requestOptions).then(res => res.json()).then(gotUser => {
-            console.log("post success");
+            console.log(gotUser);
 
         }).catch(console.log)
     }
 
     /**Handle changing the unit/rate for a node when the Apply button in the popup is clicked */
     handleChangeNode(){
-        this.handlePeriod()
 
         this.setState({
             open: false
@@ -133,6 +132,8 @@ class Canvas extends Component{
         //this.props.handleChangeNode(this.state.targetId, this.state.unit, this.state.rate, r);
         this.props.handleChangeNode(this.state.targetId, "void", this.state.rate, r);
 
+        // handle period data 
+        this.handlePeriod()
     }
 
     componentDidMount(){

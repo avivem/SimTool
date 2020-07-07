@@ -17,8 +17,9 @@ app = Flask(__name__)
 api = Api(app)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-# dont use this
-# parser = reqparse.RequestParser()
+# dont use this- need to find another solution
+parser = reqparse.RequestParser()
+parser.add_argument('period', location=['json', 'form', 'args'])
 
 # just output to see if the function ran
 NODES = {
@@ -39,7 +40,6 @@ class Start(Resource):
 	# 'get' function, but when you run http://127.0.0.1:5000/api/start in the browser
 	# it will call StartingPoint and create the starting node
 	def get(self):
-		
 		data.st = StartingPoint(data.env, "Starting Point 1",2, 100)
 		return "Starting Point 1 added"
 
@@ -56,8 +56,11 @@ class Basic(Resource):
 		return f"Basic Component #{len(data.bc)} added"
 
 	def post(self):
-		args = request.args.get('period')
-		return args, 201
+		args = parser.parse_args()
+		# example how to change data inside our sim
+		# task = {'start': args['period']}
+		# NODES[4] = task
+		return args
 
 
 # create ending component
