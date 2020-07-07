@@ -214,6 +214,14 @@ class Canvas extends Component{
         
         /*if user added a start node, then add it to the canvas and deal with moving the object*/
         if(this.props.addedStart){
+            
+            /**fetch to api */
+            fetch('http://127.0.0.1:5000/api/start').then(res => res.json()).then(gotUser => {
+                console.log(gotUser);
+
+            }).catch(console.log)
+
+
             /** New node are added to the end of the array so just needed to look at the end*/
             var target = this.props.startNode[this.props.startNode.length - 1];
 
