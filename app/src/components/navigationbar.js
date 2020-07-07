@@ -14,10 +14,11 @@ class Navigation extends Component{
       this.state = {
         open: false
       }
-      
+
       this.handleChange = this.handleChange.bind(this)
       this.openPopup = this.openPopup.bind(this);
       this.closePopup = this.closePopup.bind(this);
+      this.handleRun = this.handleRun.bind(this);
 
 
       this.addStart = this.addStart.bind(this);
