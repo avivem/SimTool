@@ -10,9 +10,9 @@ import uuid
 
 #Basic building block of a system. It knows where an entity should go next.
 class Node(object):
-    def __init__(self, env, name):
+    def __init__(self, env, name, uid = uuid.uuid4().hex):
         self.env = env
-        self.uid = uuid.uuid4().hex
+        self.uid = uid
         self.name = name
     def set_directed_to(self,obj):
         self.directed_to = obj
