@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import Popup from "reactjs-popup";
 
-import StartImage from "../image/start.png";
-import StationImage from "../image/station.png";
-import EndImage from "../image/end.png";
+import StartImage from "../image/start-circle.png";
+import StationImage from "../image/station-circle.png";
+import EndImage from "../image/end-circle.png";
 
 import './css/nav.css';
 
@@ -12,12 +12,15 @@ class Navigation extends Component{
     constructor(props){
       super(props);
       this.state = {
-        open: false
+        openNode: false,
+        openData: false,
       }
 
       this.handleChange = this.handleChange.bind(this)
-      this.openPopup = this.openPopup.bind(this);
-      this.closePopup = this.closePopup.bind(this);
+      this.openPopupNode = this.openPopupNode.bind(this);
+      this.closePopupNode = this.closePopupNode.bind(this);
+      this.openPopupData = this.openPopupData.bind(this);
+      this.closePopupData = this.closePopupData.bind(this);
       this.handleRun = this.handleRun.bind(this);
 
 
@@ -31,20 +34,36 @@ class Navigation extends Component{
 
       this.handleReset = this.handleReset.bind(this);
 
+      this.handleClearMode = this.handleClearMode.bind(this);
+
     }
 
     // Open popup for adding node
-    openPopup(){
+    openPopupNode(){
       this.setState({
-        open: true
+        openNode: true
       });
-      console.log("Open Popup");
+      console.log("Open Popup Node");
     }
     
     // Close popup for adding node
-    closePopup(){
+    closePopupNode(){
       this.setState({
-        open: false
+        openNode: false
+      });
+      console.log("Close Popup");
+    }
+
+    openPopupData(){
+      this.setState({
+        openData: true
+      });
+      console.log("Open Popup Data");
+    }
+
+    closePopupData(){
+      this.setState({
+        openData: false
       });
       console.log("Close Popup");
     }
@@ -63,19 +82,19 @@ class Navigation extends Component{
 
     // add start node
     addStart(){
-      this.setState({open: false});
+      this.setState({openNode: false});
       this.props.handleAddNode("start");
     }
 
     // add station node
     addStation(){
-      this.setState({open: false});
+      this.setState({openNode: false});
       this.props.handleAddNode("station");
     }
 
     // add end node
     addEnd(){
-      this.setState({open: false});
+      this.setState({openNode: false});
       this.props.handleAddNode("end");
     }
 
@@ -93,6 +112,10 @@ class Navigation extends Component{
       this.props.handleReset();
     }
 
+    handleClearMode(){
+      this.props.handleClearMode();
+    }
+
     render(){
       return(
         <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark navbar-expand ">
@@ -101,7 +124,7 @@ class Navigation extends Component{
           <div class="collapse navbar-collapse " id="navbarsExampleDefault">
             <ul class="navbar-nav mr-auto ">
               <li class="nav-item active">
-                <button className="button" style={{backgroundColor:'#2cbebe'}} onClick={this.openPopup}>+</button>
+                <button className="button" style={{backgroundColor:'#2cbebe'}} onClick={this.openPopupNode}>+</button>
               </li>
               <li class="nav-item">
                 <button className="button" style={{backgroundColor:'#2cbebe'}} onClick={this.addArrowMode}>→</button>
@@ -128,11 +151,11 @@ class Navigation extends Component{
               <li class="nav-item active">
                 <button className="button" style={{backgroundColor:'red'}}>Stop</button>
               </li>
-    {//          <li class="nav-item active">
-      //          <button className="button" style={{backgroundColor:'yellow', color:"black"}}>Data</button>
-    //          </li>
-    }         <li class="nav-item active">
-                <button className="button" style={{backgroundColor:'yellow', color:"black"}}>Clear</button>
+              <li class="nav-item active">
+                <button className="button" style={{backgroundColor:'yellow', color:"black"}} onClick={this.openPopupData}>Data</button>
+              </li>
+             <li class="nav-item active">
+                <button className="button" style={{backgroundColor:'yellow', color:"black"}} onClick={this.handleClearMode}>Clear</button>
               </li>
             </ul>
 
@@ -140,7 +163,7 @@ class Navigation extends Component{
 
           <div>
             {/*Popup for user to select node to add*/}
-            <Popup open={this.state.open} closeOnDocumentClick = {true} onClose={this.closePopup}>
+            <Popup open={this.state.openNode} closeOnDocumentClick = {true} onClose={this.closePopupNode}>
               <button onClick={this.addStart} >
                 <img src={StartImage} alt="start" />
               </button>
@@ -156,6 +179,12 @@ class Navigation extends Component{
               </button>
               <figcaption>End</figcaption>
 
+            </Popup>
+          </div>
+          <div>
+            <Popup open={this.state.openData} closeOnDocumentClick = {true} onClose={this.closePopupData}>
+              <p>This is where the log should go</p>
+              <button onClick={this.closePopupData} >Close</button>
             </Popup>
           </div>
         </nav>
