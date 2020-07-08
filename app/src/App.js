@@ -21,7 +21,8 @@ class App extends Component{
       arrows: [],
       createArrowMode: false,
       createArrow: false,
-      removeMode: false
+      removeMode: false,
+      clearMode: false
     }
 
     this.handleIteration = this.handleIteration.bind(this);
@@ -37,6 +38,9 @@ class App extends Component{
     this.handleRemove = this.handleRemove.bind(this);
 
     this.handleReset= this.handleReset.bind(this);
+
+    this.handleClearMode = this.handleClearMode.bind(this);
+    
 
   }
 
@@ -261,11 +265,30 @@ class App extends Component{
     }
   }
 
+  // Reset mode 
   handleReset(){
     this.setState({
       createArrowMode: false, 
       removeMode: false
     });
+  }
+
+  handleClearMode(){
+    if(this.state.clearMode){
+      this.setState({clearMode: false});
+      console.log("Clear canvas");
+    }
+    else{
+      this.setState({
+        clearMode: true,
+        arrows: [],
+        startNode: [],
+        stationNode: [],
+        endNode: []
+      });
+      console.log("Clear store node/arrow");
+    }
+    
   }
 
   render(){
@@ -278,7 +301,8 @@ class App extends Component{
             handleAddNode={this.addNode}
             addArrowMode={this.addArrowMode}
             handleRemoveMode={this.handleRemoveMode}
-            handleReset={this.handleReset} />
+            handleReset={this.handleReset} 
+            handleClearMode={this.handleClearMode}/>
         </div>
 
         <Canvas 
@@ -295,7 +319,9 @@ class App extends Component{
           createArrow={this.state.createArrow}
           arrows={this.state.arrows}
           removeMode={this.state.removeMode}
-          handleRemove={this.handleRemove} ></Canvas>
+          handleRemove={this.handleRemove}
+          clearMode={this.state.clearMode}
+          handleClearMode={this.handleClearMode} ></Canvas>
 
       </div>
     );
