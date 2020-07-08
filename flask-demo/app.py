@@ -41,7 +41,7 @@ class Start(Resource):
 	# 'get' function, but when you run http://127.0.0.1:5000/api/start in the browser
 	# it will call StartingPoint and create the starting node
 	def get(self):
-		data.st = StartingPoint(data.env, "Starting Point 1",2, 100,uuid.uuid4().hex)
+		data.st = StartingPoint(data.env, "Starting Point 1",2, 100)
 		return data.st.uid
 
 # create basic component
@@ -49,7 +49,7 @@ class Basic(Resource):
 	# 'get' function, but when you run http://127.0.0.1:5000/api/basic in the browser
 	# it will call BasicComponent and create the starting node
 	def get(self):
-		data.bc.append(BasicComponent(data.env,f"Basic Component #{len(data.bc) + 1}", 3, 7,uuid.uuid4().hex))
+		data.bc.append(BasicComponent(data.env,f"Basic Component #{len(data.bc) + 1}", 3, 7))
 		if len(data.bc) == 1:
 			data.st.set_directed_to(data.bc[0])
 		else:
@@ -69,7 +69,7 @@ class End(Resource):
 	# 'get' function, but when you run http://127.0.0.1:5000/api/end in the browser
 	# it will call EndingPoint and create the starting node
 	def get(self):
-		data.ed = EndingPoint(data.env,"Ending Point 1",uuid.uuid4().hex)
+		data.ed = EndingPoint(data.env,"Ending Point 1",)
 		if len(data.bc) == 0:
 			data.st.set_directed_to(data.ed)
 		else:
