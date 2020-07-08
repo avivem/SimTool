@@ -5,6 +5,7 @@ import simpy
 from logic import Node, StartingPoint, BasicFlowEntity, BasicComponent, EndingPoint
 import sys
 import io
+import uuid
 # from logic import Node, BasicFlowEntity, StartingPoint, EndingPoint, BasicComponent
 
 ###If you are running locally and wish to see output in terminal, comment this out.
@@ -40,20 +41,20 @@ class Start(Resource):
 	# 'get' function, but when you run http://127.0.0.1:5000/api/start in the browser
 	# it will call StartingPoint and create the starting node
 	def get(self):
-		data.st = StartingPoint(data.env, "Starting Point 1",2, 100)
-		return "Starting Point 1 added"
+		data.st = StartingPoint(data.env, "Starting Point 1",2, 100,uuid.uuid4().hex)
+		return data.st.uid
 
 # create basic component
 class Basic(Resource):
 	# 'get' function, but when you run http://127.0.0.1:5000/api/basic in the browser
 	# it will call BasicComponent and create the starting node
 	def get(self):
-		data.bc.append(BasicComponent(data.env,f"Basic Component #{len(data.bc) + 1}", 3, 7))
+		data.bc.append(BasicComponent(data.env,f"Basic Component #{len(data.bc) + 1}", 3, 7,uuid.uuid4().hex))
 		if len(data.bc) == 1:
 			data.st.set_directed_to(data.bc[0])
 		else:
 			data.bc[len(data.bc)-2].set_directed_to(data.bc[len(data.bc)-1])
-		return f"Basic Component #{len(data.bc)} added"
+		return data.bc[len(data.bc)-1].uid
 
 	def post(self):
 		args = parser.parse_args()
@@ -68,12 +69,12 @@ class End(Resource):
 	# 'get' function, but when you run http://127.0.0.1:5000/api/end in the browser
 	# it will call EndingPoint and create the starting node
 	def get(self):
-		data.ed = EndingPoint(data.env,"Ending Point 1")
+		data.ed = EndingPoint(data.env,"Ending Point 1",uuid.uuid4().hex)
 		if len(data.bc) == 0:
 			data.st.set_directed_to(data.ed)
 		else:
 			data.bc[len(data.bc)-1].set_directed_to(data.ed)
-		return f"Ending Point #{len(data.bc)} added"
+		return data.ed.uid
 		
 
 class Run(Resource):
