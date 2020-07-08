@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, request, redirect, url_for
+from flask import Flask, render_template,json , jsonify, request, redirect, url_for, abort
 from flask_cors import CORS
 import simpy
 from logic import Node, StartingPoint, BasicFlowEntity, BasicComponent, EndingPoint
@@ -29,9 +29,11 @@ class DataStore():
 data = DataStore()
 
 # resource, route
-@app.route('/api/start')
+@app.route('/api/start', methods=["POST"])
 def start():
-	data.st = StartingPoint(data.env, "Starting Point 1",2, 100)
+	if not request.json:
+		abort(400)
+	data.st = StartingPoint(data.env, request.json['name'],request.json['gen_fun'], request.json['gen_limit'])
 	return data.st.uid
 
 @app.route('/api/basic')
