@@ -1,5 +1,5 @@
 from flask import Flask, render_template,json , jsonify, request, redirect, url_for, abort
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 import simpy
 from logic import Node, StartingPoint, BasicFlowEntity, BasicComponent, EndingPoint
 import sys
@@ -15,7 +15,8 @@ if __name__ != "__main__":
 	sys.stdout = new_stdout
 
 app = Flask(__name__)
-cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
+cors = CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 # just output to see if the function ran
 NODES = {
@@ -120,7 +121,7 @@ def node():
 		return redirect("https://http.cat/400")
 
 # url to connect two nodes together- has a direction
-@app.route('/api/<frum>/dirto/<to>', methods=["POST"])
+@app.route('/api/<frum>/dirto/<to>', methods=["GET","POST"])
 def dirto(frum,to):
 	data.nodes[frum].set_directed_to(data.nodes[to])
 	data.save["dirto"][frum] = to
