@@ -168,7 +168,7 @@ class Canvas extends Component{
                 this.props.addArrowState(this.state.from, target.id)
 
                 // fetch to api to create connection
-                fetch(`http://127.0.0.1:5000/api/${this.state.from}/dirto/${target.id}/`).then(gotUser => {
+                fetch(`http://127.0.0.1:5000/api/${this.state.from}/dirto/${target.id}`).then(gotUser => {
                     console.log(gotUser);
 
                 }).catch(console.log)

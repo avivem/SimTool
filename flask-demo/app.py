@@ -121,8 +121,7 @@ def node():
 		return redirect("https://http.cat/400")
 
 # url to connect two nodes together- has a direction
-@app.route('/api/<frum>/dirto/<to>', methods=["POST"])
-@cross_origin(origin='localhost',headers=['Content- Type','Authorization'])
+@app.route('/api/<frum>/dirto/<to>', methods=["GET","POST"])
 def dirto(frum,to):
 	data.nodes[frum].set_directed_to(data.nodes[to])
 	data.save["dirto"][frum] = to
