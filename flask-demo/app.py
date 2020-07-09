@@ -134,13 +134,13 @@ def dirto():
 		frum = request.json['from']
 		to = request.json['to']
 		data.nodes[frum].set_directed_to(data.nodes[to])
-		data.save['dirto']['from'] = to
+		data.save['dirto'][frum] = to
 		return f'{data.nodes[frum]} directed to {data.nodes[to]}'
 	else:
 		frum = request.json['from']
 		to = request.json['to']
 		data.nodes[frum].remove_directed_to(data.nodes[to])
-		data.save['dirto']['from'].remove(to)
+		data.save['dirto'][frum].remove(to)
 		return f'Removed direction from {data.nodes[frum]} to {data.nodes[to]}'
 
  # url to run the simulation
