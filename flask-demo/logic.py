@@ -20,6 +20,8 @@ class Node(object):
         self.name = name
     def set_directed_to(self,obj):
         self.directed_to = obj
+    def remove_directed_to(self,obj):
+        self.directed_to = None
 
 """
 Class that represents the basic object that flows through the system. This

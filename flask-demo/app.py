@@ -119,12 +119,29 @@ def node():
 	elif request.method == "GET":
 		return redirect("https://http.cat/400")
 
-# url to connect two nodes together- has a direction
+""" # url to connect two nodes together- has a direction
 @app.route('/api/<frum>/dirto/<to>', methods=["POST"])
 def dirto(frum,to):
 	data.nodes[frum].set_directed_to(data.nodes[to])
 	data.save["dirto"][frum] = to
-	return f'{data.nodes[frum]} directed to {data.nodes[to]}'
+	return f'{data.nodes[frum]} directed to {data.nodes[to]}' """
+
+@app.route('/api/dirto/', methods = ["GET","POST","DELETE"])
+def dirto():
+	if request.method == "GET":
+		return data.save["dirto"][request.json['from']]
+	elif request.method == "POST":
+		frum = request.json['from']
+		to = request.json['to']
+		data.nodes[frum].set_directed_to(data.nodes[to])
+		data.save['dirto']['from'] = to
+		return f'{data.nodes[frum]} directed to {data.nodes[to]}'
+	else:
+		frum = request.json['from']
+		to = request.json['to']
+		data.nodes[frum].remove_directed_to(data.nodes[to])
+		data.save['dirto']['from'].remove(to)
+		return f'Removed direction from {data.nodes[frum]} to {data.nodes[to]}'
 
  # url to run the simulation
 @app.route('/api/run/<int:until>')
