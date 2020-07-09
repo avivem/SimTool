@@ -22,6 +22,11 @@ NODES = {
 
 class DataStore():
 	nodes = {}
+	save = {
+		"nodes" : {},
+		"dirto" : {},
+		"last_run" : None
+	}
 	directed_to = {}
 	starts = {}
 	basics = {}
@@ -43,7 +48,14 @@ def node(fid="-1"):
 			#st =  StartingPoint(data.env, name,gen_fun, gen_limit,fid)
 			data.nodes[st.uid] = st
 			data.starts[st.uid] = st
-			return st.uid
+
+			data.save["nodes"][st.uid]["type"] = "START"
+			data.save["nodes"][st.uid]["name"] = name
+			data.save["nodes"][st.uid]["gen_fun"] = gen_fun
+			data.save["nodes"][st.uid]["gen_limit"] = gen_limit
+			data.save["nodes"][st.uid]["uid"] = st.uid
+			return data.save["nodes"][st.uid]
+
 		elif request.json['type'] == "BASIC":
 			name = request.json['name']
 			capacity = request.json['capacity']
@@ -53,20 +65,32 @@ def node(fid="-1"):
 			#b = BasicComponent(data.env, name,capacity, time_func, fid)
 			data.nodes[b.uid] = b
 			data.basics[b.uid] = b
-			return b.uid
+
+			data.save["nodes"][b.uid]["type"] = "BASIC"
+			data.save["nodes"][b.uid]["name"] = name
+			data.save["nodes"][b.uid]["capacity"] = capacity
+			data.save["nodes"][b.uid]["time_func"] = time_func
+			data.save["nodes"][b.uid]["uid"] = b.uid
+			return data.save["nodes"][b.uid]
+
 		elif request.json['type'] == "END":
 			name = request.json['name']
 			e = EndingPoint(data.env, name)
 			#e = EndingPoint(data.env, name,fid)
 			data.nodes[e.uid] = e
 			data.ends[e.uid] = e
-			return e.uid
+
+			data.save["nodes"][e.uid]["type"] = "END"
+			data.save["nodes"][e.uid]["name"] = name
+			data.save["nodes"][e.uid]["uid"] = e.uid
+			return data.save["nodes"][e.uid]
 		else:
 			abort(400)
 
 @app.route('/api/<frum>/dirto/<to>', methods=["POST"])
 def dirto(frum,to):
 	data.nodes[frum].set_directed_to(data.nodes[to])
+	data.save["dirto"][frum] = to
 	return f'{data.nodes[frum]} directed to {data.nodes[to]}'
 
 """ @app.route('/api/basic')
@@ -96,7 +120,8 @@ def run(until=300):
 		return "Please create an ending node."
 	[data.env.process(data.nodes[x].run()) for x in data.starts]
 	data.env.run(until=until)
-	return jsonify(new_stdout.getvalue().split('\n'))
+	data.save["last_run"] = new_stdout.getvalue().split('\n')
+	return jsonify(data.save["last_run"])
 
 @app.route('/api/reset')
 def reset():
