@@ -130,9 +130,15 @@ def run(until=300):
 # url to reset simulation
 @app.route('/api/reset')
 def reset():
+	data.env = simpy.Environment()
+	return "Simulation has been reset."
+
+# url to clean the graph for a new sim.
+@app.route('/api/clean')
+def clean():
 	global data
 	data = DataStore()
-	return "Graph has been reset."
+	return "Graph has been reset"
 
 # OLD
 # # create starting node
