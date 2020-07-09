@@ -29,6 +29,7 @@ class DataStore():
 	env = simpy.Environment()
 data = DataStore()
 
+# Node type- JSON must have a 'type' argument with either START, BASIC or END
 @app.route('/api/node/<fid>', methods=["GET","POST"])
 @app.route('/api/node/', methods=["GET","POST"])
 def node(fid="-1"):
@@ -64,6 +65,7 @@ def node(fid="-1"):
 		else:
 			abort(400)
 
+# url to connect two nodes together- has a direction
 @app.route('/api/<frum>/dirto/<to>', methods=["POST"])
 def dirto(frum,to):
 	data.nodes[frum].set_directed_to(data.nodes[to])
@@ -87,6 +89,8 @@ def end():
 		data.bc[len(data.bc)-1].set_directed_to(data.ed)
 	return data.ed.uid
  """
+
+ # url to run the simulation
 @app.route('/api/run/<int:until>')
 @app.route('/api/run/')
 def run(until=300):
@@ -98,6 +102,7 @@ def run(until=300):
 	data.env.run(until=until)
 	return jsonify(new_stdout.getvalue().split('\n'))
 
+# url to reset simulation
 @app.route('/api/reset')
 def reset():
 	global data
