@@ -53,8 +53,9 @@ class BasicFlowEntity(object):
 
 #Node that generates flowing entities.
 class StartingPoint(Node):
-    def __init__(self,env,name,gen_fun, limit,uid=None):
+    def __init__(self,env,name,entity_name,gen_fun, limit,uid=None):
         super().__init__(env,name,uid)
+        self.entity_name = entity_name
         self.gen_fun = gen_fun
         self.directed_to = None
         self.limit = limit
@@ -68,7 +69,7 @@ class StartingPoint(Node):
     def run(self):
         while self.count < self.limit:
             yield self.env.timeout(self.gen_fun)
-            entity = BasicFlowEntity(self.env,f'Flow Entity {self.count}',self.directed_to)
+            entity = BasicFlowEntity(self.env,f'{self.entity_name} {self.count}',self.directed_to)
             self.env.process(entity.run())
             print(f'[{self.env.now}]:: {entity} has left {self}')
             self.count += 1

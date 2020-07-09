@@ -59,24 +59,26 @@ def store():
 		return redirect("https://http.cat/400")
 
 # Node type- JSON must have a 'type' argument with either START, BASIC or END
-@app.route('/api/node/<uid>', methods=["GET","POST"])
 @app.route('/api/node/', methods=["GET","POST"])
-def node(uid=None):
+def node():
 	if request.method == "POST":
 		if not request.json:
 			return redirect("https://http.cat/400")
 		if request.json['type'] == "START":
 			name = request.json['name']
+			entity_name = request.json['entity_name']
 			gen_fun = request.json['gen_fun']
 			limit = request.json['limit']
-			st =  StartingPoint(data.env, name, gen_fun, limit)
-			#st =  StartingPoint(data.env, name,gen_fun, limit,uid)
+			uid = request.json['uid']
+
+			st =  StartingPoint(data.env, name, entity_name, gen_fun, limit, uid)
 			data.nodes[st.uid] = st
 			data.starts[st.uid] = st
 
 			data.save["nodes"][st.uid] = {}
 			data.save["nodes"][st.uid]["type"] = "START"
 			data.save["nodes"][st.uid]["name"] = name
+			data.save["nodes"][st.uid]["entity_name"] = entity_name
 			data.save["nodes"][st.uid]["gen_fun"] = gen_fun
 			data.save["nodes"][st.uid]["limit"] = limit
 			data.save["nodes"][st.uid]["uid"] = st.uid
@@ -86,9 +88,9 @@ def node(uid=None):
 			name = request.json['name']
 			capacity = request.json['capacity']
 			time_func = request.json['time_func']
+			uid = request.json['uid']
 			#Here, we will need to add logic to choose the right time function
-			b = BasicComponent(data.env, name, capacity, time_func)
-			#b = BasicComponent(data.env, name,capacity, time_func, uid)
+			b = BasicComponent(data.env, name, capacity, time_func, uid)
 			data.nodes[b.uid] = b
 			data.basics[b.uid] = b
 
@@ -102,8 +104,8 @@ def node(uid=None):
 
 		elif request.json['type'] == "END":
 			name = request.json['name']
-			e = EndingPoint(data.env, name)
-			#e = EndingPoint(data.env, name,uid)
+			uid = request.json['uid']
+			e = EndingPoint(data.env, name, uid)
 			data.nodes[e.uid] = e
 			data.ends[e.uid] = e
 
@@ -133,6 +135,7 @@ def run(until=300):
 	if len(data.ends) == 0:
 		return "Please create an ending node."
 	[data.env.process(data.nodes[x].run()) for x in data.starts]
+	print(f'Running simulation until {until}')
 	data.env.run(until=until)
 	data.save["last_run"] = new_stdout.getvalue().split('\n')
 	return jsonify(data.save["last_run"])

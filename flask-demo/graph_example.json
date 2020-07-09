@@ -3,6 +3,7 @@
         {
             "type": "START",
             "name": "Starting Point 1",
+            "entity_name": "Person",
             "gen_fun": 2,
             "limit": 100,
             "uid": "hrjgrnfg-aerg2",
