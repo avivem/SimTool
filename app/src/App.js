@@ -86,7 +86,8 @@ class App extends Component{
             entity_name: 'Person',
             gen_fun: 10,
             limit: 200,
-            uid: 1
+            // node id is this.state.startNode[0].id
+            uid: this.state.startNode[0].id
           })
         };
 
@@ -120,7 +121,8 @@ class App extends Component{
             name:'Line',
             capacity: 50,
             time_func: 1000,
-            uid: 2
+            // node id is this.state.stationNode[0].id
+            uid: this.state.stationNode[0].id
           })
         };
 
@@ -152,7 +154,8 @@ class App extends Component{
             // Change the name value to this.state.name to refer to user input
             name: "Convention",
             type: "END",
-            uid: 3
+            // node id is this.state.endNode[0].id
+            uid: this.state.endNode[0].id
           })
         };
 

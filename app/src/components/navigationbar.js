@@ -21,7 +21,6 @@ class Navigation extends Component{
       this.closePopupNode = this.closePopupNode.bind(this);
       this.openPopupData = this.openPopupData.bind(this);
       this.closePopupData = this.closePopupData.bind(this);
-      this.handleRun = this.handleRun.bind(this);
 
 
       this.addStart = this.addStart.bind(this);
@@ -66,14 +65,6 @@ class Navigation extends Component{
         openData: false
       });
       console.log("Close Popup");
-    }
-
-    handleRun(){
-      /**fetch to api */
-      fetch('http://127.0.0.1:5000/api/run/5000').then(res => res.json()).then(gotUser => {
-          console.log(gotUser);
-
-      }).catch(console.log)
     }
 
       openPopup(){
@@ -160,7 +151,7 @@ class Navigation extends Component{
                 <input type="text" id="iteration" className="textbox" value={this.props.iteration} onChange={this.handleChange}></input>
               </li>
               <li class="nav-item active">
-                <button className="button" style={{backgroundColor:'#4CAF50'}} onClick={this.handleRun}>Start</button>
+                <button className="button" style={{backgroundColor:'#4CAF50'}} >Start</button>
               </li>
               <li class="nav-item active">
                 <button className="button" style={{backgroundColor:'red'}}>Stop</button>

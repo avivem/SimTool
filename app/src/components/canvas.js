@@ -306,26 +306,6 @@ class Canvas extends Component{
 
         /*if user added a station node, then add it to the canvas and deal with moving the object*/
         if(this.props.addedStation){
-            // request options to send in post request- BASIC NODE
-            // placeholder values
-            const requestOptions = {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                type: 'BASIC',
-                // Change the name value to this.state.name to refer to user input
-                name:'Line',
-                capacity: 50,
-                time_func: 1000,
-                uid: 2
-              })
-            };
-
-            /**fetch to api */
-            fetch('http://127.0.0.1:5000/api/node/', requestOptions).then(res => res.json()).then(gotUser => {
-                console.log(gotUser);
-
-            }).catch(console.log)
 
             /** New node are added to the end of the array so just needed to look at the end*/
             var target = this.props.stationNode[this.props.stationNode.length - 1];
@@ -401,26 +381,6 @@ class Canvas extends Component{
 
         /*if user added a end node, then add it to the canvas and deal with moving the object*/
         if(this.props.addedEnd){
-
-            // request options to send in post request- END NODE
-            // placeholder values
-            const requestOptions = {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                type: 'BASIC',
-                // Change the name value to this.state.name to refer to user input
-                name: "Convention",
-                type: "END",
-                uid: 3
-              })
-            };
-
-            /**fetch to api */
-            fetch('http://127.0.0.1:5000/api/node/', requestOptions).then(res => res.json()).then(gotUser => {
-                console.log(gotUser);
-
-            }).catch(console.log)
 
             /** New node are added to the end of the array so just needed to look at the end*/
             var target = this.props.endNode[this.props.endNode.length - 1];
