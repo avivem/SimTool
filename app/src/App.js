@@ -168,6 +168,7 @@ class App extends Component{
   the componentDidUpdate. The from and to are the id given to the node */
   addArrowState(from, to){
     var lst = this.state.arrows;
+
     lst.push({
       id: "arrow-" + this.state.count,
       from: from,
