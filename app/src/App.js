@@ -65,6 +65,7 @@ class App extends Component{
       case "start":
         var node = this.state.startNode;
         node.push({
+          // this ID needs to be the one set in the add node function
           id: "start-" + this.state.count,
           x: xPos,
           y: yPos,
@@ -72,6 +73,29 @@ class App extends Component{
           unit: "Second",
         });
         this.setState({startNode: node, addedStart: true});
+
+        // request options to send in post request- START NODE
+        // placeholder values
+        const requestOptions = {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'START',
+            // Change the name value to this.state.name to refer to user input
+            name:'Hotel',
+            entity_name: 'Person',
+            gen_fun: 10,
+            limit: 200,
+            uid: 1
+          })
+        };
+
+        /**fetch to api */
+        fetch('http://127.0.0.1:5000/api/node/', requestOptions).then(res => res.json()).then(gotUser => {
+            console.log(gotUser);
+
+        }).catch(console.log)
+
         break;
 
       case "station":
@@ -84,6 +108,28 @@ class App extends Component{
           unit: "Second",
         });
         this.setState({stationNode: node, addedStation: true});
+
+        // request options to send in post request- BASIC NODE
+        // placeholder values
+        const requestOptions = {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'BASIC',
+            // Change the name value to this.state.name to refer to user input
+            name:'Line',
+            capacity: 50,
+            time_func: 1000,
+            uid: 2
+          })
+        };
+
+        /**fetch to api */
+        fetch('http://127.0.0.1:5000/api/node/', requestOptions).then(res => res.json()).then(gotUser => {
+            console.log(gotUser);
+
+        }).catch(console.log)
+
         break;
 
       case "end":
@@ -95,6 +141,27 @@ class App extends Component{
           unit: "Second",
         });
         this.setState({ endNode: node, addedEnd: true});
+
+        // request options to send in post request- END NODE
+        // placeholder values
+        const requestOptions = {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'BASIC',
+            // Change the name value to this.state.name to refer to user input
+            name: "Convention",
+            type: "END",
+            uid: 3
+          })
+        };
+
+        /**fetch to api */
+        fetch('http://127.0.0.1:5000/api/node/', requestOptions).then(res => res.json()).then(gotUser => {
+            console.log(gotUser);
+
+        }).catch(console.log)
+        
         break;
     }
 

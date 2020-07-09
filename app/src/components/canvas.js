@@ -224,27 +224,7 @@ class Canvas extends Component{
         
         /*if user added a start node, then add it to the canvas and deal with moving the object*/
         if(this.props.addedStart){
-            // request options to send in post request- START NODE
-            // placeholder values
-            const requestOptions = {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                type: 'START',
-                // Change the name value to this.state.name to refer to user input
-                name:'Hotel',
-                entity_name: 'Person',
-                gen_fun: 10,
-                limit: 200,
-                uid: 1
-              })
-            };
 
-            /**fetch to api */
-            fetch('http://127.0.0.1:5000/api/node/', requestOptions).then(res => res.json()).then(gotUser => {
-                console.log(gotUser);
-
-            }).catch(console.log)
 
 
             /** New node are added to the end of the array so just needed to look at the end*/
