@@ -76,7 +76,7 @@ class App extends Component{
 
         // request options to send in post request- START NODE
         // placeholder values
-        const requestOptions = {
+        const requestOptionsStart = {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -91,7 +91,7 @@ class App extends Component{
         };
 
         /**fetch to api */
-        fetch('http://127.0.0.1:5000/api/node/', requestOptions).then(res => res.json()).then(gotUser => {
+        fetch('http://127.0.0.1:5000/api/node/', requestOptionsStart).then(res => res.json()).then(gotUser => {
             console.log(gotUser);
 
         }).catch(console.log)
@@ -111,7 +111,7 @@ class App extends Component{
 
         // request options to send in post request- BASIC NODE
         // placeholder values
-        const requestOptions = {
+        const requestOptionsBasic = {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -125,7 +125,7 @@ class App extends Component{
         };
 
         /**fetch to api */
-        fetch('http://127.0.0.1:5000/api/node/', requestOptions).then(res => res.json()).then(gotUser => {
+        fetch('http://127.0.0.1:5000/api/node/', requestOptionsBasic).then(res => res.json()).then(gotUser => {
             console.log(gotUser);
 
         }).catch(console.log)
@@ -144,7 +144,7 @@ class App extends Component{
 
         // request options to send in post request- END NODE
         // placeholder values
-        const requestOptions = {
+        const requestOptionsEnd = {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -157,11 +157,11 @@ class App extends Component{
         };
 
         /**fetch to api */
-        fetch('http://127.0.0.1:5000/api/node/', requestOptions).then(res => res.json()).then(gotUser => {
+        fetch('http://127.0.0.1:5000/api/node/', requestOptionsEnd).then(res => res.json()).then(gotUser => {
             console.log(gotUser);
 
         }).catch(console.log)
-        
+
         break;
     }
 
