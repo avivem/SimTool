@@ -53,9 +53,9 @@ class BasicFlowEntity(object):
 
 #Node that generates flowing entities.
 class StartingPoint(Node):
-    def __init__(self,env,name,gen_func, limit,uid=None):
+    def __init__(self,env,name,gen_fun, limit,uid=None):
         super().__init__(env,name,uid)
-        self.gen_func = gen_func
+        self.gen_fun = gen_fun
         self.directed_to = None
         self.limit = limit
         self.entities = []
@@ -67,7 +67,7 @@ class StartingPoint(Node):
     
     def run(self):
         while self.count < self.limit:
-            yield self.env.timeout(self.gen_func)
+            yield self.env.timeout(self.gen_fun)
             entity = BasicFlowEntity(self.env,f'Flow Entity {self.count}',self.directed_to)
             self.env.process(entity.run())
             print(f'[{self.env.now}]:: {entity} has left {self}')
@@ -77,12 +77,12 @@ class StartingPoint(Node):
 #A Node that represents a "cog in a machine" such as bank tellers in a bank, or
 #a dishwasher in a kitchen.
 class BasicComponent(Node):
-    def __init__(self,env, name,capacity, time, uid=None):
+    def __init__(self,env, name,capacity, time_func, uid=None):
         super().__init__(env,name,uid)
         self.name = name
         self.capacity = capacity
         self.resource = simpy.Resource(env,capacity)
-        self.time = time
+        self.time_func = time_func
         self.containers = []
 
     def __str__(self):
@@ -95,7 +95,7 @@ class BasicComponent(Node):
     #needs to do it's thing.
     def get_timer(self, entity):
         print(f'[{self.env.now}]:: {entity} is now interacting with {self}')
-        return self.env.timeout(self.time)
+        return self.env.timeout(self.time_func)
 
 class BasicContainer(Node):
     def __init__(self, env,name,init,capacity,uid=None):

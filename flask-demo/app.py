@@ -29,12 +29,34 @@ class DataStore():
 		"dirto" : {},
 		"last_run" : None
 	}
-	directed_to = {}
 	starts = {}
 	basics = {}
 	ends = {}
 	env = simpy.Environment()
 data = DataStore()
+
+@app.route('/api/store/', methods = ["GET", "POST"])
+def store():
+	if request.method == "GET":
+		return data.save
+	elif all(elem in request.json for elem in data.save):
+			data.save = request.json
+
+			##TODO: discuss with team whether or not this presents security problems.
+			for id in data.save["nodes"]:
+				node = dict(data.save["nodes"][id])
+				tipe = {"START": StartingPoint, "BASIC": BasicComponent, "END": EndingPoint}[node["type"]]
+				tipe_dict = {"START": data.starts, "BASIC": data.basics, "END": data.ends}[node["type"]]
+				del node["type"]
+				node["env"] = data.env
+				n = tipe(**node)
+				data.nodes[n.uid] = n
+				tipe_dict[n.uid] = n
+			for entry in data.save["dirto"].keys():
+				data.nodes[entry].set_directed_to(data.save["dirto"][entry])
+			return data.save
+	else:
+		return redirect("https://http.cat/400")
 
 # Node type- JSON must have a 'type' argument with either START, BASIC or END
 @app.route('/api/node/<uid>', methods=["GET","POST"])
@@ -46,9 +68,9 @@ def node(uid=None):
 		if request.json['type'] == "START":
 			name = request.json['name']
 			gen_fun = request.json['gen_fun']
-			gen_limit = request.json['gen_limit']
-			st =  StartingPoint(data.env, name, gen_fun, gen_limit)
-			#st =  StartingPoint(data.env, name,gen_fun, gen_limit,uid)
+			limit = request.json['limit']
+			st =  StartingPoint(data.env, name, gen_fun, limit)
+			#st =  StartingPoint(data.env, name,gen_fun, limit,uid)
 			data.nodes[st.uid] = st
 			data.starts[st.uid] = st
 
@@ -56,7 +78,7 @@ def node(uid=None):
 			data.save["nodes"][st.uid]["type"] = "START"
 			data.save["nodes"][st.uid]["name"] = name
 			data.save["nodes"][st.uid]["gen_fun"] = gen_fun
-			data.save["nodes"][st.uid]["gen_limit"] = gen_limit
+			data.save["nodes"][st.uid]["limit"] = limit
 			data.save["nodes"][st.uid]["uid"] = st.uid
 			return data.save["nodes"][st.uid]
 
