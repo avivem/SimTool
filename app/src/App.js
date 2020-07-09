@@ -18,6 +18,11 @@ class App extends Component{
       addedStation: false,
       addedEnd: false,
       count: 0,
+      arrows: [],
+      createArrowMode: false,
+      createArrow: false,
+      removeMode: false,
+      clearMode: false
     }
 
     this.handleIteration = this.handleIteration.bind(this);
@@ -25,6 +30,17 @@ class App extends Component{
     this.confirmAdded = this.confirmAdded.bind(this);
 
     this.handleChangeNode = this.handleChangeNode.bind(this);
+
+    this.addArrowMode = this.addArrowMode.bind(this);
+    this.addArrowState = this.addArrowState.bind(this);
+
+    this.handleRemoveMode = this.handleRemoveMode.bind(this);
+    this.handleRemove = this.handleRemove.bind(this);
+
+    this.handleReset= this.handleReset.bind(this);
+
+    this.handleClearMode = this.handleClearMode.bind(this);
+    
 
   }
 
@@ -40,6 +56,8 @@ class App extends Component{
     }
   }
 
+  /* Add node, determine what node to add by checking nodeType
+  nodeType can be start, station, or end */
   addNode(nodeType){
     var xPos = 200;
     var yPos = 200;
@@ -54,7 +72,6 @@ class App extends Component{
           unit: "Second",
         });
         this.setState({startNode: node, addedStart: true});
-        console.log("start-" + this.state.startNode.length);
         break;
 
       case "station":
@@ -67,7 +84,6 @@ class App extends Component{
           unit: "Second",
         });
         this.setState({stationNode: node, addedStation: true});
-        console.log("station-" + this.state.stationNode.length);
         break;
 
       case "end":
@@ -79,29 +95,38 @@ class App extends Component{
           unit: "Second",
         });
         this.setState({ endNode: node, addedEnd: true});
-        console.log("end-" + this.state.endNode.length);
         break;
     }
 
-    this.setState({count: this.state.count + 1});
+    this.setState({
+      count: this.state.count + 1,
+      createArrowMode: false,
+      removeMode: false
+    });
     
   }
 
+  /*Confirm that the node/arrow was added - which is done by setting the 4 state to false */
   confirmAdded(){
     this.setState({
       addedStation: false,
       addedStart: false,
-      addedEnd: false
+      addedEnd: false,
+      createArrow: false 
     });
   }
 
-  handleChangeNode(id, unit, rate){
+  /* 
+  Change the unit or rate of the node, the r is used to convert the rate to second,
+  so r can be 1, 60, 60 * 60, or 60 * 60 * 24 
+  */
+  handleChangeNode(id, unit, rate, r){
     if(id.includes('start')){
       var lst = this.state.startNode;
       lst.forEach(target =>{
         if(target.id == id){
           target.unit = unit;
-          target.rate = rate;
+          target.rate = rate / r;
         }
       });
 
@@ -112,7 +137,7 @@ class App extends Component{
       lst.forEach(target =>{
         if(target.id == id){
           target.unit = unit;
-          target.rate = rate;
+          target.rate = rate / r;
         }
       });
       this.setState({stationNode: lst});
@@ -122,7 +147,6 @@ class App extends Component{
       lst.forEach(target =>{
         if(target.id == id){
           target.unit = unit;
-          target.rate = rate;
         }
       });
       this.setState({endNode: lst});
@@ -144,7 +168,7 @@ class App extends Component{
   the componentDidUpdate. The from and to are the id given to the node */
   addArrowState(from, to){
     var lst = this.state.arrows;
-    console.log(lst);
+
     lst.push({
       id: "arrow-" + this.state.count,
       from: from,
@@ -155,9 +179,6 @@ class App extends Component{
       count: this.state.count + 1
     });
     this.setState({createArrow: true});
-
-    // fetch to create connection
-
     console.log(this.state.arrows);
   }
 
@@ -275,7 +296,14 @@ class App extends Component{
     return (
       <div className="App">
         <div className="head">
-          <Navigation iteration={this.state.iteration} handleIteration={this.handleIteration} handleAddNode={this.addNode} />
+          <Navigation 
+            iteration={this.state.iteration} 
+            handleIteration={this.handleIteration} 
+            handleAddNode={this.addNode}
+            addArrowMode={this.addArrowMode}
+            handleRemoveMode={this.handleRemoveMode}
+            handleReset={this.handleReset} 
+            handleClearMode={this.handleClearMode}/>
         </div>
 
         <Canvas 
@@ -286,7 +314,15 @@ class App extends Component{
           addedStation={this.state.addedStation}
           addedEnd={this.state.addedEnd}
           confirmAdded={this.confirmAdded}
-          handleChangeNode={this.handleChangeNode}></Canvas>
+          handleChangeNode={this.handleChangeNode}
+          createArrowMode={this.state.createArrowMode}
+          addArrowState={this.addArrowState}
+          createArrow={this.state.createArrow}
+          arrows={this.state.arrows}
+          removeMode={this.state.removeMode}
+          handleRemove={this.handleRemove}
+          clearMode={this.state.clearMode}
+          handleClearMode={this.handleClearMode} ></Canvas>
 
       </div>
     );

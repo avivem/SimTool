@@ -19,7 +19,9 @@ class Canvas extends Component{
             targetId: "",
             type: "",
             rate: 0,
-            unit: "Second"
+            unit: "Second",
+            from: "",
+            currDir: "from"
         }
 
         this.openPopup = this.openPopup.bind(this);
@@ -29,9 +31,13 @@ class Canvas extends Component{
         this.handleChangeRate = this.handleChangeRate.bind(this)
         
         this.handleChangeNode = this.handleChangeNode.bind(this);
-    
+
+        this.findToAndFrom = this.findToAndFrom.bind(this);
+        this.update = this.update.bind(this);
+        this.getConnectorPoints = this.getConnectorPoints.bind(this);
     }
 
+    /** Open popup */
     openPopup(){
         this.setState({
             open: true
@@ -39,6 +45,7 @@ class Canvas extends Component{
         console.log("Open Popup");
     }
       
+    /** Close popup */
     closePopup(){
         this.setState({
             open: false
@@ -46,12 +53,21 @@ class Canvas extends Component{
         console.log("Close Popup");
     }
 
+    /** Keep track of the rate entered */
     handleChangeRate(e){
-        this.setState({rate: e.target.value});
+        var r = parseInt(e.target.value, 10);
+        if(!isNaN(r)){
+            this.setState({rate: r});
+        }
+        else{
+            if(e.target.value == ""){
+            this.setState({rate: 0});
+            }
+        }
     }
 
+    /**Keep track of the unit selected in the dropdown menu */
     handleChangeUnit(e){
-        
         switch(e.target.value){
             case "Second":
                 this.setState({unit: "Second"});
@@ -74,19 +90,41 @@ class Canvas extends Component{
         }
     }
 
+    /**Handle changing the unit/rate for a node when the Apply button in the popup is clicked */
     handleChangeNode(){
         this.setState({
             open: false
         });
         console.log("Close Popup");
 
+        /**Call a function in App.js to change a node unit/rate */
+        var r = 1
+/*        switch(this.state.unit){
+            case "Minute":
+                r = 60;
+                break;
 
-        this.props.handleChangeNode(this.state.targetId, this.state.unit, this.state.rate);
+            case "Hour":
+                r = 60 * 60; 
+                break;
+
+            case "Day":
+                r = 60 * 60 * 24;
+                this.setState({unit: "Day"});
+                break;
+
+            default:
+                break;
+        }
+*/
+        //this.props.handleChangeNode(this.state.targetId, this.state.unit, this.state.rate, r);
+        this.props.handleChangeNode(this.state.targetId, "void", this.state.rate, r);
 
     }
 
     componentDidMount(){
-        
+        /** create the stage and layer when page is first loaded */
+
         var width = window.innerWidth;
         var height = window.innerHeight;
 
@@ -105,13 +143,87 @@ class Canvas extends Component{
 
     }
 
+    // Determine the To and From node, once determine pass it to a 
+    // function in App.js to add the arrow to the list
+    findToAndFrom(target){
+        var layer = this.state.layer;
+        if(this.state.currDir == "from"){
+            this.setState({
+                from: target.id,
+                currDir: "to"
+            });
+
+            //outline of the From node change to yellow to show that the node is selected
+            var fromNode = layer.findOne('#' + target.id);
+            fromNode.stroke("yellow");
+            fromNode.strokeWidth(2);
+            fromNode.draw();
+        }
+        else{
+            if(this.state.from !== target.id){
+                this.setState({
+                    currDir: "from"
+                });
+                this.props.addArrowState(this.state.from, target.id)
+            }
+            else{
+                this.setState({
+                    currDir: "from"
+                });
+            }
+            //Change outline of the From node back to normal, meaning that it is unselected
+            var fromNode = layer.findOne('#' + this.state.from);
+            fromNode.stroke("black");
+            fromNode.strokeWidth(2);
+            layer.draw();
+        }
+        
+    }
+
+    // Calculation for the arrow 
+    getConnectorPoints(from, to) {
+        const dx = to.x - from.x;
+        const dy = to.y - from.y;
+        let angle = Math.atan2(-dy, dx);
+
+        const radius = 50;
+
+        return [
+          from.x + -radius * Math.cos(angle + Math.PI),
+          from.y + radius * Math.sin(angle + Math.PI),
+          to.x + -radius * Math.cos(angle),
+          to.y + radius * Math.sin(angle),
+        ];
+      }
+
+    // Change arrow as the node are dragged.
+    update(){
+        var layer = this.state.layer;
+
+        this.props.arrows.forEach((connect) =>{
+            // Get the node
+            var line = layer.findOne('#' + connect.id);
+            var fromNode = layer.findOne('#' + connect.from);
+            var toNode = layer.findOne('#' + connect.to);
+            
+            // Calculate the arrow using the getConnectorPoints function
+            const points = this.getConnectorPoints(
+                fromNode.position(),
+                toNode.position()
+              );
+            line.points(points);
+
+        });
+        layer.batchDraw();
+    }
+
     componentDidUpdate(prevProps, prevState){
         
 
         var layer = this.state.layer;
         
+        /*if user added a start node, then add it to the canvas and deal with moving the object*/
         if(this.props.addedStart){
-
             // request options to send in post request- START NODE
             // placeholder values
             const requestOptions = {
@@ -139,32 +251,72 @@ class Canvas extends Component{
             var target = this.props.startNode[this.props.startNode.length - 1];
 
 
+            /** New node are added to the end of the array so just needed to look at the end*/
+            var target = this.props.startNode[this.props.startNode.length - 1];
+
+            /** Draw shape for node, need to change to an icon */
             var nodeStart = new Konva.Circle({
                 id: target.id,
                 fill: 'red',
                 radius: 20,
                 shadowBlur: 10,
+                stroke:"black",
+                strokeWidth: 2,
                 draggable: true,
+                x: target.x,
+                y: target.y
             });
 
+
             layer.add(nodeStart);
+
+            /** Node is drag*/
             nodeStart.on('dragmove', () => {
                 // mutate the state
                 target.x = nodeStart.x();
                 target.y = nodeStart.y();
        
                 // update nodes from the new state
+                this.update();
                 layer.batchDraw();
             });
 
+            /** Node is click so open popup*/
             nodeStart.on('click', () =>{
-                this.setState({
-                    unit: target.unit,
-                    rate: target.rate,
-                    targetId: target.id,
-                    type: "Start Node" 
-                })
-                this.openPopup();
+                if(this.props.createArrowMode){
+                    /* Help determine the to and from node. Once determine the arrow is 
+                    added to the list of arrows in App.js */
+                    this.findToAndFrom(target);
+                }
+                else{
+                    if(this.props.removeMode){
+                        // remove arrows
+                        this.props.arrows.forEach(arrow => {
+                            if(arrow.from == target.id || arrow.to == target.id){
+                                var arrow_id = arrow.id;
+                                var n = layer.findOne('#' + arrow_id);
+                                n.destroy();
+                                this.props.handleRemove(arrow_id);
+                            }
+                        });
+
+                        //remove node
+                        this.props.handleRemove(target.id);
+                        nodeStart.destroy();
+
+                        layer.draw();
+                    }
+                    else{
+                        /*Open popup for the node to change the rate/unit */
+                        this.setState({
+                            unit: target.unit,
+                            rate: target.rate,
+                            targetId: target.id,
+                            type: "Start Node" 
+                        })
+                        this.openPopup();
+                    }
+                }
             })
             
             layer.batchDraw();
@@ -172,8 +324,8 @@ class Canvas extends Component{
 
         }
 
+        /*if user added a station node, then add it to the canvas and deal with moving the object*/
         if(this.props.addedStation){
-
             // request options to send in post request- BASIC NODE
             // placeholder values
             const requestOptions = {
@@ -198,40 +350,78 @@ class Canvas extends Component{
             /** New node are added to the end of the array so just needed to look at the end*/
             var target = this.props.stationNode[this.props.stationNode.length - 1];
 
+            /** Draw shape for node, need to change to an icon */
             var nodeStation = new Konva.Circle({
                 id: target.id,
                 fill: 'green',
                 radius: 20,
                 shadowBlur: 10,
+                stroke:"black",
+                strokeWidth: 2,
                 draggable: true,
+                x: target.x,
+                y: target.y
             });
 
             layer.add(nodeStation);
+
+            /**Node is drag */
             nodeStation.on('dragmove', () => {
                 // mutate the state
                 target.x = nodeStation.x();
                 target.y = nodeStation.y();
        
                 // update nodes from the new state
+                this.update();
                 layer.batchDraw();
             });
 
+            /** Node is click so open popup*/
             nodeStation.on('click', () =>{
-                this.setState({
-                    unit: target.unit,
-                    rate: target.rate,
-                    targetId: target.id,
-                    type: "Station Node" 
-                })
-                this.openPopup();
-            })
+                if(this.props.createArrowMode){
+                    // Determine to and from
+                    this.findToAndFrom(target);
+                }
+                else{
+                    if(this.props.removeMode){
+                        // remove arrows
+                        var lstOfArrows = this.props.arrows;
+                        lstOfArrows.forEach(arrow => {
+                            if(arrow.from == target.id || arrow.to == target.id){
+                                var arrow_id = arrow.id;
+                                console.log(arrow_id);
+                                var n = layer.findOne('#' + arrow_id);
+                                n.destroy();
+                                this.props.handleRemove(arrow_id);
+                            }
+                        });
+
+                        // remove node
+                        this.props.handleRemove(target.id);
+                        nodeStation.destroy();
+                        layer.draw();
+                    }
+                    else{
+                    /* Open popup of the node */
+                        this.setState({
+                            unit: target.unit,
+                            rate: target.rate,
+                            targetId: target.id,
+                            type: "Station Node" 
+                        })
+                        this.openPopup();
+                    }
+                }
+            });
             
             layer.batchDraw();
             this.props.confirmAdded();
 
         }
 
+        /*if user added a end node, then add it to the canvas and deal with moving the object*/
         if(this.props.addedEnd){
+
             // request options to send in post request- END NODE
             // placeholder values
             const requestOptions = {
@@ -253,35 +443,70 @@ class Canvas extends Component{
             }).catch(console.log)
 
             /** New node are added to the end of the array so just needed to look at the end*/
-
             var target = this.props.endNode[this.props.endNode.length - 1];
 
+            /** Draw shape for node, need to change to an icon */
             var nodeEnd = new Konva.Circle({
                 id: target.id,
                 fill: 'blue',
                 radius: 20,
                 shadowBlur: 10,
+                stroke:"black",
+                strokeWidth: 2,
                 draggable: true,
+                x: target.x,
+                y: target.y
             });
 
             layer.add(nodeEnd);
+
+            /**Node is drag */
             nodeEnd.on('dragmove', () => {
                 // mutate the state
                 target.x = nodeEnd.x();
                 target.y = nodeEnd.y();
        
                 // update nodes from the new state
+                this.update();
                 layer.batchDraw();
             });
 
+            /** Node is click so open popup*/
             nodeEnd.on('click', () =>{
-                this.setState({
-                    unit: target.unit,
-                    rate: target.rate,
-                    targetId: target.id,
-                    type: "End Node" 
-                })
-                this.openPopup();
+                if(this.props.createArrowMode){
+                    // Determine to and from
+                    this.findToAndFrom(target);
+                }
+                else{
+                    if(this.props.removeMode){
+                        
+                        // Remove arrows
+                        var lstOfArrows = this.props.arrows
+                        lstOfArrows.forEach(arrow => {
+                            if(arrow.from == target.id || arrow.to == target.id){
+                                var arrow_id = arrow.id;
+                                var n = layer.findOne('#' + arrow_id);
+                                n.destroy();
+                                this.props.handleRemove(arrow_id);
+                            }
+                        });
+
+                        //remove node 
+                        this.props.handleRemove(target.id);
+                        nodeEnd.destroy();
+
+                        layer.draw();
+                    }
+                    else{
+                        //open popup for node
+                        this.setState({
+                            unit: target.unit,
+                            targetId: target.id,
+                            type: "End Node" 
+                        })
+                        this.openPopup();    
+                    }
+                }
             })
             
             layer.batchDraw();
@@ -289,6 +514,38 @@ class Canvas extends Component{
 
         }
         
+        if(this.props.createArrow){
+            /** New node are added to the end of the array so just needed to look at the end*/
+            var target = this.props.arrows[this.props.arrows.length - 1];
+
+            var line = new Konva.Arrow({
+                id: target.id,
+                stroke: 'black',
+                fill: 'black',
+            });
+            layer.add(line);
+
+            line.on('click', () => {
+                if(this.props.removeMode){
+                    //remove node
+                    this.props.handleRemove(target.id); 
+                    line.destroy();
+                    layer.draw();
+                }
+            });
+
+            this.update();
+            this.props.confirmAdded();
+
+        }
+
+        if(this.props.clearMode){
+            layer.find('Arrow').destroy();
+            layer.find('Circle').destroy();
+            layer.draw();
+            this.props.handleClearMode();
+        }
+
     }
 
     render(){
@@ -301,22 +558,23 @@ class Canvas extends Component{
                 <div id="container"></div>
 
                 <div>
+                    {/*Popup for the node*/ }
                     <Popup open={this.state.open} closeOnDocumentClick = {true} onClose={this.closePopup}>
                         <h1>{this.state.type}</h1>
-                        <label className="label">Unit:&nbsp;
-                            <select 
-                            id="unit" 
-                            onChange={this.handleChangeUnit} 
-                            value={this.state.unit}>
-                                <option value="Second">Second</option>
-                                <option value="Minute">Minute</option>
-                                <option value="Hour">Hour</option>
-                                <option value="Day">Day</option>
-                            </select>
-                        </label><br />
-
+ {//                       <label className="label">Unit:&nbsp;
+  //                          <select 
+  //                          id="unit" 
+  //                          onChange={this.handleChangeUnit} 
+  //                          value={this.state.unit}>
+  //                              <option value="Second">Second</option>
+  //                              <option value="Minute">Minute</option>
+  //                              <option value="Hour">Hour</option>
+  //                              <option value="Day">Day</option>
+  //                          </select>
+  //                      </label><br />
+    }
                         {this.state.type !== "End Node" ? 
-                        <label className="label">Rate:&nbsp;
+                        <label className="label">Period:&nbsp;
                         <input 
                             type="text" 
                             id="rate" 

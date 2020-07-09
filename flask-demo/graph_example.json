@@ -1,0 +1,38 @@
+{
+    "nodes": [
+        {
+            "type": "START",
+            "name": "Starting Point 1",
+            "entity_name": "Person",
+            "gen_fun": 2,
+            "limit": 100,
+            "uid": "hrjgrnfg-aerg2",
+            "directed_to": ["uid1", "uid2"]
+        },
+    
+        {
+            "type": "BASIC",
+            "name": "Basic Component 1",
+            "capacity": 3,
+            "time_func": 7,
+            "uid": "fafdwfgagafg-aerg2",
+            "directed_to": []
+        },
+    
+        {
+            "type": "END",
+            "name": "Ending Point 1",
+            "uid": "fwdfdwfdwffg-aerg2"
+        }
+    ],
+
+    "flow_entities": [
+        {
+            "type": "low_inc"
+        },
+
+        {
+            "type": "high_inc"
+        }
+    ]
+}

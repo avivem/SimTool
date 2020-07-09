@@ -85,6 +85,6 @@ print(f'SimPy Bank Demo\n\n')
 env = simpy.Environment()
 bank = Bank(env, 5, 1000000, 10000)
 env.process(manage_sim(env,10000,200, 5000, 50000))
-env.run(until=1000)
+env.run(until=10000)
 
 print(f'Final bank balance: {bank.bal}')
