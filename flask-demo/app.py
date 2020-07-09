@@ -21,22 +21,55 @@ NODES = {
 }
 
 class DataStore():
-	st = None
-	bc = []
-	ed = None
+	nodes = {}
+	directed_to = {}
+	starts = {}
+	basics = {}
+	ends = {}
 	env = simpy.Environment()
-
 data = DataStore()
 
-# resource, route
-@app.route('/api/start', methods=["POST"])
-def start():
-	if not request.json:
-		abort(400)
-	data.st = StartingPoint(data.env, request.json['name'],request.json['gen_fun'], request.json['gen_limit'])
-	return data.st.uid
+@app.route('/api/node/<fid>', methods=["GET","POST"])
+@app.route('/api/node/', methods=["GET","POST"])
+def node(fid="-1"):
+	if request.method == "POST":
+		if not request.json:
+			abort(400)
+		if request.json['type'] == "START":
+			name = request.json['name']
+			gen_fun = request.json['gen_fun']
+			gen_limit = request.json['gen_limit']
+			st =  StartingPoint(data.env, name, gen_fun, gen_limit)
+			#st =  StartingPoint(data.env, name,gen_fun, gen_limit,fid)
+			data.nodes[st.uid] = st
+			data.starts[st.uid] = st
+			return st.uid
+		elif request.json['type'] == "BASIC":
+			name = request.json['name']
+			capacity = request.json['capacity']
+			time_func = request.json['time_func']
+			#Here, we will need to add logic to choose the right time function
+			b = BasicComponent(data.env, name, capacity, time_func)
+			#b = BasicComponent(data.env, name,capacity, time_func, fid)
+			data.nodes[b.uid] = b
+			data.basics[b.uid] = b
+			return b.uid
+		elif request.json['type'] == "END":
+			name = request.json['name']
+			e = EndingPoint(data.env, name)
+			#e = EndingPoint(data.env, name,fid)
+			data.nodes[e.uid] = e
+			data.ends[e.uid] = e
+			return e.uid
+		else:
+			abort(400)
 
-@app.route('/api/basic')
+@app.route('/api/<frum>/dirto/<to>', methods=["POST"])
+def dirto(frum,to):
+	data.nodes[frum].set_directed_to(data.nodes[to])
+	return f'{data.nodes[frum]} directed to {data.nodes[to]}'
+
+""" @app.route('/api/basic')
 def basic():
 	data.bc.append(BasicComponent(data.env,f"Basic Component #{len(data.bc) + 1}", 3, 7))
 	if len(data.bc) == 1:
@@ -53,16 +86,17 @@ def end():
 	else:
 		data.bc[len(data.bc)-1].set_directed_to(data.ed)
 	return data.ed.uid
-
-@app.route('/api/run')
-def run():
-	if data.st == None:
+ """
+@app.route('/api/run/<int:until>')
+@app.route('/api/run/')
+def run(until=300):
+	if len(data.starts) == 0:
 		return "Please create a starting node."
-	if data.ed == None:
+	if len(data.ends) == 0:
 		return "Please create an ending node."
-	data.env.process(data.st.run())
-	data.env.run(until=300)
-	return new_stdout.getvalue().split('\n')
+	[data.env.process(data.nodes[x].run()) for x in data.starts]
+	data.env.run(until=until)
+	return jsonify(new_stdout.getvalue().split('\n'))
 
 @app.route('/api/reset')
 def reset():

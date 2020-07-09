@@ -2,6 +2,7 @@ import simpy
 import sys
 import io
 import uuid
+import json
 
 """ if __name__ is not "__main__":
     old_stdout = sys.stdout
@@ -10,9 +11,12 @@ import uuid
 
 #Basic building block of a system. It knows where an entity should go next.
 class Node(object):
-    def __init__(self, env, name, uid = uuid.uuid4().hex):
+    def __init__(self, env, name, uid = None):
+        if uid is None:
+            self.uid = uuid.uuid4().hex
+        else:
+            self.uid = uid
         self.env = env
-        self.uid = uid
         self.name = name
     def set_directed_to(self,obj):
         self.directed_to = obj
@@ -49,8 +53,8 @@ class BasicFlowEntity(object):
 
 #Node that generates flowing entities.
 class StartingPoint(Node):
-    def __init__(self,env,name,gen_func, limit):
-        super().__init__(env,name)
+    def __init__(self,env,name,gen_func, limit,uid=None):
+        super().__init__(env,name,uid)
         self.gen_func = gen_func
         self.directed_to = None
         self.limit = limit
@@ -73,8 +77,8 @@ class StartingPoint(Node):
 #A Node that represents a "cog in a machine" such as bank tellers in a bank, or
 #a dishwasher in a kitchen.
 class BasicComponent(Node):
-    def __init__(self,env, name, capacity, time):
-        super().__init__(env,name)
+    def __init__(self,env, name,capacity, time, uid=None):
+        super().__init__(env,name,uid)
         self.name = name
         self.capacity = capacity
         self.resource = simpy.Resource(env,capacity)
@@ -94,16 +98,16 @@ class BasicComponent(Node):
         return self.env.timeout(self.time)
 
 class BasicContainer(Node):
-    def __init__(self, env,name,init,capacity):
-        super().__init__(env,name)
+    def __init__(self, env,name,init,capacity,uid=None):
+        super().__init__(env,name,uid)
         self.init = init
         self.capacity = capacity
         self.c = simpy.Container(env, capacity, init)
 
 #Collection point for entities that have travelled through the system.
 class EndingPoint(Node):
-    def __init__(self,env,name):
-        super().__init__(env,name)
+    def __init__(self,env,name,uid=None):
+        super().__init__(env,name,uid)
         self.entities = []
     def __str__(self):
         return self.name
