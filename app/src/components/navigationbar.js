@@ -25,6 +25,19 @@ class Navigation extends Component{
 
       }
 
+    closePopupData(){
+      this.setState({
+        openData: false
+      });
+      console.log("Close Popup");
+    }
+
+    handleRun(){
+      /**fetch to api */
+      fetch('http://127.0.0.1:5000/api/run/5000').then(res => res.json()).then(gotUser => {
+          console.log(gotUser);
+      }).catch(console.log)
+
       openPopup(){
         this.setState({
           open: true

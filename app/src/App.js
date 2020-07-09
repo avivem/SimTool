@@ -133,6 +133,144 @@ class App extends Component{
     console.log(this.state.endNode);
   }
 
+  /*State is used to let the click event on the 
+  node know that it should not open the popup but to be used to create arrow */
+  addArrowMode(){
+    this.setState({createArrowMode: true});
+  }
+
+  /* Add the arrow to the list, this function is passed to 
+  canvas where it is called when the to node is determined in 
+  the componentDidUpdate. The from and to are the id given to the node */
+  addArrowState(from, to){
+    var lst = this.state.arrows;
+    console.log(lst);
+    lst.push({
+      id: "arrow-" + this.state.count,
+      from: from,
+      to: to
+    });
+    this.setState({
+      arrows: lst, 
+      count: this.state.count + 1
+    });
+    this.setState({createArrow: true});
+
+    // fetch to create connection
+
+    console.log(this.state.arrows);
+  }
+
+  // Change to remove mode.
+  // In remove mode, when click on a node/arrow, it will remove the node/arrow
+  handleRemoveMode(e){
+    this.setState({
+      removeMode: true,
+      createArrowMode: false
+    });
+    console.log("Handle Remove");
+  }
+
+  // Handle removing the node/arrow
+  handleRemove(id){
+    console.log(id);
+    if(id.includes('arrow')){
+      // Remove arrow
+      var lst = []
+      this.state.arrows.forEach(target =>{
+        if(target.id != id){
+          lst.push({
+            id: target.id,
+            from: target.from,
+            to: target.to
+          });
+        }
+      });
+      this.setState({arrows: lst});
+    }
+    else{
+      // Remove node
+      var lst = [];
+      var original = [];
+
+      // Determine which list to look at 
+      if(id.includes('start')){
+        original = this.state.startNode;
+      }
+      if(id.includes('station')){
+        original = this.state.stationNode;
+      }
+      if(id.includes('end')){
+        original = this.state.endNode;
+      }
+
+      // Remove the given node from the list
+      original.forEach(target => {
+        if(target.id != id){
+          if(id.includes('end')){
+            lst.push({
+              id: target.id,
+              x: target.x,
+              y: target.y,
+              unit: target.unit,
+            });
+          }
+          else{
+            lst.push({
+              id: target.id,
+              x: target.x,
+              y: target.y,
+              rate: target.rate,
+              unit: target.unit,
+            });
+          }
+        }
+      })
+
+      if(id.includes('start')){
+        this.setState({startNode: lst});
+      }
+      if(id.includes('station')){
+        this.setState({stationNode: lst});
+      }
+      if(id.includes('end')){
+        this.setState({endNode: lst});
+      }
+      console.log("remove");
+      console.log(this.state.arrows);
+      console.log(this.state.stationNode);
+      console.log(this.state.startNode);
+      console.log(this.state.endNode);
+
+    }
+  }
+
+  // Reset mode 
+  handleReset(){
+    this.setState({
+      createArrowMode: false, 
+      removeMode: false
+    });
+  }
+
+  handleClearMode(){
+    if(this.state.clearMode){
+      this.setState({clearMode: false});
+      console.log("Clear canvas");
+    }
+    else{
+      this.setState({
+        clearMode: true,
+        arrows: [],
+        startNode: [],
+        stationNode: [],
+        endNode: []
+      });
+      console.log("Clear store node/arrow");
+    }
+    
+  }
+
   render(){
     return (
       <div className="App">
