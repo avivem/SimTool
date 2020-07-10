@@ -171,18 +171,21 @@ class Navigation extends Component{
             <Popup open={this.state.openNode} closeOnDocumentClick = {true} onClose={this.closePopupNode}>
               <button onClick={this.addStart} >
                 <img src={StartImage} alt="start" />
+                <figcaption>Start</figcaption>
               </button>
-              <figcaption>Start</figcaption>
+              
 
               <button onClick={this.addStation} >
                 <img src={StationImage} alt="station" onClick={this.props.handleAddNode} />
+                <figcaption>Station</figcaption>
               </button>
-              <figcaption>Station</figcaption>
+              
               
               <button onClick={this.addEnd} >
                 <img src={EndImage} alt="end" onClick={this.props.handleAddNode} />
+                <figcaption>End</figcaption>
               </button>
-              <figcaption>End</figcaption>
+
 
             </Popup>
           </div>

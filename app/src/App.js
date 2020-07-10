@@ -66,7 +66,7 @@ class App extends Component{
         var node = this.state.startNode;
         node.push({
           // this ID needs to be the one set in the add node function
-          id: "start-" + this.state.count,
+          uid: "start-" + this.state.count,
           x: xPos,
           y: yPos,
           rate: 0,
@@ -86,8 +86,8 @@ class App extends Component{
             entity_name: 'Person',
             gen_fun: 10,
             limit: 200,
-            // node id is this.state.startNode[0].id
-            uid: this.state.startNode[0].id
+            // node id is this.state.startNode[0].uid
+            uid: this.state.startNode[0].uid
           })
         };
 
@@ -102,7 +102,7 @@ class App extends Component{
       case "station":
         var node = this.state.stationNode;
         node.push({
-          id: "station-" + this.state.count,
+          uid: "station-" + this.state.count,
           x: xPos,
           y: yPos,
           rate: 0,
@@ -121,8 +121,8 @@ class App extends Component{
             name:'Line',
             capacity: 50,
             time_func: 1000,
-            // node id is this.state.stationNode[0].id
-            uid: this.state.stationNode[0].id
+            // node id is this.state.stationNode[0].uid
+            uid: this.state.stationNode[0].uid
           })
         };
 
@@ -137,7 +137,7 @@ class App extends Component{
       case "end":
         var node = this.state.endNode;
         node.push({
-          id: "end-" + this.state.count,
+          uid: "end-" + this.state.count,
           x: xPos,
           y: yPos,
           unit: "Second",
@@ -154,8 +154,8 @@ class App extends Component{
             // Change the name value to this.state.name to refer to user input
             name: "Convention",
             type: "END",
-            // node id is this.state.endNode[0].id
-            uid: this.state.endNode[0].id
+            // node id is this.state.endNode[0].uid
+            uid: this.state.endNode[0].uid
           })
         };
 
@@ -194,7 +194,7 @@ class App extends Component{
     if(id.includes('start')){
       var lst = this.state.startNode;
       lst.forEach(target =>{
-        if(target.id == id){
+        if(target.uid == id){
           target.unit = unit;
           target.rate = rate / r;
         }
@@ -205,7 +205,7 @@ class App extends Component{
     if(id.includes('station')){
       var lst = this.state.stationNode;
       lst.forEach(target =>{
-        if(target.id == id){
+        if(target.uid == id){
           target.unit = unit;
           target.rate = rate / r;
         }
@@ -215,7 +215,7 @@ class App extends Component{
     if(id.includes('end')){
       var lst = this.state.endNode;
       lst.forEach(target =>{
-        if(target.id == id){
+        if(target.uid == id){
           target.unit = unit;
         }
       });
@@ -240,7 +240,7 @@ class App extends Component{
     var lst = this.state.arrows;
 
     lst.push({
-      id: "arrow-" + this.state.count,
+      uid: "arrow-" + this.state.count,
       from: from,
       to: to
     });
@@ -269,9 +269,9 @@ class App extends Component{
       // Remove arrow
       var lst = []
       this.state.arrows.forEach(target =>{
-        if(target.id != id){
+        if(target.uid != id){
           lst.push({
-            id: target.id,
+            uid: target.uid,
             from: target.from,
             to: target.to
           });
@@ -297,10 +297,10 @@ class App extends Component{
 
       // Remove the given node from the list
       original.forEach(target => {
-        if(target.id != id){
+        if(target.uid != id){
           if(id.includes('end')){
             lst.push({
-              id: target.id,
+              uid: target.uid,
               x: target.x,
               y: target.y,
               unit: target.unit,
@@ -308,7 +308,7 @@ class App extends Component{
           }
           else{
             lst.push({
-              id: target.id,
+              uid: target.uid,
               x: target.x,
               y: target.y,
               rate: target.rate,

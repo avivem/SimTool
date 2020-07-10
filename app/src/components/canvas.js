@@ -149,26 +149,26 @@ class Canvas extends Component{
         var layer = this.state.layer;
         if(this.state.currDir == "from"){
             this.setState({
-                from: target.id,
+                from: target.uid,
                 currDir: "to"
             });
 
             //outline of the From node change to yellow to show that the node is selected
-            var fromNode = layer.findOne('#' + target.id);
+            var fromNode = layer.findOne('#' + target.uid);
             fromNode.stroke("yellow");
             fromNode.strokeWidth(2);
             fromNode.draw();
         }
         else{
-            if(this.state.from !== target.id){
+            if(this.state.from !== target.uid){
                 this.setState({
                     currDir: "from"
                 });
 
-                this.props.addArrowState(this.state.from, target.id)
+                this.props.addArrowState(this.state.from, target.uid)
 
                 // fetch to api to create connection
-                fetch(`http://127.0.0.1:5000/api/${this.state.from}/dirto/${target.id}`).then(gotUser => {
+                fetch(`http://127.0.0.1:5000/api/${this.state.from}/dirto/${target.uid}`).then(gotUser => {
                     console.log(gotUser);
 
                 }).catch(console.log)
@@ -209,7 +209,7 @@ class Canvas extends Component{
 
         this.props.arrows.forEach((connect) =>{
             // Get the node
-            var line = layer.findOne('#' + connect.id);
+            var line = layer.findOne('#' + connect.uid);
             var fromNode = layer.findOne('#' + connect.from);
             var toNode = layer.findOne('#' + connect.to);
             
@@ -243,7 +243,7 @@ class Canvas extends Component{
 
             /** Draw shape for node, need to change to an icon */
             var nodeStart = new Konva.Circle({
-                id: target.id,
+                id: target.uid,
                 fill: 'red',
                 radius: 20,
                 shadowBlur: 10,
@@ -279,16 +279,16 @@ class Canvas extends Component{
                     if(this.props.removeMode){
                         // remove arrows
                         this.props.arrows.forEach(arrow => {
-                            if(arrow.from == target.id || arrow.to == target.id){
-                                var arrow_id = arrow.id;
-                                var n = layer.findOne('#' + arrow_id);
+                            if(arrow.from == target.uid || arrow.to == target.uid){
+                                var arrow_uid = arrow.uid;
+                                var n = layer.findOne('#' + arrow_uid);
                                 n.destroy();
-                                this.props.handleRemove(arrow_id);
+                                this.props.handleRemove(arrow_uid);
                             }
                         });
 
                         //remove node
-                        this.props.handleRemove(target.id);
+                        this.props.handleRemove(target.uid);
                         nodeStart.destroy();
 
                         layer.draw();
@@ -298,7 +298,7 @@ class Canvas extends Component{
                         this.setState({
                             unit: target.unit,
                             rate: target.rate,
-                            targetId: target.id,
+                            targetId: target.uid,
                             type: "Start Node" 
                         })
                         this.openPopup();
@@ -319,7 +319,7 @@ class Canvas extends Component{
 
             /** Draw shape for node, need to change to an icon */
             var nodeStation = new Konva.Circle({
-                id: target.id,
+                id: target.uid,
                 fill: 'green',
                 radius: 20,
                 shadowBlur: 10,
@@ -354,17 +354,16 @@ class Canvas extends Component{
                         // remove arrows
                         var lstOfArrows = this.props.arrows;
                         lstOfArrows.forEach(arrow => {
-                            if(arrow.from == target.id || arrow.to == target.id){
-                                var arrow_id = arrow.id;
-                                console.log(arrow_id);
-                                var n = layer.findOne('#' + arrow_id);
+                            if(arrow.from == target.uid || arrow.to == target.uid){
+                                var arrow_uid = arrow.uid;
+                                var n = layer.findOne('#' + arrow_uid);
                                 n.destroy();
-                                this.props.handleRemove(arrow_id);
+                                this.props.handleRemove(arrow_uid);
                             }
                         });
 
                         // remove node
-                        this.props.handleRemove(target.id);
+                        this.props.handleRemove(target.uid);
                         nodeStation.destroy();
                         layer.draw();
                     }
@@ -373,7 +372,7 @@ class Canvas extends Component{
                         this.setState({
                             unit: target.unit,
                             rate: target.rate,
-                            targetId: target.id,
+                            targetId: target.uid,
                             type: "Station Node" 
                         })
                         this.openPopup();
@@ -394,7 +393,7 @@ class Canvas extends Component{
 
             /** Draw shape for node, need to change to an icon */
             var nodeEnd = new Konva.Circle({
-                id: target.id,
+                id: target.uid,
                 fill: 'blue',
                 radius: 20,
                 shadowBlur: 10,
@@ -430,16 +429,16 @@ class Canvas extends Component{
                         // Remove arrows
                         var lstOfArrows = this.props.arrows
                         lstOfArrows.forEach(arrow => {
-                            if(arrow.from == target.id || arrow.to == target.id){
-                                var arrow_id = arrow.id;
-                                var n = layer.findOne('#' + arrow_id);
+                            if(arrow.from == target.uid || arrow.to == target.uid){
+                                var arrow_uid = arrow.uid;
+                                var n = layer.findOne('#' + arrow_uid);
                                 n.destroy();
-                                this.props.handleRemove(arrow_id);
+                                this.props.handleRemove(arrow_uid);
                             }
                         });
 
                         //remove node 
-                        this.props.handleRemove(target.id);
+                        this.props.handleRemove(target.uid);
                         nodeEnd.destroy();
 
                         layer.draw();
@@ -448,7 +447,7 @@ class Canvas extends Component{
                         //open popup for node
                         this.setState({
                             unit: target.unit,
-                            targetId: target.id,
+                            targetId: target.uid,
                             type: "End Node" 
                         })
                         this.openPopup();    
@@ -466,7 +465,7 @@ class Canvas extends Component{
             var target = this.props.arrows[this.props.arrows.length - 1];
 
             var line = new Konva.Arrow({
-                id: target.id,
+                id: target.uid,
                 stroke: 'black',
                 fill: 'black',
             });
@@ -475,7 +474,7 @@ class Canvas extends Component{
             line.on('click', () => {
                 if(this.props.removeMode){
                     //remove node
-                    this.props.handleRemove(target.id); 
+                    this.props.handleRemove(target.uid); 
                     line.destroy();
                     layer.draw();
                 }
