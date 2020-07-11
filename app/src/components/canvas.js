@@ -228,236 +228,120 @@ class Canvas extends Component{
         
 
         var layer = this.state.layer;
+
+
+        if(this.props.addedStart || this.props.addedStation || this.props.addedEnd){
+            /** New node are added to the end of the array so just needed to look at the end*/
+            var target;
+            if(this.props.addedStart){
+                target = this.props.startNode[this.props.startNode.length - 1];
+            }
+            if(this.props.addedStation){
+                target = this.props.stationNode[this.props.stationNode.length - 1];
+            }
+            if(this.props.addedEnd){
+                target = this.props.endNode[this.props.endNode.length - 1];
+            }
+
+            var colorFill = "";
+            var header = "";
+            var url = "";
+            if(this.props.addedStart){
+                colorFill = 'red';
+                header = "Start Node";
+                url = this.props.imageStart;
+            }
+            if(this.props.addedStation){
+                colorFill = 'green';
+                header = "Station Node";
+                url = this.props.imageStation;
+            }
+            if(this.props.addedEnd){
+                colorFill = 'blue';
+                header = "End Node";
+                url = this.props.imageEnd;
+            }
+            var node = new Konva.Circle({
+                id: target.uid,
+                fill: colorFill,
+                radius: 20,
+                shadowBlur: 10,
+                stroke:"black",
+                strokeWidth: 2,
+                draggable: true,
+                x: target.x,
+                y: target.y
+            });
+
+            var t = this;
+            
+            Konva.Image.fromURL(url, function (node) {
+                node.setAttrs({
+                    id: target.uid,
+                    x: target.x,
+                    y: target.y,
+                    shadowBlur: 10,
+                    stroke:"black",
+                    strokeWidth: 2,
+                    draggable: true,    
+                });
+                layer.add(node);
+
+                node.on('dragmove', () => {
+                    // mutate the state
+                    target.x = node.x();
+                    target.y = node.y();
         
-        /*if user added a start node, then add it to the canvas and deal with moving the object*/
-        if(this.props.addedStart){
+                    // update nodes from the new state
+                    t.update();
+                    layer.batchDraw();
+                });
 
+                /** Node is click so open popup*/
+                node.on('click', () =>{
+                    if(t.props.createArrowMode){
+                        /* Help determine the to and from node. Once determine the arrow is 
+                        added to the list of arrows in App.js */
+                        t.findToAndFrom(target);
+                    }
+                    else{
+                        if(t.props.removeMode){
+                            // remove arrows
+                            t.props.arrows.forEach(arrow => {
+                                if(arrow.from == target.uid || arrow.to == target.uid){
+                                    var arrow_uid = arrow.uid;
+                                    var n = layer.findOne('#' + arrow_uid);
+                                    n.destroy();
+                                    t.props.handleRemove(arrow_uid);
+                                }
+                            });
 
+                            //remove node
+                            t.props.handleRemove(target.uid);
+                            node.destroy();
 
-            /** New node are added to the end of the array so just needed to look at the end*/
-            var target = this.props.startNode[this.props.startNode.length - 1];
-
-
-            /** New node are added to the end of the array so just needed to look at the end*/
-            var target = this.props.startNode[this.props.startNode.length - 1];
-
-            /** Draw shape for node, need to change to an icon */
-            var nodeStart = new Konva.Circle({
-                id: target.uid,
-                fill: 'red',
-                radius: 20,
-                shadowBlur: 10,
-                stroke:"black",
-                strokeWidth: 2,
-                draggable: true,
-                x: target.x,
-                y: target.y
-            });
-
-
-            layer.add(nodeStart);
-
-            /** Node is drag*/
-            nodeStart.on('dragmove', () => {
-                // mutate the state
-                target.x = nodeStart.x();
-                target.y = nodeStart.y();
-       
-                // update nodes from the new state
-                this.update();
+                            layer.draw();
+                        }
+                        else{
+                            /*Open popup for the node to change the rate/unit */
+                            t.setState({
+                                unit: target.unit,
+                                rate: target.rate,
+                                targetId: target.uid,
+                                type: header
+                            })
+                            t.openPopup();
+                        }
+                    }
+                })
+                
                 layer.batchDraw();
             });
 
-            /** Node is click so open popup*/
-            nodeStart.on('click', () =>{
-                if(this.props.createArrowMode){
-                    /* Help determine the to and from node. Once determine the arrow is 
-                    added to the list of arrows in App.js */
-                    this.findToAndFrom(target);
-                }
-                else{
-                    if(this.props.removeMode){
-                        // remove arrows
-                        this.props.arrows.forEach(arrow => {
-                            if(arrow.from == target.uid || arrow.to == target.uid){
-                                var arrow_uid = arrow.uid;
-                                var n = layer.findOne('#' + arrow_uid);
-                                n.destroy();
-                                this.props.handleRemove(arrow_uid);
-                            }
-                        });
 
-                        //remove node
-                        this.props.handleRemove(target.uid);
-                        nodeStart.destroy();
 
-                        layer.draw();
-                    }
-                    else{
-                        /*Open popup for the node to change the rate/unit */
-                        this.setState({
-                            unit: target.unit,
-                            rate: target.rate,
-                            targetId: target.uid,
-                            type: "Start Node" 
-                        })
-                        this.openPopup();
-                    }
-                }
-            })
             
-            layer.batchDraw();
             this.props.confirmAdded();
-
-        }
-
-        /*if user added a station node, then add it to the canvas and deal with moving the object*/
-        if(this.props.addedStation){
-
-            /** New node are added to the end of the array so just needed to look at the end*/
-            var target = this.props.stationNode[this.props.stationNode.length - 1];
-
-            /** Draw shape for node, need to change to an icon */
-            var nodeStation = new Konva.Circle({
-                id: target.uid,
-                fill: 'green',
-                radius: 20,
-                shadowBlur: 10,
-                stroke:"black",
-                strokeWidth: 2,
-                draggable: true,
-                x: target.x,
-                y: target.y
-            });
-
-            layer.add(nodeStation);
-
-            /**Node is drag */
-            nodeStation.on('dragmove', () => {
-                // mutate the state
-                target.x = nodeStation.x();
-                target.y = nodeStation.y();
-       
-                // update nodes from the new state
-                this.update();
-                layer.batchDraw();
-            });
-
-            /** Node is click so open popup*/
-            nodeStation.on('click', () =>{
-                if(this.props.createArrowMode){
-                    // Determine to and from
-                    this.findToAndFrom(target);
-                }
-                else{
-                    if(this.props.removeMode){
-                        // remove arrows
-                        var lstOfArrows = this.props.arrows;
-                        lstOfArrows.forEach(arrow => {
-                            if(arrow.from == target.uid || arrow.to == target.uid){
-                                var arrow_uid = arrow.uid;
-                                var n = layer.findOne('#' + arrow_uid);
-                                n.destroy();
-                                this.props.handleRemove(arrow_uid);
-                            }
-                        });
-
-                        // remove node
-                        this.props.handleRemove(target.uid);
-                        nodeStation.destroy();
-                        layer.draw();
-                    }
-                    else{
-                    /* Open popup of the node */
-                        this.setState({
-                            unit: target.unit,
-                            rate: target.rate,
-                            targetId: target.uid,
-                            type: "Station Node" 
-                        })
-                        this.openPopup();
-                    }
-                }
-            });
-            
-            layer.batchDraw();
-            this.props.confirmAdded();
-
-        }
-
-        /*if user added a end node, then add it to the canvas and deal with moving the object*/
-        if(this.props.addedEnd){
-
-            /** New node are added to the end of the array so just needed to look at the end*/
-            var target = this.props.endNode[this.props.endNode.length - 1];
-
-            /** Draw shape for node, need to change to an icon */
-            var nodeEnd = new Konva.Circle({
-                id: target.uid,
-                fill: 'blue',
-                radius: 20,
-                shadowBlur: 10,
-                stroke:"black",
-                strokeWidth: 2,
-                draggable: true,
-                x: target.x,
-                y: target.y
-            });
-
-            layer.add(nodeEnd);
-
-            /**Node is drag */
-            nodeEnd.on('dragmove', () => {
-                // mutate the state
-                target.x = nodeEnd.x();
-                target.y = nodeEnd.y();
-       
-                // update nodes from the new state
-                this.update();
-                layer.batchDraw();
-            });
-
-            /** Node is click so open popup*/
-            nodeEnd.on('click', () =>{
-                if(this.props.createArrowMode){
-                    // Determine to and from
-                    this.findToAndFrom(target);
-                }
-                else{
-                    if(this.props.removeMode){
-                        
-                        // Remove arrows
-                        var lstOfArrows = this.props.arrows
-                        lstOfArrows.forEach(arrow => {
-                            if(arrow.from == target.uid || arrow.to == target.uid){
-                                var arrow_uid = arrow.uid;
-                                var n = layer.findOne('#' + arrow_uid);
-                                n.destroy();
-                                this.props.handleRemove(arrow_uid);
-                            }
-                        });
-
-                        //remove node 
-                        this.props.handleRemove(target.uid);
-                        nodeEnd.destroy();
-
-                        layer.draw();
-                    }
-                    else{
-                        //open popup for node
-                        this.setState({
-                            unit: target.unit,
-                            targetId: target.uid,
-                            type: "End Node" 
-                        })
-                        this.openPopup();    
-                    }
-                }
-            })
-            
-            layer.batchDraw();
-            this.props.confirmAdded();
-
         }
         
         if(this.props.createArrow){

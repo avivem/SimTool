@@ -22,7 +22,11 @@ class App extends Component{
       createArrowMode: false,
       createArrow: false,
       removeMode: false,
-      clearMode: false
+      clearMode: false,
+      imageStart: null,
+      imageStation: null,
+      imageEnd: null,
+      
     }
 
     this.handleIteration = this.handleIteration.bind(this);
@@ -41,7 +45,7 @@ class App extends Component{
 
     this.handleClearMode = this.handleClearMode.bind(this);
     
-
+    this.handleImageUpload = this.handleImageUpload.bind(this);
   }
 
   handleIteration(val){
@@ -96,6 +100,9 @@ class App extends Component{
             console.log(gotUser);
 
         }).catch(console.log)
+
+        console.log(this.state.startNode);
+
 
         break;
 
@@ -173,6 +180,7 @@ class App extends Component{
       createArrowMode: false,
       removeMode: false
     });
+
     
   }
 
@@ -362,6 +370,32 @@ class App extends Component{
     
   }
 
+  //Handle upload image
+  handleImageUpload(nodeType, image){
+    switch(nodeType){
+      case "start":
+        this.setState({
+          imageStart: image
+        });
+        break;
+
+      case "station":
+        this.setState({
+          imageStation: image
+        });
+        break;
+
+      case "end":
+        this.setState({
+          imageEnd: image
+        });
+        break;
+
+      default:
+        break;
+    }
+  }
+
   render(){
     return (
       <div className="App">
@@ -373,26 +407,34 @@ class App extends Component{
             addArrowMode={this.addArrowMode}
             handleRemoveMode={this.handleRemoveMode}
             handleReset={this.handleReset} 
-            handleClearMode={this.handleClearMode}/>
+            handleClearMode={this.handleClearMode}
+            handleImageUpload={this.handleImageUpload}/>
+        </div>
+        <div>
+          <Canvas 
+            startNode={this.state.startNode} 
+            stationNode={this.state.stationNode} 
+            endNode={this.state.endNode}
+            addedStart={this.state.addedStart}
+            addedStation={this.state.addedStation}
+            addedEnd={this.state.addedEnd}
+            confirmAdded={this.confirmAdded}
+            handleChangeNode={this.handleChangeNode}
+            createArrowMode={this.state.createArrowMode}
+            addArrowState={this.addArrowState}
+            createArrow={this.state.createArrow}
+            arrows={this.state.arrows}
+            removeMode={this.state.removeMode}
+            handleRemove={this.handleRemove}
+            clearMode={this.state.clearMode}
+            handleClearMode={this.handleClearMode}
+            imageStart={this.state.imageStart}
+            imageStation={this.state.imageStation}
+            imageEnd={this.state.imageEnd}></Canvas>
         </div>
 
-        <Canvas 
-          startNode={this.state.startNode} 
-          stationNode={this.state.stationNode} 
-          endNode={this.state.endNode}
-          addedStart={this.state.addedStart}
-          addedStation={this.state.addedStation}
-          addedEnd={this.state.addedEnd}
-          confirmAdded={this.confirmAdded}
-          handleChangeNode={this.handleChangeNode}
-          createArrowMode={this.state.createArrowMode}
-          addArrowState={this.addArrowState}
-          createArrow={this.state.createArrow}
-          arrows={this.state.arrows}
-          removeMode={this.state.removeMode}
-          handleRemove={this.handleRemove}
-          clearMode={this.state.clearMode}
-          handleClearMode={this.handleClearMode} ></Canvas>
+        
+          
 
       </div>
     );

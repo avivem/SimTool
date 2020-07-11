@@ -13,7 +13,10 @@ class Navigation extends Component{
       super(props);
       this.state = {
         openNode: false,
+        openImageOption: false,
         openData: false,
+        imageFile: null,
+        addNodeType: ""
       }
 
       this.handleChange = this.handleChange.bind(this)
@@ -21,6 +24,8 @@ class Navigation extends Component{
       this.closePopupNode = this.closePopupNode.bind(this);
       this.openPopupData = this.openPopupData.bind(this);
       this.closePopupData = this.closePopupData.bind(this);
+      this.openPopupImage = this.openPopupImage.bind(this);
+      this.closePopupImage = this.closePopupImage.bind(this);
       this.handleRun = this.handleRun.bind(this);
 
 
@@ -36,6 +41,10 @@ class Navigation extends Component{
 
       this.handleClearMode = this.handleClearMode.bind(this);
 
+      this.handleImageUpload = this.handleImageUpload.bind(this);
+      this.handleSubmitImage = this.handleSubmitImage.bind(this);
+      this.handleCancelImage = this.handleCancelImage.bind(this);
+      this.handleDefaultImage = this.handleDefaultImage.bind(this);
     }
 
     // Open popup for adding node
@@ -54,6 +63,7 @@ class Navigation extends Component{
       console.log("Close Popup");
     }
 
+    // Open popup for changing data
     openPopupData(){
       this.setState({
         openData: true
@@ -61,9 +71,28 @@ class Navigation extends Component{
       console.log("Open Popup Data");
     }
 
+    // Close popup for changing data
     closePopupData(){
       this.setState({
         openData: false
+      });
+      console.log("Close Popup");
+    }
+
+    // Open popup for uploading image
+    openPopupImage(){
+      this.setState({
+        openImageOption: true
+      });
+      console.log("Open Popup Data");
+    }
+
+    // Close popup for uploading image
+    closePopupImage(){
+      this.setState({
+        openImageOption: false,
+        imageFile: null,
+        addNodeType: ""
       });
       console.log("Close Popup");
     }
@@ -76,19 +105,7 @@ class Navigation extends Component{
       }).catch(console.log)
     }
 
-      openPopup(){
-        this.setState({
-          open: true
-        });
-        console.log("Open Popup");
-      }
       
-      closePopup(){
-        this.setState({
-          open: false
-        });
-        console.log("Close Popup");
-      }
 
     handleChange(e){
         this.props.handleIteration(e.target.value)
@@ -96,20 +113,29 @@ class Navigation extends Component{
 
     // add start node
     addStart(){
-      this.setState({openNode: false});
-      this.props.handleAddNode("start");
+      this.setState({
+        openNode: false,
+        openImageOption: true,
+        addNodeType: "start"
+      });
     }
 
     // add station node
     addStation(){
-      this.setState({openNode: false});
-      this.props.handleAddNode("station");
+      this.setState({
+        openNode: false,
+        openImageOption: true,
+        addNodeType: "station"
+      });
     }
 
     // add end node
     addEnd(){
-      this.setState({openNode: false});
-      this.props.handleAddNode("end");
+      this.setState({
+        openNode: false,
+        openImageOption: true,
+        addNodeType: "end"
+      });
     }
 
     // Change to add arrow mode
@@ -128,6 +154,78 @@ class Navigation extends Component{
 
     handleClearMode(){
       this.props.handleClearMode();
+    }
+
+    // Upload the image file
+    handleImageUpload(e){
+      if(e.target.files[0] !== undefined){
+        this.setState({
+          imageFile: URL.createObjectURL(e.target.files[0])
+        });
+        console.log("Upload file");          
+      }
+    }
+
+    // Submit image upload and add node
+    handleSubmitImage(){
+      this.setState({
+        openImageOption: false,
+      });
+
+      switch(this.state.addNodeType){
+        case "start":
+          this.props.handleImageUpload("start", this.state.imageFile)
+          this.props.handleAddNode("start");
+          break;
+      
+        case "station":
+          this.props.handleImageUpload("station", this.state.imageFile)
+          this.props.handleAddNode("station");
+          break;
+    
+        case "end":
+          this.props.handleImageUpload("end", this.state.imageFile)
+          this.props.handleAddNode("end");
+          break;
+
+        default:
+          break;
+      }
+
+    }
+
+    // Cancel upload
+    handleCancelImage(){
+      this.setState({
+        openNode: true,
+        openImageOption: false,
+        imageFile: null,
+        addNodeType: ""
+      });
+      console.log("Cancel upload");
+    }
+
+    handleDefaultImage(){
+      this.setState({
+        openImageOption: false,
+      });
+
+      switch(this.state.addNodeType){
+        case "start":
+          this.props.handleAddNode("start");
+          break;
+      
+        case "station":
+          this.props.handleAddNode("station");
+          break;
+    
+        case "end":
+          this.props.handleAddNode("end");
+          break;
+
+        default:
+          break;
+      }
     }
 
     render(){
@@ -183,27 +281,40 @@ class Navigation extends Component{
                 <figcaption>Start</figcaption>
               </button>
               
-
               <button onClick={this.addStation} >
                 <img src={StationImage} alt="station" onClick={this.props.handleAddNode} />
                 <figcaption>Station</figcaption>
               </button>
-              
               
               <button onClick={this.addEnd} >
                 <img src={EndImage} alt="end" onClick={this.props.handleAddNode} />
                 <figcaption>End</figcaption>
               </button>
 
-
             </Popup>
           </div>
+          
           <div>
+            {/*Popup for log */}
             <Popup open={this.state.openData} closeOnDocumentClick = {true} onClose={this.closePopupData}>
               <p>This is where the log should go</p>
               <button onClick={this.closePopupData} >Close</button>
             </Popup>
           </div>
+
+          <div>
+            {/*Popup for uploading image */}
+            <Popup open={this.state.openImageOption} closeOnDocumentClick = {true} onClose={this.closePopupImage}>
+              
+              <label>Upload image file for the icon</label>
+              <input type="file" accept=".jpg, .jpeg, .png" onChange={this.handleImageUpload} />
+              <button onClick={this.handleSubmitImage}>Submit</button>
+              <button onClick={this.handleCancelImage}>Cancel</button>
+              <button onClick={this.handleDefaultImage}>Default</button>
+              
+            </Popup>
+          </div>
+
         </nav>
         );
     }
