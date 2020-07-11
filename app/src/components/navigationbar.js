@@ -6,6 +6,7 @@ import StationImage from "../image/station-circle.png";
 import EndImage from "../image/end-circle.png";
 
 import './css/nav.css';
+import './css/popup.css';
 
 
 class Navigation extends Component{
@@ -276,17 +277,19 @@ class Navigation extends Component{
           <div>
             {/*Popup for user to select node to add*/}
             <Popup open={this.state.openNode} closeOnDocumentClick = {true} onClose={this.closePopupNode}>
-              <button onClick={this.addStart} >
+              
+            
+              <button onClick={this.addStart} className="nodeButton">
                 <img src={StartImage} alt="start" />
                 <figcaption>Start</figcaption>
               </button>
               
-              <button onClick={this.addStation} >
+              <button onClick={this.addStation} className="nodeButton">
                 <img src={StationImage} alt="station" onClick={this.props.handleAddNode} />
                 <figcaption>Station</figcaption>
               </button>
               
-              <button onClick={this.addEnd} >
+              <button onClick={this.addEnd} className="nodeButton">
                 <img src={EndImage} alt="end" onClick={this.props.handleAddNode} />
                 <figcaption>End</figcaption>
               </button>
@@ -305,13 +308,16 @@ class Navigation extends Component{
           <div>
             {/*Popup for uploading image */}
             <Popup open={this.state.openImageOption} closeOnDocumentClick = {true} onClose={this.closePopupImage}>
-              
-              <label>Upload image file for the icon</label>
-              <input type="file" accept=".jpg, .jpeg, .png" onChange={this.handleImageUpload} />
-              <button onClick={this.handleSubmitImage}>Submit</button>
-              <button onClick={this.handleCancelImage}>Cancel</button>
-              <button onClick={this.handleDefaultImage}>Default</button>
-              
+              <div>
+                <h4>Upload and set image file as default icon for the node: </h4>
+                <input type="file" accept=".jpg, .jpeg, .png" onChange={this.handleImageUpload} />
+                
+              </div>
+              <div>
+                <button className="button" onClick={this.handleSubmitImage}>Submit</button>
+                <button className="button" onClick={this.handleDefaultImage}>Default</button>    
+                <button className="button" onClick={this.handleCancelImage}>Cancel</button>
+              </div>
             </Popup>
           </div>
 

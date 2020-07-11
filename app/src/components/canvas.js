@@ -7,6 +7,9 @@ import EndImage from "../image/end.png";
 import Konva from 'konva';
 import Popup from "reactjs-popup";
 
+import './css/popup.css';
+
+
 
 class Canvas extends Component{
     constructor(props){
@@ -156,7 +159,7 @@ class Canvas extends Component{
             //outline of the From node change to yellow to show that the node is selected
             var fromNode = layer.findOne('#' + target.uid);
             fromNode.stroke("yellow");
-            fromNode.strokeWidth(2);
+            fromNode.strokeWidth(5);
             fromNode.draw();
         }
         else{
@@ -181,7 +184,7 @@ class Canvas extends Component{
             //Change outline of the From node back to normal, meaning that it is unselected
             var fromNode = layer.findOne('#' + this.state.from);
             fromNode.stroke("black");
-            fromNode.strokeWidth(2);
+            fromNode.strokeWidth(5);
             layer.draw();
         }
         
@@ -267,24 +270,29 @@ class Canvas extends Component{
                 radius: 20,
                 shadowBlur: 10,
                 stroke:"black",
-                strokeWidth: 2,
+                strokeWidth: 5,
                 draggable: true,
                 x: target.x,
                 y: target.y
             });
 
             var t = this;
-            
-            Konva.Image.fromURL(url, function (node) {
-                node.setAttrs({
+            console.log("Test");
+            console.log(url);
+            console.log("Test");
+            if(url == null){
+                var node = new Konva.Circle({
                     id: target.uid,
-                    x: target.x,
-                    y: target.y,
+                    fill: colorFill,
+                    radius: 20,
                     shadowBlur: 10,
                     stroke:"black",
-                    strokeWidth: 2,
-                    draggable: true,    
+                    strokeWidth: 5,
+                    draggable: true,
+                    x: target.x,
+                    y: target.y
                 });
+
                 layer.add(node);
 
                 node.on('dragmove', () => {
@@ -293,54 +301,115 @@ class Canvas extends Component{
                     target.y = node.y();
         
                     // update nodes from the new state
-                    t.update();
+                    this.update();
                     layer.batchDraw();
                 });
 
                 /** Node is click so open popup*/
                 node.on('click', () =>{
-                    if(t.props.createArrowMode){
+                    if(this.props.createArrowMode){
                         /* Help determine the to and from node. Once determine the arrow is 
                         added to the list of arrows in App.js */
                         t.findToAndFrom(target);
                     }
                     else{
-                        if(t.props.removeMode){
+                        if(this.props.removeMode){
                             // remove arrows
-                            t.props.arrows.forEach(arrow => {
+                            this.props.arrows.forEach(arrow => {
                                 if(arrow.from == target.uid || arrow.to == target.uid){
                                     var arrow_uid = arrow.uid;
                                     var n = layer.findOne('#' + arrow_uid);
                                     n.destroy();
-                                    t.props.handleRemove(arrow_uid);
+                                    this.props.handleRemove(arrow_uid);
                                 }
                             });
 
                             //remove node
-                            t.props.handleRemove(target.uid);
+                            this.props.handleRemove(target.uid);
                             node.destroy();
 
                             layer.draw();
                         }
                         else{
                             /*Open popup for the node to change the rate/unit */
-                            t.setState({
+                            this.setState({
                                 unit: target.unit,
                                 rate: target.rate,
                                 targetId: target.uid,
                                 type: header
                             })
-                            t.openPopup();
+                            this.openPopup();
                         }
                     }
                 })
                 
                 layer.batchDraw();
-            });
-
-
-
+            }
+            else{
+                Konva.Image.fromURL(url, function (node) {
+                    node.setAttrs({
+                        id: target.uid,
+                        x: target.x,
+                        y: target.y,
+                        shadowBlur: 10,
+                        stroke:"black",
+                        strokeWidth: 5,
+                        draggable: true,    
+                    });
+                    layer.add(node);
+    
+                    node.on('dragmove', () => {
+                        // mutate the state
+                        target.x = node.x();
+                        target.y = node.y();
             
+                        // update nodes from the new state
+                        t.update();
+                        layer.batchDraw();
+                    });
+    
+                    /** Node is click so open popup*/
+                    node.on('click', () =>{
+                        if(t.props.createArrowMode){
+                            /* Help determine the to and from node. Once determine the arrow is 
+                            added to the list of arrows in App.js */
+                            t.findToAndFrom(target);
+                        }
+                        else{
+                            if(t.props.removeMode){
+                                // remove arrows
+                                t.props.arrows.forEach(arrow => {
+                                    if(arrow.from == target.uid || arrow.to == target.uid){
+                                        var arrow_uid = arrow.uid;
+                                        var n = layer.findOne('#' + arrow_uid);
+                                        n.destroy();
+                                        t.props.handleRemove(arrow_uid);
+                                    }
+                                });
+    
+                                //remove node
+                                t.props.handleRemove(target.uid);
+                                node.destroy();
+    
+                                layer.draw();
+                            }
+                            else{
+                                /*Open popup for the node to change the rate/unit */
+                                t.setState({
+                                    unit: target.unit,
+                                    rate: target.rate,
+                                    targetId: target.uid,
+                                    type: header
+                                })
+                                t.openPopup();
+                            }
+                        }
+                    })
+                    
+                    layer.batchDraw();
+                });    
+            }
+
             this.props.confirmAdded();
         }
         
@@ -372,6 +441,7 @@ class Canvas extends Component{
         if(this.props.clearMode){
             layer.find('Arrow').destroy();
             layer.find('Circle').destroy();
+            layer.find('Image').destroy();
             layer.draw();
             this.props.handleClearMode();
         }
@@ -412,7 +482,7 @@ class Canvas extends Component{
                             onChange={this.handleChangeRate} />
                         </label> : <div></div>}
 
-                        <button className="submit-button" onClick={this.handleChangeNode}>
+                        <button className="button" onClick={this.handleChangeNode}>
                             Apply
                         </button>
                     </Popup>
