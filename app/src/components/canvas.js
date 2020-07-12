@@ -181,7 +181,8 @@ class Canvas extends Component{
                     to: target.uid
                   })
                 };
-
+                console.log(this.state.from)
+                console.log(target.uid)
                 // fetch to api to create connection
                 fetch(`http://127.0.0.1:5000/api/dirto/`, requestOptionsStart).then(gotUser => {
                     console.log(gotUser);
@@ -289,9 +290,9 @@ class Canvas extends Component{
             });
 
             var t = this;
-            console.log("Test");
-            console.log(url);
-            console.log("Test");
+            // console.log("Test");
+            // console.log(url);
+            // console.log("Test");
             if(url == null){
                 var node = new Konva.Circle({
                     id: target.uid,

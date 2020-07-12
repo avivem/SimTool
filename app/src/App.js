@@ -79,7 +79,6 @@ class App extends Component{
         this.setState({startNode: node, addedStart: true});
 
         // request options to send in post request- START NODE
-        // placeholder values
         const requestOptionsStart = {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -91,7 +90,7 @@ class App extends Component{
             gen_fun: 10,
             limit: 200,
             // node id is this.state.startNode[0].uid
-            uid: this.state.startNode[0].uid
+            uid: "start-" + this.state.count
           })
         };
 
@@ -129,7 +128,7 @@ class App extends Component{
             capacity: 50,
             time_func: 1000,
             // node id is this.state.stationNode[0].uid
-            uid: this.state.stationNode[0].uid
+            uid: "station-" + this.state.count
           })
         };
 
@@ -162,7 +161,7 @@ class App extends Component{
             name: "Convention",
             type: "END",
             // node id is this.state.endNode[0].uid
-            uid: this.state.endNode[0].uid
+            uid: "end-" + this.state.count
           })
         };
 
