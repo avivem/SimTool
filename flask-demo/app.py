@@ -65,66 +65,59 @@ def node():
 		if not request.json:
 			return redirect("https://http.cat/400")
 		if request.json['type'] == "START":
-			name = request.json['name']
-			entity_name = request.json['entity_name']
-			gen_fun = request.json['gen_fun']
-			limit = request.json['limit']
-			uid = request.json['uid']
+			inputs = {
+				'name' : request.json['name'],
+				'entity_name' : request.json['entity_name'],
+				'gen_fun' : request.json['gen_fun'],
+				'limit' : request.json['limit'],
+				'uid' : request.json['uid']
+			}
 
-			st =  StartingPoint(data.env, name, entity_name, gen_fun, limit, uid)
+			st =  StartingPoint(data.env, **inputs)
 			data.nodes[st.uid] = st
 			data.starts[st.uid] = st
 
-			data.save["nodes"][st.uid] = {}
+			data.save["nodes"][st.uid] = inputs
 			data.save["nodes"][st.uid]["type"] = "START"
-			data.save["nodes"][st.uid]["name"] = name
-			data.save["nodes"][st.uid]["entity_name"] = entity_name
-			data.save["nodes"][st.uid]["gen_fun"] = gen_fun
-			data.save["nodes"][st.uid]["limit"] = limit
-			data.save["nodes"][st.uid]["uid"] = st.uid
+
 			return data.save["nodes"][st.uid]
 
 		elif request.json['type'] == "BASIC":
-			name = request.json['name']
-			capacity = request.json['capacity']
-			time_func = request.json['time_func']
-			uid = request.json['uid']
+
+			inputs = {
+				'name' : request.json['name'],
+				'capacity' : request.json['capacity'],
+				'time_func' : request.json['time_func'],
+				'uid' : request.json['uid']
+			}
+			
 			#Here, we will need to add logic to choose the right time function
-			b = BasicComponent(data.env, name, capacity, time_func, uid)
+			b = BasicComponent(data.env, **inputs)
 			data.nodes[b.uid] = b
 			data.basics[b.uid] = b
 
-			data.save["nodes"][b.uid] = {}
+			data.save["nodes"][b.uid] = inputs
 			data.save["nodes"][b.uid]["type"] = "BASIC"
-			data.save["nodes"][b.uid]["name"] = name
-			data.save["nodes"][b.uid]["capacity"] = capacity
-			data.save["nodes"][b.uid]["time_func"] = time_func
-			data.save["nodes"][b.uid]["uid"] = b.uid
 			return data.save["nodes"][b.uid]
 
 		elif request.json['type'] == "END":
-			name = request.json['name']
-			uid = request.json['uid']
-			e = EndingPoint(data.env, name, uid)
+
+			inputs = {
+				'name' : request.json['name'],
+				'uid' : request.json['uid']
+			}
+			
+			e = EndingPoint(data.env, **inputs)
 			data.nodes[e.uid] = e
 			data.ends[e.uid] = e
 
-			data.save["nodes"][e.uid] = {}
+			data.save["nodes"][e.uid] = inputs
 			data.save["nodes"][e.uid]["type"] = "END"
-			data.save["nodes"][e.uid]["name"] = name
-			data.save["nodes"][e.uid]["uid"] = e.uid
 			return data.save["nodes"][e.uid]
 		else:
 			return redirect("https://http.cat/400")
 	elif request.method == "GET":
 		return redirect("https://http.cat/400")
-
-""" # url to connect two nodes together- has a direction
-@app.route('/api/<frum>/dirto/<to>', methods=["POST"])
-def dirto(frum,to):
-	data.nodes[frum].set_directed_to(data.nodes[to])
-	data.save["dirto"][frum] = to
-	return f'{data.nodes[frum]} directed to {data.nodes[to]}' """
 
 @app.route('/api/dirto/', methods = ["GET","POST","DELETE"])
 def dirto():
@@ -134,7 +127,9 @@ def dirto():
 		frum = request.json['from']
 		to = request.json['to']
 		data.nodes[frum].set_directed_to(data.nodes[to])
-		data.save['dirto'][frum] = to
+		if frum not in data.save['dirto']:
+			data.save['dirto'][frum] = []
+		data.save['dirto'][frum].append(to)
 		return f'{data.nodes[frum]} directed to {data.nodes[to]}'
 	else:
 		frum = request.json['from']

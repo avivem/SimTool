@@ -157,7 +157,7 @@ b1.set_directed_to(ed)
 env.process(st.run())
 env.run(until=300) """
 
-env = simpy.Environment()
+""" env = simpy.Environment()
 st = StartingPoint(env, "Hotel", "Attendee", 10, 200)
 line1 = BasicComponent(env, "Convention Line 1", 50, 1000)
 security1 = BasicComponent(env, "Security 1", 10, 100)
@@ -171,6 +171,6 @@ security1.set_directed_to(end)
 line2.set_directed_to(security2)
 security2.set_directed_to(end)
 env.process(st.run())
-env.run(until=20000)
+env.run(until=20000) """
 
 
