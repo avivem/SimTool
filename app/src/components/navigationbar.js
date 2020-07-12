@@ -247,7 +247,7 @@ class Navigation extends Component{
         let content;
         // console.log(this.state)
         // determine content in popup
-        if(this.state.addNodeType == "End Node"){
+        if(this.state.addNodeType == "end"){
             content =   <div><label className="label">Name:
                             <input 
                                 type="text" 
@@ -277,6 +277,7 @@ class Navigation extends Component{
                         <label className="label">Limit:
                             <input 
                                 type="text" 
+                                placeholder="Enter enter limit"
                                 className="form-control"
                                 name="limit" 
                                 
@@ -296,7 +297,8 @@ class Navigation extends Component{
                         </label>
                         <label className="label">Capacity:
                             <input 
-                                type="number" 
+                                type="text" 
+                                placeholder="Enter node capacity"
                                 className="form-control"
                                 name="capacity" 
                                 onChange={this.onChange}
@@ -304,7 +306,8 @@ class Navigation extends Component{
                         </label>
                         <label className="label">Time Function:
                             <input 
-                                type="number" 
+                                type="text" 
+                                placeholder="Enter time function"
                                 className="form-control"
                                 name="time_func" 
                                 onChange={this.onChange}
