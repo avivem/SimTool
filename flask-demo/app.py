@@ -79,7 +79,7 @@ def resource():
 
 
 # Node type- JSON must have a 'type' argument with either START, BASIC or END
-@app.route('/api/node/', methods=["GET","POST"])
+@app.route('/api/node/', methods=["GET","POST", "PUT"])
 def node():
 	if request.method == "POST":
 		if not request.json:
@@ -99,8 +99,15 @@ def node():
 		del inputs['env']
 		return inputs
 	elif request.method == "PUT":
-		abort(400)
-
+		uid = request.json['uid']
+		if not uid in data.nodes:
+			abort(400)
+		
+		inputs = dict(request.json)
+		del inputs['type']
+		data.nodes[uid].update(inputs)
+		data.save["nodes"][uid].update(inputs)
+		return data.save["nodes"][uid]
 		
 
 @app.route('/api/dirto/', methods = ["GET","POST","DELETE"])
@@ -126,6 +133,7 @@ def dirto():
 @app.route('/api/run/<int:until>')
 @app.route('/api/run/')
 def run(until=300):
+	global new_stdout
 	if len(data.starts) == 0:
 		return "Please create a starting node."
 	if len(data.ends) == 0:
@@ -133,13 +141,21 @@ def run(until=300):
 	[data.env.process(data.nodes[x].run()) for x in data.starts]
 	print(f'Running simulation until {until}')
 	data.env.run(until=until)
+
+	#Fix later when we have a logger
 	data.save["last_run"] = new_stdout.getvalue().split('\n')
+	new_stdout = io.StringIO()
+	sys.stdout = new_stdout
 	return jsonify(data.save["last_run"])
 
 # url to reset simulation
 @app.route('/api/reset/')
 def reset():
 	data.env = simpy.Environment()
+	for k,v in data.nodes.items():
+		v.update({'env': data.env})
+	for k,v in data.starts.items():
+		v.reset_count()
 	return "Simulation has been reset."
 
 # url to clean the graph for a new sim.

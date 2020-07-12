@@ -51,6 +51,10 @@ class Node(object):
 
         return None
 
+    def update(self, args):
+        for k,v in args.items():
+            setattr(self, k, v)
+
 """
 Class that represents the basic object that flows through the system. This
 could represent a person walking through a bank, an animal going through a
@@ -98,6 +102,9 @@ class StartingPoint(Node):
         self.action = env.process(self.run())
     def __str__(self):
         return self.name
+
+    def reset_count(self):
+        self.count = 0
 
     
     def run(self):
