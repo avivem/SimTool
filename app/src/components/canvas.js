@@ -34,6 +34,7 @@ class Canvas extends Component{
         this.handleChangeRate = this.handleChangeRate.bind(this)
         
         this.handleChangeNode = this.handleChangeNode.bind(this);
+        this.onChange = this.onChange.bind(this);
 
         this.findToAndFrom = this.findToAndFrom.bind(this);
         this.update = this.update.bind(this);
@@ -68,6 +69,11 @@ class Canvas extends Component{
             }
         }
     }
+
+    onChange(e) {
+        this.setState({ [e.target.name]: e.target.value })
+    }
+
 
     /**Keep track of the unit selected in the dropdown menu */
     handleChangeUnit(e){
@@ -344,14 +350,33 @@ class Canvas extends Component{
                             layer.draw();
                         }
                         else{
-                            /*Open popup for the node to change the rate/unit */
-                            this.setState({
-                                unit: target.unit,
-                                rate: target.rate,
-                                targetId: target.uid,
-                                type: header
-                            })
-                            this.openPopup();
+                            /*Open speficif popup for the node to change details*/
+                            if(target.type == 'START'){
+                                this.setState({
+                                    unit: target.unit,
+                                    rate: target.rate,
+                                    targetId: target.uid,
+                                    type: header
+                                })
+                                this.openPopup();
+                            }else if(target.type == 'BASIC'){
+                                this.setState({
+                                    unit: target.unit,
+                                    rate: target.rate,
+                                    targetId: target.uid,
+                                    type: header
+                                })
+                                this.openPopup();
+                            }else{
+                                this.setState({
+                                    unit: target.unit,
+                                    rate: target.rate,
+                                    targetId: target.uid,
+                                    type: header
+                                })
+                                this.openPopup();
+                            }
+
                         }
                     }
                 })
@@ -462,9 +487,71 @@ class Canvas extends Component{
     }
 
     render(){
+        // let content;
+        // console.log(this.state)
+        // // determine content in popup
+        // if(this.state.type == "End Node"){
+        //     content =   <div><label className="label">Name:
+        //                     <input 
+        //                         type="text" 
+        //                         className="form-control"
+        //                         id="rate" 
+        //                         onchange={this.handleChangeName} />
+        //                 </label></div>
+        // }else if(this.state.type == "Start Node"){
+        //     content =   <div><label className="label">Name:
+        //                     <input 
+        //                         type="text" 
+        //                         className="form-control"
+        //                         id="rate" 
+        //                         onchange={this.handleChangeName}
+        //                          />
+        //                 </label>
+        //                 <label className="label">Gen Function:
+        //                     <input 
+        //                         type="number" 
+        //                         className="form-control"
+        //                         id="rate" 
+        //                         onchange={this.handleChangeGen}
+        //                          />
+        //                 </label>
+        //                 <label className="label">Limit:
+        //                     <input 
+        //                         type="number" 
+        //                         className="form-control"
+        //                         id="rate" 
+        //                         onchange={this.handleChangeLimit}
+        //                          />
+        //                 </label></div>
+        // }else{
+        //     content =   <div><label className="label">Name:
+        //                     <input 
+        //                         type="text" 
+        //                         className="form-control"
+        //                         id="rate" 
+        //                         onchange={this.handleChangeName}
+        //                          />
+        //                 </label>
+        //                 <label className="label">Capacity:
+        //                     <input 
+        //                         type="number" 
+        //                         className="form-control"
+        //                         id="rate" 
+        //                         onchange={this.handleChangeCapa}
+        //                          />
+        //                 </label>
+        //                 <label className="label">Time Function:
+        //                     <input 
+        //                         type="number" 
+        //                         className="form-control"
+        //                         id="rate" 
+        //                         onchange={this.handleChangeName}
+        //                          />
+        //                 </label></div>
+        // }
+
         return(
             <div>
-
                 <p>.</p>
                 <p>.</p>
                 <p>.</p>
@@ -474,26 +561,9 @@ class Canvas extends Component{
                     {/*Popup for the node*/ }
                     <Popup open={this.state.open} closeOnDocumentClick = {true} onClose={this.closePopup}>
                         <h1>{this.state.type}</h1>
- {//                       <label className="label">Unit:&nbsp;
-  //                          <select 
-  //                          id="unit" 
-  //                          onChange={this.handleChangeUnit} 
-  //                          value={this.state.unit}>
-  //                              <option value="Second">Second</option>
-  //                              <option value="Minute">Minute</option>
-  //                              <option value="Hour">Hour</option>
-  //                              <option value="Day">Day</option>
-  //                          </select>
-  //                      </label><br />
-    }
-                        {this.state.type !== "End Node" ? 
-                        <label className="label">Period:&nbsp;
-                        <input 
-                            type="text" 
-                            id="rate" 
-                            value={this.state.rate} 
-                            onChange={this.handleChangeRate} />
-                        </label> : <div></div>}
+
+                        {/*content in popup- start, beginning or end*/}
+                        {/*{content}*/}
 
                         <button className="button" onClick={this.handleChangeNode}>
                             Apply

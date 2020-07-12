@@ -17,7 +17,15 @@ class Navigation extends Component{
         openImageOption: false,
         openData: false,
         imageFile: null,
-        addNodeType: ""
+        addNodeType: "",
+        startname: '',
+        stationname: '',
+        endname: '',
+        entity_name: '',
+        gen_fun: 0,
+        limit: 0,
+        capacity: 0,
+        time_func: 0
       }
 
       this.handleChange = this.handleChange.bind(this)
@@ -46,6 +54,13 @@ class Navigation extends Component{
       this.handleSubmitImage = this.handleSubmitImage.bind(this);
       this.handleCancelImage = this.handleCancelImage.bind(this);
       this.handleDefaultImage = this.handleDefaultImage.bind(this);
+
+      this.onChange = this.onChange.bind(this);
+    }
+
+    onChange(e){
+      // console.log(e.target)
+      this.setState({ [e.target.name]: e.target.value })
     }
 
     // Open popup for adding node
@@ -104,9 +119,7 @@ class Navigation extends Component{
           console.log(gotUser);
 
       }).catch(console.log)
-    }
-
-      
+    } 
 
     handleChange(e){
         this.props.handleIteration(e.target.value)
@@ -176,17 +189,18 @@ class Navigation extends Component{
       switch(this.state.addNodeType){
         case "start":
           this.props.handleImageUpload("start", this.state.imageFile)
-          this.props.handleAddNode("start");
+          // fetch to api to create node
+          this.props.handleAddNode("start",this.state);
           break;
       
         case "station":
           this.props.handleImageUpload("station", this.state.imageFile)
-          this.props.handleAddNode("station");
+          this.props.handleAddNode("station",this.state);
           break;
     
         case "end":
           this.props.handleImageUpload("end", this.state.imageFile)
-          this.props.handleAddNode("end");
+          this.props.handleAddNode("end",this.state);
           break;
 
         default:
@@ -230,6 +244,74 @@ class Navigation extends Component{
     }
 
     render(){
+        let content;
+        // console.log(this.state)
+        // determine content in popup
+        if(this.state.addNodeType == "End Node"){
+            content =   <div><label className="label">Name:
+                            <input 
+                                type="text" 
+                                className="form-control"
+                                name="endname"
+                                onChange={this.onChange} />
+                        </label></div>
+        }else if(this.state.addNodeType == "start"){
+            content =   <div><label className="label">Name:
+                            <input 
+                                type="text" 
+                                name="startname"
+                                placeholder="Enter node name"
+                                className="form-control"
+                                
+                                onChange={this.onChange}
+                                 />
+                        </label>
+                        <label className="label">Gen Function:
+                            <input 
+                                type="text" 
+                                className="form-control"
+                                name="gen_fun" 
+                                onChange={this.onChange}
+                                 />
+                        </label>
+                        <label className="label">Limit:
+                            <input 
+                                type="text" 
+                                className="form-control"
+                                name="limit" 
+                                
+                                onChange={this.onChange}
+                                 />
+                        </label></div>
+        }else{
+            content =   <div><label className="label">Name:
+                            <input 
+                                type="text" 
+                                name="stationame"
+                                placeholder="Enter node name"
+                                className="form-control"
+                                
+                                onChange={this.onChange}
+                                 />
+                        </label>
+                        <label className="label">Capacity:
+                            <input 
+                                type="number" 
+                                className="form-control"
+                                name="capacity" 
+                                onChange={this.onChange}
+                                 />
+                        </label>
+                        <label className="label">Time Function:
+                            <input 
+                                type="number" 
+                                className="form-control"
+                                name="time_func" 
+                                onChange={this.onChange}
+                                 />
+                        </label></div>
+        }
+
       return(
         <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark navbar-expand ">
          
@@ -309,7 +391,11 @@ class Navigation extends Component{
             {/*Popup for uploading image */}
             <Popup open={this.state.openImageOption} closeOnDocumentClick = {true} onClose={this.closePopupImage}>
               <div>
-                <h4>Upload and set image file as default icon for the node: </h4>
+
+                {content}
+
+                <h3>Upload image file for node icon: </h3>
+                {/*Change this so it is a specific size */}
                 <input type="file" accept=".jpg, .jpeg, .png" onChange={this.handleImageUpload} />
                 
               </div>

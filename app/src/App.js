@@ -62,7 +62,7 @@ class App extends Component{
 
   /* Add node, determine what node to add by checking nodeType
   nodeType can be start, station, or end */
-  addNode(nodeType){
+  addNode(nodeType,data){
     var xPos = 200;
     var yPos = 200;
     switch(nodeType){
@@ -85,10 +85,10 @@ class App extends Component{
           body: JSON.stringify({
             type: 'START',
             // Change the name value to this.state.name to refer to user input
-            name:'Hotel',
+            name: data.startname,
             entity_name: 'Person',
-            gen_fun: 10,
-            limit: 200,
+            gen_fun: parseInt(data.gen_fun),
+            limit: parseInt(data.limit),
             // node id is this.state.startNode[0].uid
             uid: "start-" + this.state.count
           })
@@ -99,8 +99,6 @@ class App extends Component{
             console.log(gotUser);
 
         }).catch(console.log)
-
-        console.log(this.state.startNode);
 
 
         break;
@@ -124,9 +122,9 @@ class App extends Component{
           body: JSON.stringify({
             type: 'BASIC',
             // Change the name value to this.state.name to refer to user input
-            name:'Line',
-            capacity: 50,
-            time_func: 1000,
+            name:data.stationame,
+            capacity: parseInt(data.capacity),
+            time_func: parseInt(data.time_func),
             // node id is this.state.stationNode[0].uid
             uid: "station-" + this.state.count
           })
@@ -156,9 +154,8 @@ class App extends Component{
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            type: 'BASIC',
             // Change the name value to this.state.name to refer to user input
-            name: "Convention",
+            name: data.endname,
             type: "END",
             // node id is this.state.endNode[0].uid
             uid: "end-" + this.state.count
