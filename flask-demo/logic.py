@@ -120,13 +120,13 @@ class BasicComponent(Node):
         self.capacity = capacity
         self.resource = simpy.Resource(env,capacity)
         self.time_func = time_func
-        self.containers = []
+        self.containers = {}
 
     def __str__(self):
         return self.name
 
     def add_container(self, container):
-        self.containers.append(container)
+        self.containers[container.uid] = container
         
     #Returns a timeout event which represents the amount of time a component
     #needs to do it's thing.
@@ -135,6 +135,21 @@ class BasicComponent(Node):
         next_ind = random.randint(0,len(self.directed_to)-1)
         next_dir = list(self.directed_to.keys())[next_ind]
         return (self.env.timeout(self.time_func),next_dir)
+
+class BasicContainer(object):
+    def __init__(self, env, name, owner, unit,init = 0, capacity = float('inf'),uid=None):
+        if uid is None:
+            self.uid = uuid.uuid4().hex
+        else:
+            self.uid = uid
+        self.env = env
+        self.name = name
+        self.owner = owner
+        self.init = init
+        self.unit = unit
+        self.capacity = capacity
+        self.con = simpy.Container(env, capacity, init)
+
 
 #Collection point for entities that have travelled through the system.
 class EndingPoint(Node):

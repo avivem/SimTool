@@ -1,7 +1,7 @@
 from flask import Flask, render_template,json , jsonify, request, redirect, url_for, abort
 from flask_cors import CORS, cross_origin
 import simpy
-from logic import Node, StartingPoint, BasicFlowEntity, BasicComponent, EndingPoint
+from logic import Node, StartingPoint, BasicFlowEntity, BasicComponent, EndingPoint, BasicContainer
 import sys
 import io
 import uuid
@@ -27,6 +27,7 @@ class DataStore():
 	nodes = {}
 	save = {
 		"nodes" : {},
+		"containers" : {},
 		"dirto" : {},
 		"last_run" : None
 	}
@@ -43,14 +44,14 @@ def store():
 	elif all(elem in request.json for elem in data.save):
 			data.save = request.json
 
-			##TODO: discuss with team whether or not this presents security problems.
 			for id in data.save["nodes"]:
 				node = dict(data.save["nodes"][id])
-				tipe = {"START": StartingPoint, "BASIC": BasicComponent, "END": EndingPoint}[node["type"]]
-				tipe_dict = {"START": data.starts, "BASIC": data.basics, "END": data.ends}[node["type"]]
+				tipe = node['type']
+				tipe_func = {"START": StartingPoint, "BASIC": BasicComponent, "END": EndingPoint}[tipe]
+				tipe_dict = {"START": data.starts, "BASIC": data.basics, "END": data.ends}[tipe]
 				del node["type"]
 				node["env"] = data.env
-				n = tipe(**node)
+				n = tipe_func(**node)
 				data.nodes[n.uid] = n
 				tipe_dict[n.uid] = n
 			for entry in data.save["dirto"].keys():
@@ -59,66 +60,48 @@ def store():
 	else:
 		return redirect("https://http.cat/400")
 
+
+""" @api.route('/api/node/resource', methods = ["POST"])
+def resource():
+	if request.method == "POST":
+
+		inputs = {
+			'name' : request.json['name'],
+			'owner' : request.json['owner'],
+			'unit' : request.json['unit'],
+			'init' : request.json['init'],
+			'capacity' : request.json['capacity'],
+			'uid' : request.json['uid'],
+		}
+
+		container = BasicContainer(data.env, **inputs) """
+		
+
+
 # Node type- JSON must have a 'type' argument with either START, BASIC or END
 @app.route('/api/node/', methods=["GET","POST"])
 def node():
 	if request.method == "POST":
 		if not request.json:
-			return redirect("https://http.cat/400")
-		if request.json['type'] == "START":
-			inputs = {
-				'name' : request.json['name'],
-				'entity_name' : request.json['entity_name'],
-				'gen_fun' : request.json['gen_fun'],
-				'limit' : request.json['limit'],
-				'uid' : request.json['uid']
-			}
+			abort(400)
 
-			st =  StartingPoint(data.env, **inputs)
-			data.nodes[st.uid] = st
-			data.starts[st.uid] = st
+		inputs = dict(request.json)
+		tipe = request.json['type']
+		tipe_func = {"START": StartingPoint, "BASIC": BasicComponent, "END": EndingPoint}[tipe]
+		tipe_dict = {"START": data.starts, "BASIC": data.basics, "END": data.ends}[tipe]
+		del inputs['type']
+		inputs["env"] = data.env
+		n = tipe_func(**inputs)
+		data.nodes[n.uid] = n
+		tipe_dict[n.uid] = n
+		data.save["nodes"][n.uid] = inputs
+		inputs['type'] = tipe
+		del inputs['env']
+		return inputs
+	elif request.method == "PUT":
+		abort(400)
 
-			data.save["nodes"][st.uid] = inputs
-			data.save["nodes"][st.uid]["type"] = "START"
-
-			return data.save["nodes"][st.uid]
-
-		elif request.json['type'] == "BASIC":
-
-			inputs = {
-				'name' : request.json['name'],
-				'capacity' : request.json['capacity'],
-				'time_func' : request.json['time_func'],
-				'uid' : request.json['uid']
-			}
-			
-			#Here, we will need to add logic to choose the right time function
-			b = BasicComponent(data.env, **inputs)
-			data.nodes[b.uid] = b
-			data.basics[b.uid] = b
-
-			data.save["nodes"][b.uid] = inputs
-			data.save["nodes"][b.uid]["type"] = "BASIC"
-			return data.save["nodes"][b.uid]
-
-		elif request.json['type'] == "END":
-
-			inputs = {
-				'name' : request.json['name'],
-				'uid' : request.json['uid']
-			}
-			
-			e = EndingPoint(data.env, **inputs)
-			data.nodes[e.uid] = e
-			data.ends[e.uid] = e
-
-			data.save["nodes"][e.uid] = inputs
-			data.save["nodes"][e.uid]["type"] = "END"
-			return data.save["nodes"][e.uid]
-		else:
-			return redirect("https://http.cat/400")
-	elif request.method == "GET":
-		return redirect("https://http.cat/400")
+		
 
 @app.route('/api/dirto/', methods = ["GET","POST","DELETE"])
 def dirto():
@@ -160,7 +143,7 @@ def reset():
 	return "Simulation has been reset."
 
 # url to clean the graph for a new sim.
-@app.route('/api/clean/')
+@app.route('/api/clean/', methods=["GET"])
 def clean():
 	global data
 	data = DataStore()
