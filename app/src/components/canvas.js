@@ -170,8 +170,21 @@ class Canvas extends Component{
 
                 this.props.addArrowState(this.state.from, target.uid)
 
+                // request options to send in connection request
+                const requestOptionsStart = {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+   
+                    // from and to nodes
+                    from: this.state.from,
+                    to: target.uid
+                  })
+                };
+                console.log(this.state.from)
+                console.log(target.uid)
                 // fetch to api to create connection
-                fetch(`http://127.0.0.1:5000/api/${this.state.from}/dirto/${target.uid}`).then(gotUser => {
+                fetch(`http://127.0.0.1:5000/api/dirto/`, requestOptionsStart).then(gotUser => {
                     console.log(gotUser);
 
                 }).catch(console.log)
@@ -277,9 +290,9 @@ class Canvas extends Component{
             });
 
             var t = this;
-            console.log("Test");
-            console.log(url);
-            console.log("Test");
+            // console.log("Test");
+            // console.log(url);
+            // console.log("Test");
             if(url == null){
                 var node = new Konva.Circle({
                     id: target.uid,
