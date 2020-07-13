@@ -141,6 +141,7 @@ class Canvas extends Component{
             container: 'container',
             width: width,
             height: height,
+            draggable: true
         });
         var layer = new Konva.Layer();
         stage.add(layer);
@@ -555,7 +556,7 @@ class Canvas extends Component{
                 <p>.</p>
                 <p>.</p>
                 <p>.</p>
-                <div id="container"></div>
+                <div id="container" style={{backgroundColor:'grey'}}></div>
 
                 <div>
                     {/*Popup for the node*/ }

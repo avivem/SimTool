@@ -25,7 +25,10 @@ class Navigation extends Component{
         gen_fun: 0,
         limit: 0,
         capacity: 0,
-        time_func: 0
+        time_func: 0,
+        arrowButtonColor: "#2cbebe",
+        removeButtonColor: "#ff0000"
+
       }
 
       this.handleChange = this.handleChange.bind(this)
@@ -46,8 +49,6 @@ class Navigation extends Component{
 
       this.handleRemoveMode = this.handleRemoveMode.bind(this);
 
-      this.handleReset = this.handleReset.bind(this);
-
       this.handleClearMode = this.handleClearMode.bind(this);
 
       this.handleImageUpload = this.handleImageUpload.bind(this);
@@ -66,8 +67,11 @@ class Navigation extends Component{
     // Open popup for adding node
     openPopupNode(){
       this.setState({
-        openNode: true
+        openNode: true,
+        arrowButtonColor: "#2cbebe",
+        removeButtonColor: "#ff0000"
       });
+      this.props.handleReset();
       console.log("Open Popup Node");
     }
     
@@ -154,16 +158,41 @@ class Navigation extends Component{
 
     // Change to add arrow mode
     addArrowMode(){
-      this.props.addArrowMode();
+      if(this.props.createArrowMode){
+        this.setState({
+          arrowButtonColor: "#2cbebe",
+          removeButtonColor: "ff0000"
+        });
+      }
+      else{
+        this.setState({
+          arrowButtonColor: "#1e8080",
+          removeButtonColor: "ff0000"
+        });
+      }
+      this.props.addArrowMode();  
+
     }
 
     // Change to remove node/arrow mode
     handleRemoveMode(){
-      this.props.handleRemoveMode();
-    }
+      console.log(this.props.removeMode);
+      console.log(this.props.createArrowMode);
+      if(this.props.removeMode){
+        this.setState({
+          removeButtonColor: "#ff0000",
+          arrowButtonColor: "#2cbebe"
+        });
+      }
+      else{
+        this.setState({
+          removeButtonColor: "#cc0000",
+          arrowButtonColor: "#2cbebe"
 
-    handleReset(){
-      this.props.handleReset();
+        });
+      }
+
+      this.props.handleRemoveMode();
     }
 
     handleClearMode(){
@@ -325,13 +354,10 @@ class Navigation extends Component{
                 <button className="button" style={{backgroundColor:'#2cbebe'}} onClick={this.openPopupNode}>+</button>
               </li>
               <li class="nav-item">
-                <button className="button" style={{backgroundColor:'#2cbebe'}} onClick={this.addArrowMode}>→</button>
+                <button className="button" style={{backgroundColor:this.state.arrowButtonColor}} onClick={this.addArrowMode}>→</button>
               </li>
               <li class="nav-item">
-                <button className="button" style={{backgroundColor:'red'}} onClick={this.handleRemoveMode}>x</button>
-              </li>
-              <li class="nav-item">
-                <button className="button" style={{backgroundColor:'red'}} onClick={this.handleReset}>Reset</button>
+                <button className="button" style={{backgroundColor:this.state.removeButtonColor}} onClick={this.handleRemoveMode}>x</button>
               </li>
             </ul>
 
