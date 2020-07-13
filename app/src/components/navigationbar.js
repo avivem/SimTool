@@ -28,7 +28,9 @@ class Navigation extends Component{
         capacity: 0,
         time_func: 0,
         arrowButtonColor: "#2cbebe",
-        removeButtonColor: "#ff0000"
+
+        removeButtonColor: "#ff0000",
+        log: null
 
       }
 
@@ -125,6 +127,9 @@ class Navigation extends Component{
       console.log(url);
       fetch(url).then(res => res.json()).then(gotUser => {
           console.log(gotUser);
+          this.setState({
+            log: gotUser
+          });
 
       }).catch(console.log)
     } 

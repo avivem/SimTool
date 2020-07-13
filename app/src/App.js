@@ -63,6 +63,10 @@ class App extends Component{
           y: yPos,
           rate: 0,
           unit: "Second",
+          name: data.startname,
+          entity_name: data.entity_name,
+          gen_fun: parseInt(data.gen_fun),
+          limit: parseInt(data.limit),
         });
         this.setState({startNode: node, addedStart: true});
 
@@ -99,6 +103,9 @@ class App extends Component{
           y: yPos,
           rate: 0,
           unit: "Second",
+          name:data.stationame,
+          capacity: parseInt(data.capacity),
+          time_func: parseInt(data.time_func),
         });
         this.setState({stationNode: node, addedStation: true});
 
@@ -133,6 +140,7 @@ class App extends Component{
           x: xPos,
           y: yPos,
           unit: "Second",
+          name: data.endname,
         });
         this.setState({ endNode: node, addedEnd: true});
 
