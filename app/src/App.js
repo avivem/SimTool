@@ -86,7 +86,7 @@ class App extends Component{
             type: 'START',
             // Change the name value to this.state.name to refer to user input
             name: data.startname,
-            entity_name: 'Person',
+            entity_name: data.entity_name,
             gen_fun: parseInt(data.gen_fun),
             limit: parseInt(data.limit),
             // node id is this.state.startNode[0].uid
