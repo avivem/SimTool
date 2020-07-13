@@ -13,6 +13,7 @@ class Navigation extends Component{
     constructor(props){
       super(props);
       this.state = {
+        runTime: 0,
         openNode: false,
         openImageOption: false,
         openData: false,
@@ -25,10 +26,14 @@ class Navigation extends Component{
         gen_fun: 0,
         limit: 0,
         capacity: 0,
-        time_func: 0
+        time_func: 0,
+        arrowButtonColor: "#2cbebe",
+        removeButtonColor: "#ff0000"
+
       }
 
-      this.handleChange = this.handleChange.bind(this)
+      this.handleChangeTime = this.handleChangeTime.bind(this)
+
       this.openPopupNode = this.openPopupNode.bind(this);
       this.closePopupNode = this.closePopupNode.bind(this);
       this.openPopupData = this.openPopupData.bind(this);
@@ -45,8 +50,6 @@ class Navigation extends Component{
       this.addArrowMode = this.addArrowMode.bind(this);
 
       this.handleRemoveMode = this.handleRemoveMode.bind(this);
-
-      this.handleReset = this.handleReset.bind(this);
 
       this.handleClearMode = this.handleClearMode.bind(this);
 
@@ -66,8 +69,11 @@ class Navigation extends Component{
     // Open popup for adding node
     openPopupNode(){
       this.setState({
-        openNode: true
+        openNode: true,
+        arrowButtonColor: "#2cbebe",
+        removeButtonColor: "#ff0000"
       });
+      this.props.handleReset();
       console.log("Open Popup Node");
     }
     
@@ -115,14 +121,25 @@ class Navigation extends Component{
 
     handleRun(){
       /**fetch to api */
-      fetch('http://127.0.0.1:5000/api/run/5000').then(res => res.json()).then(gotUser => {
+      var url = 'http://127.0.0.1:5000/api/run/' + this.state.runTime;
+      console.log(url);
+      fetch(url).then(res => res.json()).then(gotUser => {
           console.log(gotUser);
 
       }).catch(console.log)
     } 
 
-    handleChange(e){
-        this.props.handleIteration(e.target.value)
+    handleChangeTime(e){
+      var iter = parseInt(e.target.value, 10);
+      if(!isNaN(iter)){
+        this.setState({runTime: iter});
+      }
+      else{
+        if(e.target.value == ""){
+          this.setState({runTime: 0});
+        }
+      }
+     
     }
 
     // add start node
@@ -154,16 +171,41 @@ class Navigation extends Component{
 
     // Change to add arrow mode
     addArrowMode(){
-      this.props.addArrowMode();
+      if(this.props.createArrowMode){
+        this.setState({
+          arrowButtonColor: "#2cbebe",
+          removeButtonColor: "ff0000"
+        });
+      }
+      else{
+        this.setState({
+          arrowButtonColor: "#1e8080",
+          removeButtonColor: "ff0000"
+        });
+      }
+      this.props.addArrowMode();  
+
     }
 
     // Change to remove node/arrow mode
     handleRemoveMode(){
-      this.props.handleRemoveMode();
-    }
+      console.log(this.props.removeMode);
+      console.log(this.props.createArrowMode);
+      if(this.props.removeMode){
+        this.setState({
+          removeButtonColor: "#ff0000",
+          arrowButtonColor: "#2cbebe"
+        });
+      }
+      else{
+        this.setState({
+          removeButtonColor: "#cc0000",
+          arrowButtonColor: "#2cbebe"
 
-    handleReset(){
-      this.props.handleReset();
+        });
+      }
+
+      this.props.handleRemoveMode();
     }
 
     handleClearMode(){
@@ -335,23 +377,20 @@ class Navigation extends Component{
                 <button className="button" style={{backgroundColor:'#2cbebe'}} onClick={this.openPopupNode}>+</button>
               </li>
               <li class="nav-item">
-                <button className="button" style={{backgroundColor:'#2cbebe'}} onClick={this.addArrowMode}>→</button>
+                <button className="button" style={{backgroundColor:this.state.arrowButtonColor}} onClick={this.addArrowMode}>→</button>
               </li>
               <li class="nav-item">
-                <button className="button" style={{backgroundColor:'red'}} onClick={this.handleRemoveMode}>x</button>
-              </li>
-              <li class="nav-item">
-                <button className="button" style={{backgroundColor:'red'}} onClick={this.handleReset}>Reset</button>
+                <button className="button" style={{backgroundColor:this.state.removeButtonColor}} onClick={this.handleRemoveMode}>x</button>
               </li>
             </ul>
 
             <ul class="navbar-nav  " style={{float: 'right'}}>
               {/*fix format*/}
               <li class="nav-item">
-                <label className="label" style={{color:'white'}}>Iterations: </label>
+                <label className="label" style={{color:'white'}}>Run Until: </label>
               </li>
               <li class="nav-item active">    
-                <input type="text" id="iteration" className="textbox" value={this.props.iteration} onChange={this.handleChange}></input>
+                <input type="text" id="runTime" className="textbox" value={this.state.runTime} onChange={this.handleChangeTime}></input>
               </li>
               <li class="nav-item active">
                 <button className="button" style={{backgroundColor:'#4CAF50'}} onClick={this.handleRun}>Run</button>

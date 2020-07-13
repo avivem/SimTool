@@ -10,7 +10,6 @@ class App extends Component{
     super(props);
 
     this.state = {
-      iteration: 0,
       startNode: [],
       stationNode: [],
       endNode: [],
@@ -29,7 +28,6 @@ class App extends Component{
       
     }
 
-    this.handleIteration = this.handleIteration.bind(this);
     this.addNode = this.addNode.bind(this);
     this.confirmAdded = this.confirmAdded.bind(this);
 
@@ -48,17 +46,7 @@ class App extends Component{
     this.handleImageUpload = this.handleImageUpload.bind(this);
   }
 
-  handleIteration(val){
-    var iter = parseInt(val, 10);
-    if(!isNaN(iter)){
-      this.setState({iteration: iter});
-    }
-    else{
-      if(val == ""){
-        this.setState({iteration: 0});
-      }
-    }
-  }
+
 
   /* Add node, determine what node to add by checking nodeType
   nodeType can be start, station, or end */
@@ -234,7 +222,19 @@ class App extends Component{
   /*State is used to let the click event on the 
   node know that it should not open the popup but to be used to create arrow */
   addArrowMode(){
-    this.setState({createArrowMode: true});
+    if(this.state.createArrowMode){
+      this.setState({
+        createArrowMode: false,
+        removeMode: false
+      });
+    }
+    else{
+      this.setState({
+        createArrowMode: true,
+        removeMode: false
+      });
+    }
+    
   }
 
   /* Add the arrow to the list, this function is passed to 
@@ -259,11 +259,20 @@ class App extends Component{
   // Change to remove mode.
   // In remove mode, when click on a node/arrow, it will remove the node/arrow
   handleRemoveMode(e){
-    this.setState({
-      removeMode: true,
-      createArrowMode: false
-    });
-    console.log("Handle Remove");
+    if(this.state.removeMode){
+      this.setState({
+        removeMode: false,
+        createArrowMode: false
+      });
+    }
+    else{
+      this.setState({
+        removeMode: true,
+        createArrowMode: false
+      });
+      console.log("Handle Remove");
+    }
+
   }
 
   // Handle removing the node/arrow
@@ -397,11 +406,11 @@ class App extends Component{
       <div className="App">
         <div className="head">
           <Navigation 
-            iteration={this.state.iteration} 
-            handleIteration={this.handleIteration} 
             handleAddNode={this.addNode}
+            createArrowMode={this.state.createArrowMode}
             addArrowMode={this.addArrowMode}
             handleRemoveMode={this.handleRemoveMode}
+            removeMode={this.state.removeMode}
             handleReset={this.handleReset} 
             handleClearMode={this.handleClearMode}
             handleImageUpload={this.handleImageUpload}/>

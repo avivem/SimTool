@@ -21,6 +21,7 @@ class Canvas extends Component{
             open: false,
             targetId: "",
             type: "",
+            name: "",
             rate: 0,
             unit: "Second",
             from: "",
@@ -141,6 +142,7 @@ class Canvas extends Component{
             container: 'container',
             width: width,
             height: height,
+            draggable: true
         });
         var layer = new Konva.Layer();
         stage.add(layer);
@@ -247,10 +249,8 @@ class Canvas extends Component{
     }
 
     componentDidUpdate(prevProps, prevState){
-        
 
         var layer = this.state.layer;
-
 
         if(this.props.addedStart || this.props.addedStation || this.props.addedEnd){
             /** New node are added to the end of the array so just needed to look at the end*/
@@ -296,9 +296,7 @@ class Canvas extends Component{
             });
 
             var t = this;
-            // console.log("Test");
-            // console.log(url);
-            // console.log("Test");
+            
             if(url == null){
                 var node = new Konva.Circle({
                     id: target.uid,
@@ -326,6 +324,7 @@ class Canvas extends Component{
 
                 /** Node is click so open popup*/
                 node.on('click', () =>{
+
                     if(this.props.createArrowMode){
                         /* Help determine the to and from node. Once determine the arrow is 
                         added to the list of arrows in App.js */
@@ -350,13 +349,16 @@ class Canvas extends Component{
                             layer.draw();
                         }
                         else{
+                            
                             /*Open speficif popup for the node to change details*/
                             if(target.type == 'START'){
+
                                 this.setState({
                                     unit: target.unit,
                                     rate: target.rate,
                                     targetId: target.uid,
-                                    type: header
+                                    type: header,
+                                    name: target.name,
                                 })
                                 this.openPopup();
                             }else if(target.type == 'BASIC'){
@@ -488,7 +490,6 @@ class Canvas extends Component{
 
     render(){
         // let content;
-        // console.log(this.state)
         // // determine content in popup
         // if(this.state.type == "End Node"){
         //     content =   <div><label className="label">Name:
@@ -499,7 +500,9 @@ class Canvas extends Component{
         //                         onchange={this.handleChangeName} />
         //                 </label></div>
         // }else if(this.state.type == "Start Node"){
-        //     content =   <div><label className="label">Name:
+        //     content =   <div>
+        //                 <p>Node Name: {this.state.name}</p>
+        //                 <label className="label">Name:
         //                     <input 
         //                         type="text" 
         //                         className="form-control"
@@ -563,6 +566,7 @@ class Canvas extends Component{
                         <h1>{this.state.type}</h1>
 
                         {/*content in popup- start, beginning or end*/}
+                        
                         {/*{content}*/}
 
                         <button className="button" onClick={this.handleChangeNode}>
