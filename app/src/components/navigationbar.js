@@ -414,7 +414,7 @@ class Navigation extends Component{
               </div>
               <div>
                 <button className="button" onClick={this.handleSubmitImage}>Submit</button>
-                <button className="button" onClick={this.handleDefaultImage}>Default</button>    
+                {/*<button className="button" onClick={this.handleDefaultImage}>Default</button>*/} 
                 <button className="button" onClick={this.handleCancelImage}>Cancel</button>
               </div>
             </Popup>
