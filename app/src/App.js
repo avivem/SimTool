@@ -25,7 +25,10 @@ class App extends Component{
       imageStart: null,
       imageStation: null,
       imageEnd: null,
-      
+      savedStart: [],
+      savedStation: [],
+      savedEnd: [],
+      savedArrows: []
     }
 
     this.addNode = this.addNode.bind(this);
@@ -44,6 +47,8 @@ class App extends Component{
     this.handleClearMode = this.handleClearMode.bind(this);
     
     this.handleImageUpload = this.handleImageUpload.bind(this);
+
+    this.handleSave = this.handleSave.bind(this);
   }
 
 
@@ -67,6 +72,7 @@ class App extends Component{
           entity_name: data.entity_name,
           gen_fun: parseInt(data.gen_fun),
           limit: parseInt(data.limit),
+          imageURL: this.state.imageStart
         });
         this.setState({startNode: node, addedStart: true});
 
@@ -106,6 +112,7 @@ class App extends Component{
           name:data.stationame,
           capacity: parseInt(data.capacity),
           time_func: parseInt(data.time_func),
+          imageURL: this.state.imageStation
         });
         this.setState({stationNode: node, addedStation: true});
 
@@ -141,6 +148,7 @@ class App extends Component{
           y: yPos,
           unit: "Second",
           name: data.endname,
+          imageURL: this.state.imageEnd
         });
         this.setState({ endNode: node, addedEnd: true});
 
@@ -409,6 +417,17 @@ class App extends Component{
     }
   }
 
+  // Save the current model
+  handleSave(){
+    this.setState({
+      savedStart: this.state.startNode,
+      savedStation: this.state.stationNode,
+      savedEnd: this.state.startEnd,
+      savedArrows: this.state.arrows
+    });
+    console.log("Saved current model");
+  }
+
   render(){
     return (
       <div className="App">
@@ -421,7 +440,8 @@ class App extends Component{
             removeMode={this.state.removeMode}
             handleReset={this.handleReset} 
             handleClearMode={this.handleClearMode}
-            handleImageUpload={this.handleImageUpload}/>
+            handleImageUpload={this.handleImageUpload}
+            handleSave={this.handleSave}/>
         </div>
         <div>
           <Canvas 
