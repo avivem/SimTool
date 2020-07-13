@@ -556,7 +556,7 @@ class Canvas extends Component{
                 <p>.</p>
                 <p>.</p>
                 <p>.</p>
-                <div id="container" style={{backgroundColor:'grey'}}></div>
+                <div id="container"></div>
 
                 <div>
                     {/*Popup for the node*/ }
