@@ -354,7 +354,7 @@ class Navigation extends Component{
                 <input type="text" id="iteration" className="textbox" value={this.props.iteration} onChange={this.handleChange}></input>
               </li>
               <li class="nav-item active">
-                <button className="button" style={{backgroundColor:'#4CAF50'}} onClick={this.handleRun}>Start</button>
+                <button className="button" style={{backgroundColor:'#4CAF50'}} onClick={this.handleRun}>Run</button>
               </li>
               <li class="nav-item active">
                 <button className="button" style={{backgroundColor:'red'}}>Stop</button>
