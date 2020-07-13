@@ -252,6 +252,7 @@ class Navigation extends Component{
                             <input 
                                 type="text" 
                                 className="form-control"
+                                placeholder="Enter node name"
                                 name="endname"
                                 onChange={this.onChange} />
                         </label></div>
@@ -262,7 +263,6 @@ class Navigation extends Component{
                                 name="startname"
                                 placeholder="Enter node name"
                                 className="form-control"
-                                
                                 onChange={this.onChange}
                                  />
                         </label>
@@ -270,7 +270,17 @@ class Navigation extends Component{
                             <input 
                                 type="text" 
                                 className="form-control"
+                                placeholder="Enter generation function"
                                 name="gen_fun" 
+                                onChange={this.onChange}
+                                 />
+                        </label>
+                        <label className="label">Entity Name:
+                            <input 
+                                type="text" 
+                                className="form-control"
+                                placeholder="Enter entity name"
+                                name="entity_name" 
                                 onChange={this.onChange}
                                  />
                         </label>
