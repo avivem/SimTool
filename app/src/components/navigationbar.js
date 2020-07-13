@@ -281,6 +281,7 @@ class Navigation extends Component{
                             <input 
                                 type="text" 
                                 className="form-control"
+                                placeholder="Enter node name"
                                 name="endname"
                                 onChange={this.onChange} />
                         </label></div>
@@ -291,7 +292,6 @@ class Navigation extends Component{
                                 name="startname"
                                 placeholder="Enter node name"
                                 className="form-control"
-                                
                                 onChange={this.onChange}
                                  />
                         </label>
@@ -299,7 +299,17 @@ class Navigation extends Component{
                             <input 
                                 type="text" 
                                 className="form-control"
+                                placeholder="Enter generation function"
                                 name="gen_fun" 
+                                onChange={this.onChange}
+                                 />
+                        </label>
+                        <label className="label">Entity Name:
+                            <input 
+                                type="text" 
+                                className="form-control"
+                                placeholder="Enter entity name"
+                                name="entity_name" 
                                 onChange={this.onChange}
                                  />
                         </label>
@@ -370,7 +380,7 @@ class Navigation extends Component{
                 <input type="text" id="iteration" className="textbox" value={this.props.iteration} onChange={this.handleChange}></input>
               </li>
               <li class="nav-item active">
-                <button className="button" style={{backgroundColor:'#4CAF50'}} onClick={this.handleRun}>Start</button>
+                <button className="button" style={{backgroundColor:'#4CAF50'}} onClick={this.handleRun}>Run</button>
               </li>
               <li class="nav-item active">
                 <button className="button" style={{backgroundColor:'red'}}>Stop</button>
@@ -430,7 +440,7 @@ class Navigation extends Component{
               </div>
               <div>
                 <button className="button" onClick={this.handleSubmitImage}>Submit</button>
-                <button className="button" onClick={this.handleDefaultImage}>Default</button>    
+                {/*<button className="button" onClick={this.handleDefaultImage}>Default</button>*/} 
                 <button className="button" onClick={this.handleCancelImage}>Cancel</button>
               </div>
             </Popup>
