@@ -124,8 +124,9 @@ class Navigation extends Component{
     handleRun(){
       /**fetch to api */
       var url = 'http://127.0.0.1:5000/api/run/' + this.state.runTime;
+      var url = 'http://127.0.0.1:5000/api/run/5000' + this.state.runTime;
       console.log(url);
-      fetch(url).then(res => res.json()).then(gotUser => {
+      fetch('http://127.0.0.1:5000/api/run/5000').then(res => res.json()).then(gotUser => {
           console.log(gotUser);
           this.setState({
             log: gotUser
@@ -440,6 +441,7 @@ class Navigation extends Component{
             {/*Popup for log */}
             <Popup open={this.state.openData} closeOnDocumentClick = {true} onClose={this.closePopupData}>
               <p>This is where the log should go</p>
+              <p>{this.state.log}</p>
               <button onClick={this.closePopupData} >Close</button>
             </Popup>
           </div>
