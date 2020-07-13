@@ -6,7 +6,6 @@ import sys
 import io
 import uuid
 
-##TODO: replace the 400 errors with abort() instead of cat memes.
 
 ###If you are running locally and wish to see output in terminal, comment this out.
 if __name__ != "__main__":
@@ -18,10 +17,6 @@ app = Flask(__name__)
 cors = CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
 app.config['CORS_HEADERS'] = 'Content-Type'
 
-# just output to see if the function ran
-NODES = {
-	'start': {'start': 'start'}
-}
 
 class DataStore():
 	nodes = {}
@@ -58,7 +53,7 @@ def store():
 				data.nodes[entry].set_directed_to(data.save["dirto"][entry])
 			return data.save
 	else:
-		return redirect("https://http.cat/400")
+		abort(400)
 
 
 """ @api.route('/api/node/resource', methods = ["POST"])
