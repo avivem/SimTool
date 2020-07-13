@@ -297,9 +297,7 @@ class Canvas extends Component{
             });
 
             var t = this;
-            // console.log("Test");
-            // console.log(url);
-            // console.log("Test");
+            
             if(url == null){
                 var node = new Konva.Circle({
                     id: target.uid,

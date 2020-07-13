@@ -13,6 +13,7 @@ class Navigation extends Component{
     constructor(props){
       super(props);
       this.state = {
+        runTime: 0,
         openNode: false,
         openImageOption: false,
         openData: false,
@@ -31,7 +32,8 @@ class Navigation extends Component{
 
       }
 
-      this.handleChange = this.handleChange.bind(this)
+      this.handleChangeTime = this.handleChangeTime.bind(this)
+
       this.openPopupNode = this.openPopupNode.bind(this);
       this.closePopupNode = this.closePopupNode.bind(this);
       this.openPopupData = this.openPopupData.bind(this);
@@ -119,14 +121,25 @@ class Navigation extends Component{
 
     handleRun(){
       /**fetch to api */
-      fetch('http://127.0.0.1:5000/api/run/5000').then(res => res.json()).then(gotUser => {
+      var url = 'http://127.0.0.1:5000/api/run/' + this.state.runTime;
+      console.log(url);
+      fetch(url).then(res => res.json()).then(gotUser => {
           console.log(gotUser);
 
       }).catch(console.log)
     } 
 
-    handleChange(e){
-        this.props.handleIteration(e.target.value)
+    handleChangeTime(e){
+      var iter = parseInt(e.target.value, 10);
+      if(!isNaN(iter)){
+        this.setState({runTime: iter});
+      }
+      else{
+        if(e.target.value == ""){
+          this.setState({runTime: 0});
+        }
+      }
+     
     }
 
     // add start node
@@ -374,10 +387,10 @@ class Navigation extends Component{
             <ul class="navbar-nav  " style={{float: 'right'}}>
               {/*fix format*/}
               <li class="nav-item">
-                <label className="label" style={{color:'white'}}>Iterations: </label>
+                <label className="label" style={{color:'white'}}>Run Until: </label>
               </li>
               <li class="nav-item active">    
-                <input type="text" id="iteration" className="textbox" value={this.props.iteration} onChange={this.handleChange}></input>
+                <input type="text" id="runTime" className="textbox" value={this.state.runTime} onChange={this.handleChangeTime}></input>
               </li>
               <li class="nav-item active">
                 <button className="button" style={{backgroundColor:'#4CAF50'}} onClick={this.handleRun}>Run</button>
