@@ -227,15 +227,15 @@ class Navigation extends Component{
 
       switch(this.state.addNodeType){
         case "start":
-          this.props.handleAddNode("start");
+          this.props.handleAddNode("start",this.state);
           break;
       
         case "station":
-          this.props.handleAddNode("station");
+          this.props.handleAddNode("station",this.state);
           break;
     
         case "end":
-          this.props.handleAddNode("end");
+          this.props.handleAddNode("end",this.state);
           break;
 
         default:
