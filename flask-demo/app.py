@@ -29,6 +29,7 @@ class DataStore():
 	starts = {}
 	basics = {}
 	ends = {}
+	containers = {}
 	env = simpy.Environment()
 data = DataStore()
 
@@ -56,21 +57,31 @@ def store():
 		abort(400)
 
 
-""" @api.route('/api/node/resource', methods = ["POST"])
+@app.route('/api/node/resource', methods = ["POST"])
 def resource():
 	if request.method == "POST":
-
-		inputs = {
-			'name' : request.json['name'],
-			'owner' : request.json['owner'],
-			'unit' : request.json['unit'],
-			'init' : request.json['init'],
-			'capacity' : request.json['capacity'],
-			'uid' : request.json['uid'],
-		}
-
-		container = BasicContainer(data.env, **inputs) """
-		
+		if request.json['type'] == 'RESOURCE':
+			data.containers[request.json['name']] = {}
+		elif request.json['type'] == 'CONTAINER':
+			inputs = {
+				'name' : request.json['name'],
+        		'owner' : request.json['owner'],
+        		'init' : request.json['init'],
+        		'resource' : request.json['resource'],
+        		'capacity' : request.json['capacity'],
+				'uid' : request.json['uid']
+			}
+			res = inputs['resource']
+			if not res in data.containers:
+				abort(400, message=f'Resource {res} not found.')
+			con = BasicContainer(env = data.env, **inputs)
+			owner_uid = inputs['owner']
+			owner = data.nodes[owner_uid]
+			owner.add_container(con)
+			data.save['containers'][res][con.uid] = inputs
+			data.containers[res] = con
+		else:
+			abort(400)
 
 
 # Node type- JSON must have a 'type' argument with either START, BASIC or END
@@ -93,6 +104,7 @@ def node():
 		inputs['type'] = tipe
 		del inputs['env']
 		return inputs
+	# update
 	elif request.method == "PUT":
 		uid = request.json['uid']
 		if not uid in data.nodes:
@@ -115,8 +127,11 @@ def dirto():
 		data.nodes[frum].set_directed_to(data.nodes[to])
 		if frum not in data.save['dirto']:
 			data.save['dirto'][frum] = []
-		data.save['dirto'][frum].append(to)
-		return f'{data.nodes[frum]} directed to {data.nodes[to]}'
+		if not to in data.save['dirto'][frum]:
+			data.save['dirto'][frum].append(to)
+			return f'{data.nodes[frum]} directed to {data.nodes[to]}'
+		else:
+			return f'{data.nodes[frum]} already directed to {data.nodes[to]}'
 	else:
 		frum = request.json['from']
 		to = request.json['to']
@@ -149,8 +164,7 @@ def reset():
 	data.env = simpy.Environment()
 	for k,v in data.nodes.items():
 		v.update({'env': data.env})
-	for k,v in data.starts.items():
-		v.reset_count()
+		v.reset()
 	return "Simulation has been reset."
 
 # url to clean the graph for a new sim.
