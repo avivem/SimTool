@@ -63,6 +63,7 @@ class Navigation extends Component{
       this.onChange = this.onChange.bind(this);
 
       this.handleSave = this.handleSave.bind(this);
+      this.handleLoad = this.handleLoad.bind(this);
     }
 
     onChange(e){
@@ -127,7 +128,6 @@ class Navigation extends Component{
       /**fetch to api */
       var url = 'http://127.0.0.1:5000/api/run/' + this.state.runTime;
       var url = 'http://127.0.0.1:5000/api/run/5000' + this.state.runTime;
-      console.log(url);
       fetch('http://127.0.0.1:5000/api/run/5000').then(res => res.json()).then(gotUser => {
           console.log(gotUser);
           this.setState({
@@ -238,19 +238,19 @@ class Navigation extends Component{
 
       switch(this.state.addNodeType){
         case "start":
-          this.props.handleImageUpload("start", this.state.imageFile)
+          this.props.handleImageUpload("start", null)
           // fetch to api to create node
-          this.props.handleAddNode("start",this.state);
+          this.props.handleAddNode("start",this.state, null);
           break;
       
         case "station":
           this.props.handleImageUpload("station", this.state.imageFile)
-          this.props.handleAddNode("station",this.state);
+          this.props.handleAddNode("station",this.state, null);
           break;
     
         case "end":
           this.props.handleImageUpload("end", this.state.imageFile)
-          this.props.handleAddNode("end",this.state);
+          this.props.handleAddNode("end",this.state, null);
           break;
 
         default:
@@ -277,15 +277,15 @@ class Navigation extends Component{
 
       switch(this.state.addNodeType){
         case "start":
-          this.props.handleAddNode("start",this.state);
+          this.props.handleAddNode("start",this.state, null);
           break;
       
         case "station":
-          this.props.handleAddNode("station",this.state);
+          this.props.handleAddNode("station",this.state, null);
           break;
     
         case "end":
-          this.props.handleAddNode("end",this.state);
+          this.props.handleAddNode("end",this.state, null);
           break;
 
         default:
@@ -295,6 +295,10 @@ class Navigation extends Component{
 
     handleSave(){
       this.props.handleSave();
+    }
+
+    handleLoad(){
+      this.props.handleLoad();
     }
 
     render(){
@@ -420,7 +424,7 @@ class Navigation extends Component{
                 <button className="button" style={{backgroundColor:'yellow', color:"black"}} onClick={this.handleSave}>Save</button>
               </li>
              <li class="nav-item active">
-                <button className="button" style={{backgroundColor:'yellow', color:"black"}}>Load</button>
+                <button className="button" style={{backgroundColor:'yellow', color:"black"}} onClick={this.handleLoad}>Load</button>
               </li>
             </ul>
 

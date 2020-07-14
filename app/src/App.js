@@ -28,7 +28,8 @@ class App extends Component{
       savedStart: [],
       savedStation: [],
       savedEnd: [],
-      savedArrows: []
+      savedArrows: [],
+      loadMode: false
     }
 
     this.addNode = this.addNode.bind(this);
@@ -49,13 +50,15 @@ class App extends Component{
     this.handleImageUpload = this.handleImageUpload.bind(this);
 
     this.handleSave = this.handleSave.bind(this);
+
+    this.handleLoad = this.handleLoad.bind(this);
   }
 
 
 
   /* Add node, determine what node to add by checking nodeType
   nodeType can be start, station, or end */
-  addNode(nodeType,data){
+  addNode(nodeType, data, image){
     var xPos = 200;
     var yPos = 200;
     switch(nodeType){
@@ -72,7 +75,7 @@ class App extends Component{
           entity_name: data.entity_name,
           gen_fun: parseInt(data.gen_fun),
           limit: parseInt(data.limit),
-          imageURL: this.state.imageStart
+          imageURL: image
         });
         this.setState({startNode: node, addedStart: true});
 
@@ -112,7 +115,7 @@ class App extends Component{
           name:data.stationame,
           capacity: parseInt(data.capacity),
           time_func: parseInt(data.time_func),
-          imageURL: this.state.imageStation
+          imageURL: image
         });
         this.setState({stationNode: node, addedStation: true});
 
@@ -148,7 +151,7 @@ class App extends Component{
           y: yPos,
           unit: "Second",
           name: data.endname,
-          imageURL: this.state.imageEnd
+          imageURL: image
         });
         this.setState({ endNode: node, addedEnd: true});
 
@@ -357,11 +360,6 @@ class App extends Component{
         this.setState({endNode: lst});
       }
       console.log("remove");
-      console.log(this.state.arrows);
-      console.log(this.state.stationNode);
-      console.log(this.state.startNode);
-      console.log(this.state.endNode);
-
     }
   }
 
@@ -419,13 +417,38 @@ class App extends Component{
 
   // Save the current model
   handleSave(){
+    var lst1 = this.state.startNode;
+    var lst2 = this.state.stationNode;
+    var lst3 = this.state.endNode;
+    var lst4 = this.state.arrows;
+
+    console.log(lst1);
+    
     this.setState({
-      savedStart: this.state.startNode,
-      savedStation: this.state.stationNode,
-      savedEnd: this.state.startEnd,
-      savedArrows: this.state.arrows
+      savedStart: lst1,
+      savedStation: lst2,
+      savedEnd: lst3,
+      savedArrows: lst4
     });
     console.log("Saved current model");
+    
+  }
+
+  // Load saved model
+  handleLoad(){
+    if(this.state.loadMode){
+      this.setState({loadMode: false});
+    }
+    else{
+      this.setState({
+        loadMode: true,
+        startNode: this.state.savedStart,
+        stationNode: this.state.savedStation,
+        endNode: this.state.savedEnd,
+        arrows: this.state.savedArrows
+      });
+    }
+    console.log("Load Mode");
   }
 
   render(){
@@ -441,7 +464,8 @@ class App extends Component{
             handleReset={this.handleReset} 
             handleClearMode={this.handleClearMode}
             handleImageUpload={this.handleImageUpload}
-            handleSave={this.handleSave}/>
+            handleSave={this.handleSave}
+            handleLoad={this.handleLoad} />
         </div>
         <div>
           <Canvas 
@@ -463,7 +487,9 @@ class App extends Component{
             handleClearMode={this.handleClearMode}
             imageStart={this.state.imageStart}
             imageStation={this.state.imageStation}
-            imageEnd={this.state.imageEnd}></Canvas>
+            imageEnd={this.state.imageEnd}
+            handleLoad={this.handleLoad}
+            loadMode={this.state.loadMode} ></Canvas>
         </div>
 
         
