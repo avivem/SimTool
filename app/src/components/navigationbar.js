@@ -61,6 +61,8 @@ class Navigation extends Component{
       this.handleDefaultImage = this.handleDefaultImage.bind(this);
 
       this.onChange = this.onChange.bind(this);
+
+      this.handleSave = this.handleSave.bind(this);
     }
 
     onChange(e){
@@ -290,6 +292,10 @@ class Navigation extends Component{
       }
     }
 
+    handleSave(){
+      this.props.handleSave();
+    }
+
     render(){
         let content;
         // console.log(this.state)
@@ -408,6 +414,12 @@ class Navigation extends Component{
               </li>
              <li class="nav-item active">
                 <button className="button" style={{backgroundColor:'yellow', color:"black"}} onClick={this.handleClearMode}>Clear</button>
+              </li>
+              <li class="nav-item active">
+                <button className="button" style={{backgroundColor:'yellow', color:"black"}} onClick={this.handleSave}>Save</button>
+              </li>
+             <li class="nav-item active">
+                <button className="button" style={{backgroundColor:'yellow', color:"black"}}>Load</button>
               </li>
             </ul>
 
