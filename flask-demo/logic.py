@@ -5,6 +5,9 @@ import uuid
 import json
 import random
 import math
+import pprint
+
+#Supported Path Traversals: RAND, ALPHA_SEQ
 
 """ if __name__ is not "__main__":
     old_stdout = sys.stdout
@@ -55,6 +58,15 @@ class Node(object):
         for k,v in args.items():
             setattr(self, k, v)
 
+    #each node type should define their own reset steps.
+    def reset(self):
+        pass
+
+    def p(self):
+        pp = pprint.PrettyPrinter(indent=4)
+        pp.pprint(self.__dict__)
+
+
 """
 Class that represents the basic object that flows through the system. This
 could represent a person walking through a bank, an animal going through a
@@ -91,7 +103,7 @@ class BasicFlowEntity(object):
 
 #Node that generates flowing entities.
 class StartingPoint(Node):
-    def __init__(self,env,name, entity_name,gen_fun, limit=math.inf, split_policy = "RAND",uid=None):
+    def __init__(self,env,name, entity_name,gen_fun, limit=float('inf'), split_policy = "RAND",uid=None):
         super().__init__(env,name, split_policy, uid)
         self.entity_name = entity_name
         self.gen_fun = gen_fun
@@ -103,19 +115,32 @@ class StartingPoint(Node):
     def __str__(self):
         return self.name
 
-    def reset_count(self):
+    def reset(self):
         self.count = 0
 
-    
+    def next_dir(self):
+        path_list = sorted(self.directed_to.keys(), key=lambda x: x.name)
+        if len(self.directed_to) > 1:
+            if self.split_policy == "RAND":
+                next_ind = random.randint(0,len(self.directed_to)-1)
+            elif self.split_policy == "ALPHA_SEQ":
+                next_ind = self.count % len(path_list)
+                #No need for increasing count in starting since already do so.
+                #self.count += 1
+                
+        else:
+            next_ind = 0
+        return path_list[next_ind]
+
     def run(self):
         while self.count < self.limit:
             yield self.env.timeout(self.gen_fun)
-            next_ind = random.randint(0,len(self.directed_to)-1)
-            next_dir = list(self.directed_to.keys())[next_ind]
-            entity = BasicFlowEntity(self.env,f'{self.entity_name} {self.count}',next_dir)
+            entity = BasicFlowEntity(self.env,f'{self.entity_name} {self.count}',self.next_dir())
             self.env.process(entity.run())
             print(f'[{self.env.now}]:: {entity} has left {self}')
             self.count += 1
+
+    
             
             
 #A Node that represents a "cog in a machine" such as bank tellers in a bank, or
@@ -128,6 +153,7 @@ class BasicComponent(Node):
         self.resource = simpy.Resource(env,capacity)
         self.time_func = time_func
         self.containers = {}
+        self.count = 0
 
     def __str__(self):
         return self.name
@@ -135,16 +161,34 @@ class BasicComponent(Node):
     def add_container(self, container):
         self.containers[container.uid] = container
         
+    def next_dir(self):
+        path_list = sorted(self.directed_to.keys(), key=lambda x: x.name)
+        if len(self.directed_to) > 1:
+            if self.split_policy == "RAND":
+                next_ind = random.randint(0,len(self.directed_to)-1)
+            elif self.split_policy == "ALPHA_SEQ":
+                next_ind = self.count % len(path_list)
+                self.count += 1
+
+        else:
+            next_ind = 0
+        return path_list[next_ind]
+    
     #Returns a timeout event which represents the amount of time a component
     #needs to do it's thing.
     def interact(self, entity):
         print(f'[{self.env.now}]:: {entity} is now interacting with {self}')
-        next_ind = random.randint(0,len(self.directed_to)-1)
-        next_dir = list(self.directed_to.keys())[next_ind]
-        return (self.env.timeout(self.time_func),next_dir)
+        return (self.env.timeout(self.time_func),self.next_dir())
 
+    
+
+    def reset(self):
+        self.count = 0
+
+#Wrapper for SimPy containers that allow us to differentiate between types of resources and
+#identifies the owner for a container.
 class BasicContainer(object):
-    def __init__(self, env, name, owner, unit,init = 0, capacity = float('inf'),uid=None):
+    def __init__(self, env, name, owner, resource,init = 0, capacity = float('inf'),uid=None):
         if uid is None:
             self.uid = uuid.uuid4().hex
         else:
@@ -153,7 +197,7 @@ class BasicContainer(object):
         self.name = name
         self.owner = owner
         self.init = init
-        self.unit = unit
+        self.resource = resource
         self.capacity = capacity
         self.con = simpy.Container(env, capacity, init)
 
@@ -171,21 +215,24 @@ class EndingPoint(Node):
 #class Splitter(Node):
     
 """ env = simpy.Environment()
-st = StartingPoint(env, "Starting Point 1",2)
+st = StartingPoint(env, "Starting Point 1","Person", 2, 100)
 b1 = BasicComponent(env,"Basic Component #1", 3, 7) 
 ed = EndingPoint(env,"Ending Point 1")
 st.set_directed_to(b1)
 b1.set_directed_to(ed)
 env.process(st.run())
-env.run(until=300) """
+env.run(until=5000) """
 
-""" env = simpy.Environment()
-st = StartingPoint(env, "Hotel", "Attendee", 10, 200)
+env = simpy.Environment()
+st = StartingPoint(env, "Hotel", "Attendee", 10, 200, split_policy="ALPHA_SEQ")
 line1 = BasicComponent(env, "Convention Line 1", 50, 1000)
 security1 = BasicComponent(env, "Security 1", 10, 100)
 line2 = BasicComponent(env, "Convention Line 2", 50, 1000)
 security2 = BasicComponent(env, "Security 2", 10, 100)
 end = EndingPoint(env, "Convention")
+
+
+
 st.set_directed_to(line1)
 st.set_directed_to(line2)
 line1.set_directed_to(security1)
@@ -193,6 +240,6 @@ security1.set_directed_to(end)
 line2.set_directed_to(security2)
 security2.set_directed_to(end)
 env.process(st.run())
-env.run(until=20000) """
+env.run(until=20000)
 
 
