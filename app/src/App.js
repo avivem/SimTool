@@ -120,7 +120,6 @@ class App extends Component{
             name:data.stationame,
             capacity: parseInt(data.capacity),
             time_func: parseInt(data.time_func),
-            // node id is this.state.stationNode[0].uid
             uid: "station-" + this.state.count
           })
         };
@@ -190,41 +189,112 @@ class App extends Component{
   Change the unit or rate of the node, the r is used to convert the rate to second,
   so r can be 1, 60, 60 * 60, or 60 * 60 * 24 
   */
-  handleChangeNode(id, unit, rate, r){
-    if(id.includes('start')){
-      var lst = this.state.startNode;
-      lst.forEach(target =>{
-        if(target.uid == id){
-          target.unit = unit;
-          target.rate = rate / r;
-        }
-      });
-
-      this.setState({startNode: lst});
-    }
-    if(id.includes('station')){
-      var lst = this.state.stationNode;
-      lst.forEach(target =>{
-        if(target.uid == id){
-          target.unit = unit;
-          target.rate = rate / r;
-        }
-      });
-      this.setState({stationNode: lst});
-    }
-    if(id.includes('end')){
-      var lst = this.state.endNode;
-      lst.forEach(target =>{
-        if(target.uid == id){
-          target.unit = unit;
-        }
-      });
-      this.setState({endNode: lst});
-    }
-
+  handleChangeNode(change){
     console.log(this.state.startNode);
-    console.log(this.state.stationNode);
-    console.log(this.state.endNode);
+
+    console.log(change);
+
+    switch(change.type){
+      case "Start Node":
+        // need to change startNode array
+        this.state.startNode[0].name = change.startname;
+        this.state.startNode[0].entity_name = change.entity_name;
+        this.state.startNode[0].gen_fun = change.gen_fun;
+        this.state.startNode[0].limit = change.limit;
+
+
+        // request options to send in post request- START NODE
+        const requestOptionsStart = {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'START',
+            // node id is this.state.startNode[0].uid
+            uid: change.targetId,
+            // Change the name value to this.state.name to refer to user input
+            name: change.startname,
+            entity_name: change.entity_name,
+            gen_fun: parseInt(change.gen_fun),
+            limit: parseInt(change.limit),
+            
+          })
+        };
+
+        /**fetch to api */
+        fetch('http://127.0.0.1:5000/api/node/', requestOptionsStart).then(res => res.json()).then(gotUser => {
+            console.log(gotUser);
+
+        }).catch(console.log)
+
+
+        break;
+
+      case "Station Node":
+
+
+        // request options to send in post request- BASIC NODE
+        // placeholder values
+        const requestOptionsBasic = {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'BASIC',
+            // Change the name value to this.state.name to refer to user input
+            name:change.stationame,
+            capacity: parseInt(change.capacity),
+            time_func: parseInt(change.time_func),
+            uid: "station-" + this.state.count
+          })
+        };
+
+        /**fetch to api */
+        fetch('http://127.0.0.1:5000/api/node/', requestOptionsBasic).then(res => res.json()).then(gotUser => {
+            console.log(gotUser);
+
+        }).catch(console.log)
+
+        break;
+
+      case "End Node":
+
+
+        // request options to send in post request- END NODE
+        // placeholder values
+        const requestOptionsEnd = {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            // Change the name value to this.state.name to refer to user input
+            name: change.endname,
+            type: "END",
+            // node id is this.state.endNode[0].uid
+            uid: "end-" + this.state.count
+          })
+        };
+
+        /**fetch to api */
+        fetch('http://127.0.0.1:5000/api/node/', requestOptionsEnd).then(res => res.json()).then(gotUser => {
+            console.log(gotUser);
+
+        }).catch(console.log)
+
+        break;
+    }
+
+    // take the node, update fields, and push to api
+    // we can gain the node info from startNode
+    // we are passed the state- which includes all updated fields
+
+    // find node based on type
+      // startNode -> use uid to get node
+
+      // apply the changes seen in the state variable that correspond to Start Node
+
+    //fetch api '/api/node/' put request [uid: ..., and what to update]
+
+    // console.log(this.state.startNode);
+    // console.log(this.state.stationNode);
+    // console.log(this.state.endNode);
   }
 
   /*State is used to let the click event on the 

@@ -93,6 +93,7 @@ def node():
 		inputs['type'] = tipe
 		del inputs['env']
 		return inputs
+	# update
 	elif request.method == "PUT":
 		uid = request.json['uid']
 		if not uid in data.nodes:
