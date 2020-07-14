@@ -200,8 +200,6 @@ class App extends Component{
   handleChangeNode(change){
     console.log(this.state.startNode);
 
-    console.log(change);
-
     switch(change.type){
       case "Start Node":
         // need to change startNode array
@@ -210,15 +208,14 @@ class App extends Component{
         this.state.startNode[0].gen_fun = change.gen_fun;
         this.state.startNode[0].limit = change.limit;
 
-
         // request options to send in post request- START NODE
         const requestOptionsStart = {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            type: 'START',
             // node id is this.state.startNode[0].uid
             uid: change.targetId,
+            type: 'START',
             // Change the name value to this.state.name to refer to user input
             name: change.startname,
             entity_name: change.entity_name,
@@ -239,19 +236,35 @@ class App extends Component{
 
       case "Station Node":
 
+        // do a for each to grab correct basic node
+        var station = this.state.stationNode[0];
+        for(var x in this.state.stationNode){
+            var uid = this.state.stationNode[x].uid;
+            
+            if(uid== this.state.targetId){
+                station = this.state.stationNode[x];
+            }
+        }
+
+        station.name = change.stationname;
+        station.capacity = change.capacity;
+        station.time_func = change.time_func; 
+
+        // console.log(this.state.stationNode);
 
         // request options to send in post request- BASIC NODE
         // placeholder values
         const requestOptionsBasic = {
-          method: 'POST',
+          method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            uid: change.targetId,
             type: 'BASIC',
             // Change the name value to this.state.name to refer to user input
             name:change.stationame,
             capacity: parseInt(change.capacity),
             time_func: parseInt(change.time_func),
-            uid: "station-" + this.state.count
+            
           })
         };
 
@@ -264,19 +277,20 @@ class App extends Component{
         break;
 
       case "End Node":
-
+        this.state.endNode[0].name = change.endname;
 
         // request options to send in post request- END NODE
         // placeholder values
         const requestOptionsEnd = {
-          method: 'POST',
+          method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            uid: change.targetId,
+            type: 'END',
             // Change the name value to this.state.name to refer to user input
             name: change.endname,
-            type: "END",
             // node id is this.state.endNode[0].uid
-            uid: "end-" + this.state.count
+            
           })
         };
 

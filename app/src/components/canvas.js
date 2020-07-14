@@ -513,7 +513,6 @@ class Canvas extends Component{
             var startNode = this.props.startNode[0];
 
             content =   <div>
-                        // node info
                         <p>Node Name: {startNode.name}</p>
                         <p>Entity Name: {startNode.entity_name}</p>
                         <p>Generation Function: {startNode.gen_fun}</p>
@@ -576,7 +575,7 @@ class Canvas extends Component{
                         <label className="label">Name:
                             <input 
                                 type="text" 
-                                name="stationame"
+                                name="stationname"
                                 placeholder="Enter node name"
                                 className="form-control"
                                 
