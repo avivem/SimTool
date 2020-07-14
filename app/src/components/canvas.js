@@ -504,6 +504,7 @@ class Canvas extends Component{
             });
 
             // Create each of the node in the list lst
+            
             lst.forEach((target) => {
                 var colorFill = "";
                 var header = "";
@@ -548,6 +549,7 @@ class Canvas extends Component{
                     });
 
                     layer.add(node);
+                    console.log("a");
 
                     node.on('dragmove', () => {
                         // mutate the state
@@ -633,8 +635,10 @@ class Canvas extends Component{
                             strokeWidth: 5,
                             draggable: true,    
                         });
+
                         layer.add(node);
-        
+                        console.log("a");
+
                         node.on('dragmove', () => {
                             // mutate the state
                             target.x = node.x();
@@ -682,14 +686,14 @@ class Canvas extends Component{
                                 }
                             }
                         })
-                        
-                        layer.batchDraw();
                     });    
+                    layer.batchDraw();
                 }
             });
 
             // Create arrow
             this.props.arrows.forEach((target) => {
+                console.log("b");
                 var line = new Konva.Arrow({
                     id: target.uid,
                     stroke: 'black',

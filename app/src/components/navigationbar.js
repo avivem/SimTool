@@ -238,19 +238,19 @@ class Navigation extends Component{
 
       switch(this.state.addNodeType){
         case "start":
-          this.props.handleImageUpload("start", null)
+          this.props.handleImageUpload("start", this.state.imageFile)
           // fetch to api to create node
-          this.props.handleAddNode("start",this.state, null);
+          this.props.handleAddNode("start",this.state);
           break;
       
         case "station":
           this.props.handleImageUpload("station", this.state.imageFile)
-          this.props.handleAddNode("station",this.state, null);
+          this.props.handleAddNode("station",this.state);
           break;
     
         case "end":
           this.props.handleImageUpload("end", this.state.imageFile)
-          this.props.handleAddNode("end",this.state, null);
+          this.props.handleAddNode("end",this.state);
           break;
 
         default:

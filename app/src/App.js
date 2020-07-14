@@ -58,7 +58,7 @@ class App extends Component{
 
   /* Add node, determine what node to add by checking nodeType
   nodeType can be start, station, or end */
-  addNode(nodeType, data, image){
+  addNode(nodeType, data){
     var xPos = 200;
     var yPos = 200;
     switch(nodeType){
@@ -75,7 +75,7 @@ class App extends Component{
           entity_name: data.entity_name,
           gen_fun: parseInt(data.gen_fun),
           limit: parseInt(data.limit),
-          imageURL: image
+          imageFile: data.imageFile
         });
         this.setState({startNode: node, addedStart: true});
 
@@ -115,7 +115,7 @@ class App extends Component{
           name:data.stationame,
           capacity: parseInt(data.capacity),
           time_func: parseInt(data.time_func),
-          imageURL: image
+          imageFile: data.imageFile
         });
         this.setState({stationNode: node, addedStation: true});
 
@@ -151,7 +151,7 @@ class App extends Component{
           y: yPos,
           unit: "Second",
           name: data.endname,
-          imageURL: image
+          imageFile: data.imageFile
         });
         this.setState({ endNode: node, addedEnd: true});
 
@@ -442,10 +442,10 @@ class App extends Component{
     else{
       this.setState({
         loadMode: true,
-        startNode: this.state.savedStart,
-        stationNode: this.state.savedStation,
-        endNode: this.state.savedEnd,
-        arrows: this.state.savedArrows
+        startNode: [],
+        stationNode: [],
+        endNode: [],
+        arrows: [],
       });
     }
     console.log("Load Mode");
@@ -476,20 +476,32 @@ class App extends Component{
             addedStation={this.state.addedStation}
             addedEnd={this.state.addedEnd}
             confirmAdded={this.confirmAdded}
+            
             handleChangeNode={this.handleChangeNode}
+            
             createArrowMode={this.state.createArrowMode}
             addArrowState={this.addArrowState}
             createArrow={this.state.createArrow}
             arrows={this.state.arrows}
+            
             removeMode={this.state.removeMode}
             handleRemove={this.handleRemove}
+            
             clearMode={this.state.clearMode}
             handleClearMode={this.handleClearMode}
+            
             imageStart={this.state.imageStart}
             imageStation={this.state.imageStation}
             imageEnd={this.state.imageEnd}
             handleLoad={this.handleLoad}
-            loadMode={this.state.loadMode} ></Canvas>
+            loadMode={this.state.loadMode}
+
+            handleAddNode={this.addNode}
+            handleImageUpload={this.handleImageUpload}
+            savedStart={this.state.savedStart}
+            savedStation={this.state.savedStation}
+            savedEnd={this.state.savedEnd}
+            savedArrows={this.state.savedArrows} ></Canvas>
         </div>
 
         
