@@ -5,6 +5,13 @@ env = simpy.Environment()
 
 #Create nodes.
 st = StartingPoint(env=env, name="Hotel", entity_name="Attendee", gen_fun=10, limit=200, uid='st')
+
+stsplit = {
+    'policy' : 'ALPHA_SEQ'
+}
+
+st.set_split_policy(stsplit)
+
 line1 = BasicComponent(env=env, name="Convention Line 1", capacity=50, time_func=1000, uid='line1')
 sec1 = BasicComponent(env=env, name="Security 1", capacity=10, time_func=100, uid='sec1')
 line2 = BasicComponent(env=env, name="Convention Line 2", capacity=50, time_func=1000, uid='line2')

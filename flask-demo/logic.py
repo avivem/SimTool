@@ -104,7 +104,6 @@ class BasicFlowEntity(object):
         self.containers[container.resource][container.name] = container
 
     def act(self):
-        pprint.pprint("HERE I AM")
         if self.currentLoc.split['act'] == None:
             return None
         if self.currentLoc.split['act'] == 'SUB':
@@ -178,8 +177,7 @@ class StartingPoint(Node):
         return path_list[next_ind]
 
     def run(self):
-        pprint.pprint(self.container_specs)
-        pprint.pprint("\nNEXT\n")
+        print(f'[{self.env.now}]:: {self} starting entity generation')
         while self.count < self.limit:
             yield self.env.timeout(self.gen_fun)
             entity = BasicFlowEntity(self.env,f'{self.entity_name} {self.count}',self.next_dir())
@@ -194,6 +192,7 @@ class StartingPoint(Node):
             self.env.process(entity.run())
             print(f'[{self.env.now}]:: {entity} has left {self}')
             self.count += 1
+        print(f'[{self.env.now}]:: {self} ending entity generation')
             
             
 #A Node that represents a "cog in a machine" such as bank tellers in a bank, or
@@ -226,7 +225,6 @@ class BasicComponent(Node):
                 self.count += 1
             elif self.split['policy'] == "BOOL":
                 encon = entity.containers[self.split['resource']][self.split['entity_container_name']].con
-                pprint.pprint(entity.containers)
                 
                 passed = False
                 
@@ -259,9 +257,7 @@ class BasicComponent(Node):
                     passed = True
 
                 passlist = [x for x in self.directed_to if x.uid in self.split['pass']]
-                pprint.pprint(f"\n\nPASSLIST for {self}: {passlist}")
                 faillist = [x for x in self.directed_to if x.uid in self.split['fail']]
-                pprint.pprint(f"\nFAILLIST for {self}: {faillist}\n\n")
                 if passed:
                     next_ind = random.randint(0,len(passlist)-1)
                     return passlist[next_ind]
@@ -270,9 +266,6 @@ class BasicComponent(Node):
                     return faillist[next_ind]
         else:
             next_ind = 0
-        #print(f"\n {self} PATH LIST\n")
-        #pprint.pprint(path_list)
-        #print("\n")
         return path_list[next_ind]
     
     #Returns a timeout event which represents the amount of time a component
