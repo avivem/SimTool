@@ -222,7 +222,7 @@ class App extends Component{
   Change the unit or rate of the node, the r is used to convert the rate to second,
   so r can be 1, 60, 60 * 60, or 60 * 60 * 24 
   */
-  handleChangeNode(id, unit, rate, r){
+  handleChangeNode(change){
     console.log(this.state.startNode);
 
      switch(change.type){
