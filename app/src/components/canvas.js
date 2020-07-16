@@ -27,16 +27,16 @@ class Canvas extends Component{
             from: "",
             currDir: "from",
 
-            startname: "",
-            gen_fun: 0,
-            entity_name: 0,
-            limit: 0,
+            startname: "default name",
+            gen_fun: 10,
+            entity_name: "default entity name",
+            limit: 100,
 
-            stationname: "",
-            capacity: 0,
-            time_func: 0,
+            stationname: "default name",
+            capacity: 10,
+            time_func: 1,
 
-            endname: "",
+            endname: "default name",
 
         }
 
