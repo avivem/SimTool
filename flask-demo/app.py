@@ -156,10 +156,15 @@ def run(until=300):
 @app.route('/api/reset/')
 def reset():
 	data.env = simpy.Environment()
+	for k,v in data.nodes.items():
+		v.update({'env': data.env})
+		v.reset()
+	for k,v in data.containers.items():
+		v.update({'env': data.env})
 	return "Simulation has been reset."
 
 # url to clean the graph for a new sim.
-@app.route('/api/clean/')
+@app.route('/api/clean/', methods=["DELETE"])
 def clean():
 	global data
 	data = DataStore()
