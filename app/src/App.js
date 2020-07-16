@@ -255,7 +255,9 @@ class App extends Component{
          fetch('http://127.0.0.1:5000/api/node/', requestOptionsStart).then(res => res.json()).then(gotUser => {
              console.log(gotUser);
 
-         }).catch(console.log)
+        }).catch(function() {
+            console.log("Error on change Start Node");
+        });
 
 
          break;
@@ -298,7 +300,9 @@ class App extends Component{
          fetch('http://127.0.0.1:5000/api/node/', requestOptionsBasic).then(res => res.json()).then(gotUser => {
              console.log(gotUser);
 
-         }).catch(console.log);
+        }).catch(function() {
+            console.log("Error on change Basic Node");
+        });
 
          break;
 
@@ -324,7 +328,9 @@ class App extends Component{
          fetch('http://127.0.0.1:5000/api/node/', requestOptionsEnd).then(res => res.json()).then(gotUser => {
              console.log(gotUser);
 
-         }).catch(console.log)
+        }).catch(function() {
+            console.log("Error on change End Node");
+        });
 
          break;
        } 
