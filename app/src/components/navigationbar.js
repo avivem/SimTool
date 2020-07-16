@@ -196,8 +196,6 @@ class Navigation extends Component{
 
     // Change to remove node/arrow mode
     handleRemoveMode(){
-      console.log(this.props.removeMode);
-      console.log(this.props.createArrowMode);
       if(this.props.removeMode){
         this.setState({
           removeButtonColor: "#ff0000",

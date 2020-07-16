@@ -29,8 +29,18 @@ class App extends Component{
       savedStation: [],
       savedEnd: [],
       savedArrows: [],
-      loadMode: false
+      savedNumImage: 0,
+      loadMode: false,
+      loadModeMakeArrow: false,
+      numImage: 0,
+      numLoadedImage: 0,
+      numImageToLoad: 0
     }
+
+    // numImage keep track of current number of image in model
+    // numLoadedImage keep track of number of image loaded in model
+    // savedNumImage saved the numImage for load
+    // numImageToLoad used in loading to keep track of how many image needed to be load
 
     this.addNode = this.addNode.bind(this);
     this.confirmAdded = this.confirmAdded.bind(this);
@@ -52,6 +62,9 @@ class App extends Component{
     this.handleSave = this.handleSave.bind(this);
 
     this.handleLoad = this.handleLoad.bind(this);
+
+    this.incrNumImage = this.incrNumImage.bind(this);
+    this.incrNumLoadedImage = this.incrNumLoadedImage.bind(this);
   }
 
 
@@ -67,6 +80,7 @@ class App extends Component{
         node.push({
           // this ID needs to be the one set in the add node function
           uid: "start-" + this.state.count,
+          type: "START",
           x: xPos,
           y: yPos,
           rate: 0,
@@ -75,7 +89,7 @@ class App extends Component{
           entity_name: data.entity_name,
           gen_fun: parseInt(data.gen_fun),
           limit: parseInt(data.limit),
-          imageFile: data.imageFile
+          imageURL: data.imageFile
         });
         this.setState({startNode: node, addedStart: true});
 
@@ -108,6 +122,7 @@ class App extends Component{
         var node = this.state.stationNode;
         node.push({
           uid: "station-" + this.state.count,
+          type: "BASIC",
           x: xPos,
           y: yPos,
           rate: 0,
@@ -115,7 +130,7 @@ class App extends Component{
           name:data.stationame,
           capacity: parseInt(data.capacity),
           time_func: parseInt(data.time_func),
-          imageFile: data.imageFile
+          imageURL: data.imageFile
         });
         this.setState({stationNode: node, addedStation: true});
 
@@ -130,6 +145,7 @@ class App extends Component{
             name:data.stationame,
             capacity: parseInt(data.capacity),
             time_func: parseInt(data.time_func),
+            // node id is this.state.stationNode[0].uid
             uid: "station-" + this.state.count
           })
         };
@@ -146,11 +162,12 @@ class App extends Component{
         var node = this.state.endNode;
         node.push({
           uid: "end-" + this.state.count,
+          type: "END",
           x: xPos,
           y: yPos,
           unit: "Second",
           name: data.endname,
-          imageFile: data.imageFile
+          imageURL: data.imageFile
         });
         this.setState({ endNode: node, addedEnd: true});
 
@@ -177,11 +194,11 @@ class App extends Component{
         break;
     }
 
-    this.setState({
-      count: this.state.count + 1,
+    this.setState((state) => ({
+      count: state.count + 1,
       createArrowMode: false,
       removeMode: false
-    });
+    }));
 
     
   }
@@ -200,126 +217,41 @@ class App extends Component{
   Change the unit or rate of the node, the r is used to convert the rate to second,
   so r can be 1, 60, 60 * 60, or 60 * 60 * 24 
   */
-  handleChangeNode(change){
-    console.log(this.state.startNode);
-
-    switch(change.type){
-      case "Start Node":
-        // need to change startNode array
-        this.state.startNode[0].name = change.startname;
-        this.state.startNode[0].entity_name = change.entity_name;
-        this.state.startNode[0].gen_fun = change.gen_fun;
-        this.state.startNode[0].limit = change.limit;
-
-        // request options to send in post request- START NODE
-        const requestOptionsStart = {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            // node id is this.state.startNode[0].uid
-            uid: change.targetId,
-            type: 'START',
-            // Change the name value to this.state.name to refer to user input
-            name: change.startname,
-            entity_name: change.entity_name,
-            gen_fun: parseInt(change.gen_fun),
-            limit: parseInt(change.limit),
-            
-          })
-        };
-
-        /**fetch to api */
-        fetch('http://127.0.0.1:5000/api/node/', requestOptionsStart).then(res => res.json()).then(gotUser => {
-            console.log(gotUser);
-
-        }).catch(console.log)
-
-
-        break;
-
-      case "Station Node":
-
-        // do a for each to grab correct basic node
-        var station = this.state.stationNode[0];
-        for(var x in this.state.stationNode){
-            var uid = this.state.stationNode[x].uid;
-            
-            if(uid== this.state.targetId){
-                station = this.state.stationNode[x];
-            }
+  handleChangeNode(id, unit, rate, r){
+    if(id.includes('start')){
+      var lst = this.state.startNode;
+      lst.forEach(target =>{
+        if(target.uid == id){
+          target.unit = unit;
+          target.rate = rate / r;
         }
+      });
 
-        station.name = change.stationname;
-        station.capacity = change.capacity;
-        station.time_func = change.time_func; 
-
-        // console.log(this.state.stationNode);
-
-        // request options to send in post request- BASIC NODE
-        // placeholder values
-        const requestOptionsBasic = {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            uid: change.targetId,
-            type: 'BASIC',
-            // Change the name value to this.state.name to refer to user input
-            name:change.stationame,
-            capacity: parseInt(change.capacity),
-            time_func: parseInt(change.time_func),
-            
-          })
-        };
-
-        /**fetch to api */
-        fetch('http://127.0.0.1:5000/api/node/', requestOptionsBasic).then(res => res.json()).then(gotUser => {
-            console.log(gotUser);
-
-        }).catch(console.log)
-
-        break;
-
-      case "End Node":
-        this.state.endNode[0].name = change.endname;
-
-        // request options to send in post request- END NODE
-        // placeholder values
-        const requestOptionsEnd = {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            uid: change.targetId,
-            type: 'END',
-            // Change the name value to this.state.name to refer to user input
-            name: change.endname,
-            // node id is this.state.endNode[0].uid
-            
-          })
-        };
-
-        /**fetch to api */
-        fetch('http://127.0.0.1:5000/api/node/', requestOptionsEnd).then(res => res.json()).then(gotUser => {
-            console.log(gotUser);
-
-        }).catch(console.log)
-
-        break;
+      this.setState({startNode: lst});
+    }
+    if(id.includes('station')){
+      var lst = this.state.stationNode;
+      lst.forEach(target =>{
+        if(target.uid == id){
+          target.unit = unit;
+          target.rate = rate / r;
+        }
+      });
+      this.setState({stationNode: lst});
+    }
+    if(id.includes('end')){
+      var lst = this.state.endNode;
+      lst.forEach(target =>{
+        if(target.uid == id){
+          target.unit = unit;
+        }
+      });
+      this.setState({endNode: lst});
     }
 
-    // take the node, update fields, and push to api
-    // we can gain the node info from startNode
-    // we are passed the state- which includes all updated fields
-
-    // find node based on type
-      // startNode -> use uid to get node
-
-      // apply the changes seen in the state variable that correspond to Start Node
-
-    //fetch api '/api/node/' put request [uid: ..., and what to update]
-
-    // console.log(this.state.startNode);
-    // console.log(this.state.stationNode);
-    // console.log(this.state.endNode);
+    console.log(this.state.startNode);
+    console.log(this.state.stationNode);
+    console.log(this.state.endNode);
   }
 
   /*State is used to let the click event on the 
@@ -501,18 +433,20 @@ class App extends Component{
 
   // Save the current model
   handleSave(){
-    var lst1 = this.state.startNode;
-    var lst2 = this.state.stationNode;
-    var lst3 = this.state.endNode;
-    var lst4 = this.state.arrows;
+    var lst1 = this.state.startNode.slice(0);
+    var lst2 = this.state.stationNode.slice(0);
+    var lst3 = this.state.endNode.slice(0);
+    var lst4 = this.state.arrows.slice(0);
+    var num = this.state.numImage
 
-    console.log(lst1);
+    console.log("numImage: " + num);
     
     this.setState({
       savedStart: lst1,
       savedStation: lst2,
       savedEnd: lst3,
-      savedArrows: lst4
+      savedArrows: lst4,
+      savedNumImage: num
     });
     console.log("Saved current model");
     
@@ -520,19 +454,53 @@ class App extends Component{
 
   // Load saved model
   handleLoad(){
-    if(this.state.loadMode){
-      this.setState({loadMode: false});
+    var makeNode = this.state.loadMode;
+    var makeArrow = this.state.loadModeMakeArrow; 
+
+    var lst1 = this.state.savedStart.slice(0);
+    var lst2 = this.state.savedStation.slice(0);
+    var lst3 = this.state.savedEnd.slice(0);
+    var lst4 = this.state.savedArrows.slice(0);
+    var num = this.state.savedNumImage;
+
+
+    if(makeNode == false && makeArrow == false){
+      this.setState({
+        loadMode: true,
+        startNode: lst1,
+        stationNode: lst2,
+        endNode: lst3,
+        numImage: 0,
+        numLoadedImage: 0,
+        numImageToLoad: num,
+      });
+    }
+    else if(makeNode == true && makeArrow == false){
+      this.setState({
+        loadMode: false,
+        loadModeMakeArrow: true,
+        arrows: lst4
+      });
     }
     else{
       this.setState({
-        loadMode: true,
-        startNode: [],
-        stationNode: [],
-        endNode: [],
-        arrows: [],
+        loadMode: false,
+        loadModeMakeArrow: false
       });
     }
     console.log("Load Mode");
+  }
+
+  // Increase number of image in the model
+  incrNumImage(){  
+    this.setState((state) => ({numImage: state.numImage + 1}));
+  }
+
+  // Increase number of image loaded in the model
+  incrNumLoadedImage(){
+    this.setState((state) => ({numLoadedImage: state.numLoadedImage + 1}));
+
+
   }
 
   render(){
@@ -560,32 +528,26 @@ class App extends Component{
             addedStation={this.state.addedStation}
             addedEnd={this.state.addedEnd}
             confirmAdded={this.confirmAdded}
-            
             handleChangeNode={this.handleChangeNode}
-            
             createArrowMode={this.state.createArrowMode}
             addArrowState={this.addArrowState}
             createArrow={this.state.createArrow}
             arrows={this.state.arrows}
-            
             removeMode={this.state.removeMode}
             handleRemove={this.handleRemove}
-            
             clearMode={this.state.clearMode}
             handleClearMode={this.handleClearMode}
-            
             imageStart={this.state.imageStart}
             imageStation={this.state.imageStation}
             imageEnd={this.state.imageEnd}
             handleLoad={this.handleLoad}
             loadMode={this.state.loadMode}
-
-            handleAddNode={this.addNode}
-            handleImageUpload={this.handleImageUpload}
-            savedStart={this.state.savedStart}
-            savedStation={this.state.savedStation}
-            savedEnd={this.state.savedEnd}
-            savedArrows={this.state.savedArrows} ></Canvas>
+            loadModeMakeArrow={this.state.loadModeMakeArrow}
+            incrNumImage={this.incrNumImage}
+            incrNumLoadedImage={this.incrNumLoadedImage}
+            numImageToLoad={this.state.numImageToLoad}
+            numLoadedImage={this.state.numLoadedImage}
+            numImage = {this.state.numImage} ></Canvas>
         </div>
 
         

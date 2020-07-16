@@ -239,12 +239,7 @@ class Canvas extends Component{
             var line = layer.findOne('#' + connect.uid);
             var fromNode = layer.findOne('#' + connect.from);
             var toNode = layer.findOne('#' + connect.to);
-            
-            console.log(connect.from);
-            console.log(fromNode);
-            
-            console.log(connect.to);
-            console.log(toNode);
+
             
             // Calculate the arrow using the getConnectorPoints function
             const points = this.getConnectorPoints(
@@ -257,273 +252,278 @@ class Canvas extends Component{
         layer.batchDraw();
     }
 
-    componentDidUpdate(prevProps, prevState){
+    async componentDidUpdate(prevProps, prevState){
 
         var layer = this.state.layer;
 
-        if(this.props.addedStart || this.props.addedStation || this.props.addedEnd){
+        if(this.props.addedStart || this.props.addedStation || this.props.addedEnd || this.props.loadMode){
             /** New node are added to the end of the array so just needed to look at the end*/
-            var target;
+            var lst = [];
             if(this.props.addedStart){
-                target = this.props.startNode[this.props.startNode.length - 1];
+                lst.push(this.props.startNode[this.props.startNode.length - 1]);
             }
-            if(this.props.addedStation){
-                target = this.props.stationNode[this.props.stationNode.length - 1];
+            else if(this.props.addedStation){
+                lst.push(this.props.stationNode[this.props.stationNode.length - 1]);
             }
-            if(this.props.addedEnd){
-                target = this.props.endNode[this.props.endNode.length - 1];
+            else if(this.props.addedEnd){
+                lst.push(this.props.endNode[this.props.endNode.length - 1]);
             }
+            else{
+                layer.find('Arrow').destroy();
+                layer.find('Circle').destroy();
+                layer.find('Image').destroy();
+                layer.draw();
 
-            var colorFill = "";
-            var header = "";
-            var url = "";
-            if(this.props.addedStart){
-                colorFill = 'red';
-                header = "Start Node";
-                url = this.props.imageStart;
+                this.props.startNode.forEach((elem) => {
+                    lst.push(elem);
+                });
+                this.props.stationNode.forEach((elem) => {
+                    lst.push(elem);
+                });
+                this.props.endNode.forEach((elem) => {
+                    lst.push(elem);
+                });
+
             }
-            if(this.props.addedStation){
-                colorFill = 'green';
-                header = "Station Node";
-                url = this.props.imageStation;
-            }
-            if(this.props.addedEnd){
-                colorFill = 'blue';
-                header = "End Node";
-                url = this.props.imageEnd;
-            }
-            var node = new Konva.Circle({
-                id: target.uid,
-                fill: colorFill,
-                radius: 20,
-                shadowBlur: 10,
-                stroke:"black",
-                strokeWidth: 5,
-                draggable: true,
-                x: target.x,
-                y: target.y
-            });
 
             var t = this;
             
-            if(url == null){
-                var node = new Konva.Circle({
-                    id: target.uid,
-                    fill: colorFill,
-                    radius: 20,
-                    shadowBlur: 10,
-                    stroke:"black",
-                    strokeWidth: 5,
-                    draggable: true,
-                    x: target.x,
-                    y: target.y
-                });
+            lst.forEach((target) => {
+                var colorFill = "";
+                var header = "";
+                var url = target.imageURL;
+                if(target.uid.includes("start")){
+                    colorFill = 'red';
+                    header = "Start Node";
+         //           url = this.props.imageStart;
+                }
+                if(target.uid.includes("station")){
+                    colorFill = 'green';
+                    header = "Station Node";
+         //           url = this.props.imageStation;
+                }
+                if(target.uid.includes("end")){
+                    colorFill = 'blue';
+                    header = "End Node";
+         //           url = this.props.imageEnd;
+                }
 
-                layer.add(node);
-
-                node.on('dragmove', () => {
-                    // mutate the state
-                    target.x = node.x();
-                    target.y = node.y();
-        
-                    // update nodes from the new state
-                    this.update();
-                    layer.batchDraw();
-                });
-
-                /** Node is click so open popup*/
-                node.on('click', () =>{
-
-                    if(this.props.createArrowMode){
-                        /* Help determine the to and from node. Once determine the arrow is 
-                        added to the list of arrows in App.js */
-                        t.findToAndFrom(target);
-                    }
-                    else{
-                        if(this.props.removeMode){
-                            // remove arrows
-                            this.props.arrows.forEach(arrow => {
-                                if(arrow.from == target.uid || arrow.to == target.uid){
-                                    var arrow_uid = arrow.uid;
-                                    var n = layer.findOne('#' + arrow_uid);
-                                    n.destroy();
-                                    this.props.handleRemove(arrow_uid);
-                                }
-                            });
-
-                            //remove node
-                            this.props.handleRemove(target.uid);
-                            node.destroy();
-
-                            layer.draw();
-                        }
-                        else{
-                            
-                            /*Open speficif popup for the node to change details*/
-                            if(target.type == 'START'){
-
-                                this.setState({
-                                    unit: target.unit,
-                                    rate: target.rate,
-                                    targetId: target.uid,
-                                    type: header,
-                                    name: target.name,
-                                })
-                                this.openPopup();
-                            }else if(target.type == 'BASIC'){
-                                this.setState({
-                                    unit: target.unit,
-                                    rate: target.rate,
-                                    targetId: target.uid,
-                                    type: header
-                                })
-                                this.openPopup();
-                            }else{
-                                this.setState({
-                                    unit: target.unit,
-                                    rate: target.rate,
-                                    targetId: target.uid,
-                                    type: header
-                                })
-                                this.openPopup();
-                            }
-
-                        }
-                    }
-                })
                 
-                layer.batchDraw();
-            }
-            else{
-                Konva.Image.fromURL(url, function (node) {
-                    node.setAttrs({
+                
+                if(url == null){
+                    var node = new Konva.Circle({
                         id: target.uid,
-                        x: target.x,
-                        y: target.y,
+                        fill: colorFill,
+                        radius: 20,
                         shadowBlur: 10,
                         stroke:"black",
                         strokeWidth: 5,
-                        draggable: true,    
+                        draggable: true,
+                        x: target.x,
+                        y: target.y
                     });
-                    layer.add(node);
     
+                    
+                    layer.add(node);
+
                     node.on('dragmove', () => {
                         // mutate the state
                         target.x = node.x();
                         target.y = node.y();
             
                         // update nodes from the new state
-                        t.update();
+                        this.update();
                         layer.batchDraw();
                     });
-    
+
                     /** Node is click so open popup*/
                     node.on('click', () =>{
-                        if(t.props.createArrowMode){
+
+                        if(this.props.createArrowMode){
                             /* Help determine the to and from node. Once determine the arrow is 
                             added to the list of arrows in App.js */
-                            t.findToAndFrom(target);
+                            this.findToAndFrom(target);
                         }
                         else{
-                            if(t.props.removeMode){
+                            if(this.props.removeMode){
                                 // remove arrows
-                                t.props.arrows.forEach(arrow => {
+                                this.props.arrows.forEach(arrow => {
                                     if(arrow.from == target.uid || arrow.to == target.uid){
                                         var arrow_uid = arrow.uid;
                                         var n = layer.findOne('#' + arrow_uid);
                                         n.destroy();
-                                        t.props.handleRemove(arrow_uid);
+                                        this.props.handleRemove(arrow_uid);
                                     }
                                 });
-    
+
                                 //remove node
-                                t.props.handleRemove(target.uid);
+                                this.props.handleRemove(target.uid);
                                 node.destroy();
-    
+
                                 layer.draw();
                             }
                             else{
-                                /*Open popup for the node to change the rate/unit */
-                                t.setState({
-                                    unit: target.unit,
-                                    rate: target.rate,
-                                    targetId: target.uid,
-                                    type: header
-                                })
-                                t.openPopup();
+                                
+                                /*Open speficif popup for the node to change details*/
+                                if(target.type == 'START'){
+
+                                    this.setState({
+                                        unit: target.unit,
+                                        rate: target.rate,
+                                        targetId: target.uid,
+                                        type: header,
+                                        name: target.name,
+                                    })
+                                    this.openPopup();
+                                }else if(target.type == 'BASIC'){
+                                    this.setState({
+                                        unit: target.unit,
+                                        rate: target.rate,
+                                        targetId: target.uid,
+                                        type: header
+                                    })
+                                    this.openPopup();
+                                }else{
+                                    this.setState({
+                                        unit: target.unit,
+                                        rate: target.rate,
+                                        targetId: target.uid,
+                                        type: header
+                                    })
+                                    this.openPopup();
+                                }
+
                             }
                         }
-                    })
+                    });
                     
                     layer.batchDraw();
-                });    
-            }
+                }
+                else{
+                    
+                    this.props.incrNumImage();
+                    
+                    Konva.Image.fromURL(url, function (node) {
+                        node.setAttrs({
+                            id: target.uid,
+                            x: target.x,
+                            y: target.y,
+                            shadowBlur: 10,
+                            stroke:"black",
+                            strokeWidth: 5,
+                            draggable: true,    
+                        });
+                        
+                        layer.add(node);
+                    
+                        t.props.incrNumLoadedImage();
 
-            this.props.confirmAdded();
+                        node.on('dragmove', () => {
+                            // mutate the state
+                            target.x = node.x();
+                            target.y = node.y();
+                
+                            // update nodes from the new state
+                            t.update();
+                            layer.batchDraw();
+                        });
+        
+                        
+                        node.on('click', () =>{
+                            if(t.props.createArrowMode){
+                                /* Help determine the to and from node. Once determine the arrow is 
+                                added to the list of arrows in App.js */
+                                t.findToAndFrom(target);
+                            }
+                            else{
+                                if(t.props.removeMode){
+                                    // remove arrows
+                                    t.props.arrows.forEach(arrow => {
+                                        if(arrow.from == target.uid || arrow.to == target.uid){
+                                            var arrow_uid = arrow.uid;
+                                            var n = layer.findOne('#' + arrow_uid);
+                                            n.destroy();
+                                            t.props.handleRemove(arrow_uid);
+                                        }
+                                    });
+        
+                                    //remove node
+                                    t.props.handleRemove(target.uid);
+                                    node.destroy();
+        
+                                    layer.draw();
+                                }
+                                else{
+                                    /*Open popup for the node to change the rate/unit */
+                                    t.setState({
+                                        unit: target.unit,
+                                        rate: target.rate,
+                                        targetId: target.uid,
+                                        type: header
+                                    })
+                                    t.openPopup();
+                                }
+                            }
+                        });
+                        
+                        layer.batchDraw();
+
+                    });  
+                    
+
+                }
+            });
+
+            if(this.props.loadMode){
+                this.props.handleLoad()
+            }
+            else{
+                this.props.confirmAdded();
+            }
+            
         }
         
-        if(this.props.createArrow){
+        if(this.props.createArrow || (this.props.loadModeMakeArrow && this.props.numLoadedImage == this.props.numImageToLoad)){
             /** New node are added to the end of the array so just needed to look at the end*/
-            var target = this.props.arrows[this.props.arrows.length - 1];
-
-            var line = new Konva.Arrow({
-                id: target.uid,
-                stroke: 'black',
-                fill: 'black',
-            });
-            layer.add(line);
-
-            line.on('click', () => {
-                if(this.props.removeMode){
-                    //remove node
-                    this.props.handleRemove(target.uid); 
-                    line.destroy();
-                    layer.draw();
-                }
+            var lst = []
+            if(this.props.createArrow){
+                lst.push(this.props.arrows[this.props.arrows.length - 1]);
+            }
+            else{
+                this.props.arrows.forEach((elem) => {
+                    lst.push(elem);
+                });
+                
+            }
+            
+            lst.forEach((target) => {
+                var line = new Konva.Arrow({
+                    id: target.uid,
+                    stroke: 'black',
+                    fill: 'black',
+                });
+                layer.add(line);
+    
+                line.on('click', () => {
+                    if(this.props.removeMode){
+                        //remove node
+                        this.props.handleRemove(target.uid); 
+                        line.destroy();
+                        layer.draw();
+                    }
+                });    
             });
 
             this.update();
-            this.props.confirmAdded();
+            if(this.props.createArrow){
+                this.props.confirmAdded();
+            }
+            else{
+                this.props.handleLoad();
+            }
 
         }
-
-        if(this.props.loadMode){
-            layer.find('Arrow').destroy();
-            layer.find('Circle').destroy();
-            layer.find('Image').destroy();
-            layer.draw();
-
-            var lst = [];
-
-            // Combine start, station, end list into one list called lst
-            this.props.savedStart.forEach((elem) => {
-                lst.push(elem);
-            });
-            this.props.savedStation.forEach((elem) => {
-                lst.push(elem);
-            });
-            this.props.savedEnd.forEach((elem) => {
-                lst.push(elem);
-            });
-
-            // Create each of the node in the list lst
-            lst.forEach((target) => {
-                var data;
-                if(target.uid.included("start")){
-
-                }
-                else if(target.uid.included("station")){
-
-                }
-                else{
-
-                }
-
-            });
-
-            this.props.handleLoad();
-            
-        }
+        
 
         if(this.props.clearMode){
             layer.find('Arrow').destroy();
@@ -537,11 +537,14 @@ class Canvas extends Component{
 
     render(){
         let content;
+
+        var endNode = this.props.endNode[0];
+        var startNode = this.props.startNode[0];
+        var s = this.props.stationNode[0];
         // need to get node info from props- use ui
 
         // determine content in popup
-        if(this.state.type == "End Node"){
-            var endNode = this.props.endNode[0];
+        if(this.state.type == "End Node" && endNode != undefined){
 
             content =   <div>
                         <p>Node Name: {endNode.name}</p>
@@ -553,8 +556,7 @@ class Canvas extends Component{
                                 name="endname"
                                 onChange={this.onChange} />
                         </label></div>
-        }else if(this.state.type == "Start Node"){
-            var startNode = this.props.startNode[0];
+        }else if(this.state.type == "Start Node" && startNode != undefined){
 
             content =   <div>
                         <p>Node Name: {startNode.name}</p>
@@ -599,10 +601,10 @@ class Canvas extends Component{
                                 onChange={this.onChange}
                                  />
                         </label></div>
-        }else if(this.state.type == "Station Node"){
+        }else if(this.state.type == "Station Node" && s != undefined){
             
             // do a for each to grab correct basic node
-            var s = this.props.stationNode[0];
+            
             for(var x in this.props.stationNode){
                 var uid = this.props.stationNode[x].uid;
                 
