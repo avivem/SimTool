@@ -60,11 +60,10 @@ class App extends Component{
     this.handleImageUpload = this.handleImageUpload.bind(this);
 
     this.handleSave = this.handleSave.bind(this);
-
     this.handleLoad = this.handleLoad.bind(this);
-
     this.incrNumImage = this.incrNumImage.bind(this);
     this.incrNumLoadedImage = this.incrNumLoadedImage.bind(this);
+    this.handleBackendLoadNodes = this.handleBackendLoadNodes.bind(this);
   }
 
 
@@ -496,6 +495,14 @@ class App extends Component{
         stationNode: [],
         endNode: []
       });
+      
+      // Clear the back end
+      fetch('http://127.0.0.1:5000/api/clean/').then(res => res.json()).then(gotUser => {
+        console.log(gotUser);
+
+      }).catch(function() {
+          console.log("Error on add Basic Node");
+      });
       console.log("Clear store node/arrow");
     }
     
@@ -599,6 +606,77 @@ class App extends Component{
 
   }
 
+  // Used to add node when loading 
+  handleBackendLoadNodes(node){
+    if(node.uid.includes("start")){
+      const requestOptionsStart = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'START',
+          name: node.name,
+          entity_name: node.entity_name,
+          gen_fun: node.gen_fun,
+          limit: node.limit,
+          uid: node.uid
+        })
+      };
+
+      /**fetch to api */
+      fetch('http://127.0.0.1:5000/api/node/', requestOptionsStart).then(res => res.json()).then(gotUser => {
+          console.log(gotUser);
+
+      }).catch(function() {
+          console.log("Error on add Start Node");
+      });
+    }
+    else if(node.uid.includes("station")){
+      const requestOptionsBasic = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'BASIC',
+          // Change the name value to this.state.name to refer to user input
+          name: node.name,
+          capacity: parseInt(node.capacity),
+          time_func: parseInt(node.time_func),
+          uid: node.uid
+        })
+      };
+
+      /**fetch to api */
+      fetch('http://127.0.0.1:5000/api/node/', requestOptionsBasic).then(res => res.json()).then(gotUser => {
+          console.log(gotUser);
+
+      }).catch(function() {
+          console.log("Error on add Basic Node");
+      });
+    }
+    else if(node.uid.includes("end")){
+      const requestOptionsEnd = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          // Change the name value to this.state.name to refer to user input
+          name: node.name,
+          type: "END",
+          uid: node.uid
+        })
+      };
+
+      /**fetch to api */
+      fetch('http://127.0.0.1:5000/api/node/', requestOptionsEnd).then(res => res.json()).then(gotUser => {
+          console.log(gotUser);
+
+      }).catch(function() {
+          console.log("Error on add End Node");
+      });
+    }
+    else{
+      console.log("Invalid node being send to back end")
+    }
+  }
+
   render(){
     return (
       <div className="App">
@@ -643,7 +721,8 @@ class App extends Component{
             incrNumLoadedImage={this.incrNumLoadedImage}
             numImageToLoad={this.state.numImageToLoad}
             numLoadedImage={this.state.numLoadedImage}
-            numImage = {this.state.numImage} ></Canvas>
+            numImage = {this.state.numImage} 
+            handleBackendLoadNodes={this.handleBackendLoadNodes} ></Canvas>
         </div>
 
         

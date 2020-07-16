@@ -252,7 +252,7 @@ class Canvas extends Component{
         layer.batchDraw();
     }
 
-    async componentDidUpdate(prevProps, prevState){
+    componentDidUpdate(prevProps, prevState){
 
         var layer = this.state.layer;
 
@@ -269,11 +269,21 @@ class Canvas extends Component{
                 lst.push(this.props.endNode[this.props.endNode.length - 1]);
             }
             else{
+                // Clear the canvas
                 layer.find('Arrow').destroy();
                 layer.find('Circle').destroy();
                 layer.find('Image').destroy();
                 layer.draw();
 
+                // Clear the back end
+                fetch('http://127.0.0.1:5000/api/clean/').then(res => res.json()).then(gotUser => {
+                    console.log(gotUser);
+
+                }).catch(function() {
+                    console.log("Error on add Basic Node");
+                });
+
+                // Combine all node into one list
                 this.props.startNode.forEach((elem) => {
                     lst.push(elem);
                 });
@@ -284,10 +294,15 @@ class Canvas extends Component{
                     lst.push(elem);
                 });
 
+                lst.forEach((node) => {
+                    this.props.handleBackendLoadNodes(node);
+                })
+
             }
 
             var t = this;
-            
+            // Go through all of the element in the lst and make the node on the canvas.
+            // lst - have many element when loading and 1 element when regular adding node.
             lst.forEach((target) => {
                 var colorFill = "";
                 var header = "";
