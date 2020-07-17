@@ -170,6 +170,44 @@ def clean():
 	data = DataStore()
 	return "Graph has been reset"
 
+# # set resources on node
+# @app.route('api/resource', methods=["POST"])
+# def resource():
+#  	if request.resource == "POST":
+#  		# wallet example
+# 		wallet_spec = {
+# 			'name' : request.json['name'],
+# 			'resource' : request.json['resource'],
+# 			'init' : request.json['init'],
+# 			'capacity' : request.json['capacity'],
+# 			'uid' : request.json['uid']
+# 		}
+
+# 		st.add_container_spec(wallet_spec)
+
+# 		# return?
+# 		return data.save["nodes"][st.uid]
+
+
+# @app.route('api/container', methods=["POST"])
+# def container():
+# 	# would creating the resource here and the container work better?
+# 	wallet_spec = {
+# 		'name' : request.json['name'],
+# 		'resource' : request.json['resource'],
+# 		'init' : request.json['init'],
+# 		'capacity' : request.json['capacity'],
+# 		'uid' : request.json['uid']
+# 	}
+
+# 	st.add_container_spec(wallet_spec)
+
+# 	# node will be the one being sent from ui
+
+# 	revenue = BasicContainer(env,"Revenue",node,"Dollar",0,uid='rev')
+# 	node.add_container(revenue)
+
+# 	# is split being set by the user?
 
 
 
