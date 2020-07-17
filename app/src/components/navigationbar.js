@@ -5,7 +5,6 @@ import StartImage from "../image/start-circle.png";
 import StationImage from "../image/station-circle.png";
 import EndImage from "../image/end-circle.png";
 
-import './css/nav.css';
 import './css/popup.css';
 
 
@@ -28,6 +27,7 @@ class Navigation extends Component{
         capacity: 0,
         time_func: 0,
         arrowButtonColor: "#2cbebe",
+        actionButtonColor: "#2cbebe",
 
         removeButtonColor: "#ff0000",
         log: null
@@ -64,6 +64,8 @@ class Navigation extends Component{
 
       this.handleSave = this.handleSave.bind(this);
       this.handleLoad = this.handleLoad.bind(this);
+
+      this.handleContainer= this.handleContainer.bind(this);
     }
 
     onChange(e){
@@ -180,14 +182,16 @@ class Navigation extends Component{
     addArrowMode(){
       if(this.props.createArrowMode){
         this.setState({
+          actionButtonColor: "#2cbebe",
           arrowButtonColor: "#2cbebe",
-          removeButtonColor: "ff0000"
+          removeButtonColor: "#ff0000"
         });
       }
       else{
         this.setState({
+          actionButtonColor: "#2cbebe",
           arrowButtonColor: "#1e8080",
-          removeButtonColor: "ff0000"
+          removeButtonColor: "#ff0000"
         });
       }
       this.props.addArrowMode();  
@@ -198,12 +202,14 @@ class Navigation extends Component{
     handleRemoveMode(){
       if(this.props.removeMode){
         this.setState({
+          actionButtonColor: "#2cbebe",
           removeButtonColor: "#ff0000",
           arrowButtonColor: "#2cbebe"
         });
       }
       else{
         this.setState({
+          actionButtonColor: "#2cbebe",
           removeButtonColor: "#cc0000",
           arrowButtonColor: "#2cbebe"
 
@@ -290,13 +296,37 @@ class Navigation extends Component{
       }
     }
 
+    // Save the current model
     handleSave(){
       this.props.handleSave();
     }
 
+    // Load the save
     handleLoad(){
       this.props.handleLoad();
     }
+
+    // Turn on container mode
+    handleContainer(){
+      if(this.props.containerMode){
+        this.setState({
+          actionButtonColor: "#2cbebe",
+          arrowButtonColor: "#2cbebe",
+          removeButtonColor: "#ff0000"
+        });
+      }
+      else{
+        this.setState({
+          actionButtonColor: "#1e8080", 
+          arrowButtonColor: "#2cbebe",
+          removeButtonColor: "#ff0000"
+        });
+      }
+      
+      this.props.handleContainer();
+    }
+
+
 
     render(){
         let content;
@@ -393,6 +423,9 @@ class Navigation extends Component{
                 <button className="button" style={{backgroundColor:this.state.arrowButtonColor}} onClick={this.addArrowMode}>→</button>
               </li>
               <li class="nav-item">
+                <button className="button" style={{backgroundColor:this.state.actionButtonColor}} onClick={this.handleContainer}>Assets</button>
+              </li>
+              <li class="nav-item">
                 <button className="button" style={{backgroundColor:this.state.removeButtonColor}} onClick={this.handleRemoveMode}>x</button>
               </li>
             </ul>
@@ -453,7 +486,6 @@ class Navigation extends Component{
           <div>
             {/*Popup for log */}
             <Popup open={this.state.openData} closeOnDocumentClick = {true} onClose={this.closePopupData}>
-              <p>This is where the log should go</p>
               <p>{this.state.log}</p>
               <button onClick={this.closePopupData} >Close</button>
             </Popup>

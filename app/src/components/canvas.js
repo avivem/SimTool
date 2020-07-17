@@ -19,6 +19,7 @@ class Canvas extends Component{
             stage: "",
             layer: "",
             open: false,
+            openContainer: false,
             targetId: "",
             type: "",
             name: "",
@@ -37,7 +38,6 @@ class Canvas extends Component{
             time_func: 1,
 
             endname: "default name",
-
         }
 
         this.openPopup = this.openPopup.bind(this);
@@ -76,6 +76,8 @@ class Canvas extends Component{
         });
         console.log("Close Popup");
     }
+
+    
 
     /** Keep track of the rate entered */
     handleChangeRate(e){
@@ -192,8 +194,7 @@ class Canvas extends Component{
                     to: target.uid
                   })
                 };
-                console.log(this.state.from)
-                console.log(target.uid)
+                
                 // fetch to api to create connection
                 fetch(`http://127.0.0.1:5000/api/dirto/`, requestOptionsStart).then(gotUser => {
                     console.log(gotUser);
@@ -294,6 +295,7 @@ class Canvas extends Component{
                     lst.push(elem);
                 });
 
+                // Send node to backend by using the mehtod pass in from App.js
                 lst.forEach((node) => {
                     this.props.handleBackendLoadNodes(node);
                 })
@@ -321,9 +323,7 @@ class Canvas extends Component{
                     colorFill = 'blue';
                     header = "End Node";
          //           url = this.props.imageEnd;
-                }
-
-                
+                } 
                 
                 if(url == null){
                     var node = new Konva.Circle({
@@ -355,61 +355,64 @@ class Canvas extends Component{
                     node.on('click', () =>{
 
                         if(this.props.createArrowMode){
-                            /* Help determine the to and from node. Once determine the arrow is 
-                            added to the list of arrows in App.js */
+                            // Help determine the to and from node. Once determine the arrow is 
+                            //added to the list of arrows in App.js
                             this.findToAndFrom(target);
                         }
-                        else{
-                            if(this.props.removeMode){
-                                // remove arrows
-                                this.props.arrows.forEach(arrow => {
-                                    if(arrow.from == target.uid || arrow.to == target.uid){
-                                        var arrow_uid = arrow.uid;
-                                        var n = layer.findOne('#' + arrow_uid);
-                                        n.destroy();
-                                        this.props.handleRemove(arrow_uid);
-                                    }
-                                });
-
-                                //remove node
-                                this.props.handleRemove(target.uid);
-                                node.destroy();
-
-                                layer.draw();
-                            }
-                            else{
-                                
-                                /*Open speficif popup for the node to change details*/
-                                if(target.type == 'START'){
-
-                                    this.setState({
-                                        unit: target.unit,
-                                        rate: target.rate,
-                                        targetId: target.uid,
-                                        type: header,
-                                        name: target.name,
-                                    })
-                                    this.openPopup();
-                                }else if(target.type == 'BASIC'){
-                                    this.setState({
-                                        unit: target.unit,
-                                        rate: target.rate,
-                                        targetId: target.uid,
-                                        type: header
-                                    })
-                                    this.openPopup();
-                                }else{
-                                    this.setState({
-                                        unit: target.unit,
-                                        rate: target.rate,
-                                        targetId: target.uid,
-                                        type: header
-                                    })
-                                    this.openPopup();
-                                }
-
-                            }
+                        else if(this.props.containerMode){
+                            // Open interactive popup
+                            this.props.openContainerPopup(target.uid);
                         }
+                        else if(this.props.removeMode){
+                            // remove arrows
+                            this.props.arrows.forEach(arrow => {
+                                if(arrow.from == target.uid || arrow.to == target.uid){
+                                    var arrow_uid = arrow.uid;
+                                    var n = layer.findOne('#' + arrow_uid);
+                                    n.destroy();
+                                    this.props.handleRemove(arrow_uid);
+                                }
+                            });
+
+                            //remove node
+                            this.props.handleRemove(target.uid);
+                            node.destroy();
+
+                            layer.draw();
+                        }
+                        else{
+                                
+                            /*Open speficif popup for the node to change details*/
+                            if(target.type == 'START'){
+
+                                this.setState({
+                                    unit: target.unit,
+                                    rate: target.rate,
+                                    targetId: target.uid,
+                                    type: header,
+                                    name: target.name,
+                                })
+                                this.openPopup();
+                            }else if(target.type == 'BASIC'){
+                                this.setState({
+                                    unit: target.unit,
+                                    rate: target.rate,
+                                    targetId: target.uid,
+                                    type: header
+                                })
+                                this.openPopup();
+                            }else{
+                                this.setState({
+                                    unit: target.unit,
+                                    rate: target.rate,
+                                    targetId: target.uid,
+                                    type: header
+                                })
+                                this.openPopup();
+                            }
+
+                        }
+                        
                     });
                     
                     layer.batchDraw();
@@ -450,39 +453,39 @@ class Canvas extends Component{
                                 added to the list of arrows in App.js */
                                 t.findToAndFrom(target);
                             }
-                            else{
-                                if(t.props.removeMode){
-                                    // remove arrows
-                                    t.props.arrows.forEach(arrow => {
-                                        if(arrow.from == target.uid || arrow.to == target.uid){
-                                            var arrow_uid = arrow.uid;
-                                            var n = layer.findOne('#' + arrow_uid);
-                                            n.destroy();
-                                            t.props.handleRemove(arrow_uid);
-                                        }
-                                    });
-        
-                                    //remove node
-                                    t.props.handleRemove(target.uid);
-                                    node.destroy();
-        
-                                    layer.draw();
-                                }
-                                else{
-                                    /*Open popup for the node to change the rate/unit */
-                                    t.setState({
-                                        unit: target.unit,
-                                        rate: target.rate,
-                                        targetId: target.uid,
-                                        type: header
-                                    })
-                                    t.openPopup();
-                                }
+                            else if(this.props.containerMode){
+                                // Open interactive popup
+                                t.props.openContainerPopup(target.uid);
                             }
+                            else if(t.props.removeMode){
+                                // remove arrows
+                                t.props.arrows.forEach(arrow => {
+                                    if(arrow.from == target.uid || arrow.to == target.uid){
+                                        var arrow_uid = arrow.uid;
+                                        var n = layer.findOne('#' + arrow_uid);
+                                        n.destroy();
+                                        t.props.handleRemove(arrow_uid);
+                                    }
+                                });
+    
+                                //remove node
+                                t.props.handleRemove(target.uid);
+                                node.destroy();
+    
+                                layer.draw();
+                            }
+                            else{
+                                /*Open popup for the node to change the rate/unit */
+                                t.setState({
+                                    unit: target.unit,
+                                    rate: target.rate,
+                                    targetId: target.uid,
+                                    type: header
+                                })
+                                t.openPopup();
+                            }        
                         });
-                        
                         layer.batchDraw();
-
                     });  
                     
 
@@ -508,6 +511,7 @@ class Canvas extends Component{
                 this.props.arrows.forEach((elem) => {
                     lst.push(elem);
                 });
+
                 
             }
             
@@ -684,6 +688,7 @@ class Canvas extends Component{
                         </button>
                     </Popup>
                 </div>
+                
                 
             </div>
         );

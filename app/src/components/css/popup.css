@@ -31,3 +31,9 @@
   align-items: center; 
   position: relative;
 }
+
+.label{
+  font-size: 20px;
+  margin: 8px 8px;
+}
+

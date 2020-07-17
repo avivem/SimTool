@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
+
 import './App.css';
 
 import Navigation from './components/navigationbar'
 import Canvas from './components/canvas'
+import AssestPopUp from './components/asset'
 
 
 class App extends Component{
@@ -30,11 +32,16 @@ class App extends Component{
       savedEnd: [],
       savedArrows: [],
       savedNumImage: 0,
+      savedContainer: [],
       loadMode: false,
       loadModeMakeArrow: false,
       numImage: 0,
       numLoadedImage: 0,
-      numImageToLoad: 0
+      numImageToLoad: 0,
+      containerMode: false,
+      containers: [],
+
+      selectedNodeID: "",
     }
 
     // numImage keep track of current number of image in model
@@ -64,6 +71,12 @@ class App extends Component{
     this.incrNumImage = this.incrNumImage.bind(this);
     this.incrNumLoadedImage = this.incrNumLoadedImage.bind(this);
     this.handleBackendLoadNodes = this.handleBackendLoadNodes.bind(this);
+
+    this.handleContainer = this.handleContainer.bind(this);
+    this.addContainer = this.addContainer.bind(this);
+
+    this.openContainerPopup = this.openContainerPopup.bind(this);
+    this.closeContainerPopup = this.closeContainerPopup.bind(this);
   }
 
 
@@ -355,13 +368,15 @@ class App extends Component{
     if(this.state.createArrowMode){
       this.setState({
         createArrowMode: false,
-        removeMode: false
+        removeMode: false,
+        containerMode: false
       });
     }
     else{
       this.setState({
         createArrowMode: true,
-        removeMode: false
+        removeMode: false,
+        containerMode: false
       });
     }
     
@@ -392,13 +407,15 @@ class App extends Component{
     if(this.state.removeMode){
       this.setState({
         removeMode: false,
-        createArrowMode: false
+        createArrowMode: false,
+        containerMode: false
       });
     }
     else{
       this.setState({
         removeMode: true,
-        createArrowMode: false
+        createArrowMode: false,
+        containerMode: false
       });
       console.log("Handle Remove");
     }
@@ -541,6 +558,7 @@ class App extends Component{
     var lst3 = this.state.endNode.slice(0);
     var lst4 = this.state.arrows.slice(0);
     var num = this.state.numImage
+    var actions = this.state.containers.slice(0);
 
     console.log("numImage: " + num);
     
@@ -549,7 +567,8 @@ class App extends Component{
       savedStation: lst2,
       savedEnd: lst3,
       savedArrows: lst4,
-      savedNumImage: num
+      savedNumImage: num,
+      savedContainer: actions,
     });
     console.log("Saved current model");
     
@@ -565,6 +584,7 @@ class App extends Component{
     var lst3 = this.state.savedEnd.slice(0);
     var lst4 = this.state.savedArrows.slice(0);
     var num = this.state.savedNumImage;
+    var actions = this.startNode.savedContainer.slice(0);
 
 
     if(makeNode == false && makeArrow == false){
@@ -576,6 +596,7 @@ class App extends Component{
         numImage: 0,
         numLoadedImage: 0,
         numImageToLoad: num,
+        containers: actions,
       });
     }
     else if(makeNode == true && makeArrow == false){
@@ -602,8 +623,6 @@ class App extends Component{
   // Increase number of image loaded in the model
   incrNumLoadedImage(){
     this.setState((state) => ({numLoadedImage: state.numLoadedImage + 1}));
-
-
   }
 
   // Used to add node when loading 
@@ -677,6 +696,62 @@ class App extends Component{
     }
   }
 
+  //Handle container for the node
+  handleContainer(){
+    if(this.state.containerMode){
+      this.setState({
+        containerMode: false,
+        createArrowMode: false,
+        removeMode: false,
+      });
+      console.log("Container mode off");
+    }
+    else{
+      this.setState({
+        containerMode: true,
+        createArrowMode: false,
+        removeMode: false,
+      });
+      console.log("Container mode on");
+    }
+  }
+
+  // Add interaction to list
+  addContainer(selectedNodeID, action, resource, lower, upper, max){
+    var lst = this.state.containers;
+    lst.push({
+      uid: "action" + this.state.count,
+      actionTo: selectedNodeID,
+      actionName: action,
+      resourceName: resource,
+      lowerAmount: lower,
+      upperAmount: upper,
+      maxAmount: max      
+    });
+
+    this.setState((state) => ({
+      containers: lst,
+      count: state.count + 1,
+    }));
+  }
+
+  // Open interaction popup
+  openContainerPopup(n){
+    this.setState({
+        openContainer: true,
+        selectedNodeID: n
+    });
+    console.log("Open Interactive Popup");
+  }
+
+  // Open interaction popup
+  closeContainerPopup(){
+      this.setState({
+          openContainer: false
+      });
+      console.log("Close Interactive Popup");
+  }
+
   render(){
     return (
       <div className="App">
@@ -691,7 +766,9 @@ class App extends Component{
             handleClearMode={this.handleClearMode}
             handleImageUpload={this.handleImageUpload}
             handleSave={this.handleSave}
-            handleLoad={this.handleLoad} />
+            handleLoad={this.handleLoad}
+            containerMode={this.state.containerMode}
+            handleContainer={this.handleContainer} />
         </div>
         <div>
           <Canvas 
@@ -703,17 +780,22 @@ class App extends Component{
             addedEnd={this.state.addedEnd}
             confirmAdded={this.confirmAdded}
             handleChangeNode={this.handleChangeNode}
+
             createArrowMode={this.state.createArrowMode}
             addArrowState={this.addArrowState}
             createArrow={this.state.createArrow}
             arrows={this.state.arrows}
+
             removeMode={this.state.removeMode}
             handleRemove={this.handleRemove}
+
             clearMode={this.state.clearMode}
             handleClearMode={this.handleClearMode}
+
             imageStart={this.state.imageStart}
             imageStation={this.state.imageStation}
             imageEnd={this.state.imageEnd}
+
             handleLoad={this.handleLoad}
             loadMode={this.state.loadMode}
             loadModeMakeArrow={this.state.loadModeMakeArrow}
@@ -721,10 +803,22 @@ class App extends Component{
             incrNumLoadedImage={this.incrNumLoadedImage}
             numImageToLoad={this.state.numImageToLoad}
             numLoadedImage={this.state.numLoadedImage}
-            numImage = {this.state.numImage} 
-            handleBackendLoadNodes={this.handleBackendLoadNodes} ></Canvas>
+      //      numImage = {this.state.numImage} 
+            handleBackendLoadNodes={this.handleBackendLoadNodes}
+            
+            openContainerPopup={this.openContainerPopup}
+            containerMode={this.state.containerMode}
+            ></Canvas>
         </div>
 
+        <div>
+          <AssestPopUp 
+          openContainer={this.state.openContainer}
+          handleContainer={this.handleContainer}
+          addContainer={this.addContainer}
+          closeContainerPopup={this.closeContainerPopup}
+          selectedNodeID={this.state.selectedNodeID} />
+        </div>
         
           
 
