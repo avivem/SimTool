@@ -126,16 +126,19 @@ class Navigation extends Component{
       console.log("Close Popup");
     }
 
+    // Run function
     handleRun(){
       /**fetch to api */
-      var url = 'http://127.0.0.1:5000/api/run/5000' + this.state.runTime;
-      fetch('http://127.0.0.1:5000/api/run/5000').then(res => res.json()).then(gotUser => {
+      var url = 'http://127.0.0.1:5000/api/run/' + this.state.runTime;
+      console.log(url);
+      fetch(url).then(res => res.json()).then(gotUser => {
           console.log(gotUser);
           this.setState({
             log: gotUser
           });
 
       }).catch(console.log)
+
     } 
 
     handleChangeTime(e){
@@ -148,7 +151,6 @@ class Navigation extends Component{
           this.setState({runTime: 0});
         }
       }
-     
     }
 
     // add start node
@@ -219,6 +221,7 @@ class Navigation extends Component{
       this.props.handleRemoveMode();
     }
 
+    // Clear canvas
     handleClearMode(){
       this.props.handleClearMode();
     }
@@ -273,6 +276,7 @@ class Navigation extends Component{
       console.log("Cancel upload");
     }
 
+    // default image
     handleDefaultImage(){
       this.setState({
         openImageOption: false,
@@ -325,8 +329,6 @@ class Navigation extends Component{
       
       this.props.handleContainer();
     }
-
-
 
     render(){
         let content;
@@ -409,6 +411,15 @@ class Navigation extends Component{
                                  />
                         </label></div>
         }
+
+      // var log = '';
+      // for(var x in this.state.log){
+      //   log = log.concat('<p>', JSON.stringify(this.state.log[x]),'</p>','<br>');
+      // }
+      // console.log(log);
+
+      // this.state.log = log;
+      // console.log(this.state.log);
 
       return(
         <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark navbar-expand ">

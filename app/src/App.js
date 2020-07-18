@@ -217,8 +217,6 @@ class App extends Component{
       createArrowMode: false,
       removeMode: false
     }));
-
-    
   }
 
   /*Confirm that the node/arrow was added - which is done by setting the 4 state to false */
@@ -378,8 +376,7 @@ class App extends Component{
         removeMode: false,
         containerMode: false
       });
-    }
-    
+    }   
   }
 
   /* Add the arrow to the list, this function is passed to 
@@ -499,6 +496,7 @@ class App extends Component{
     });
   }
 
+  // Clear Canvas
   handleClearMode(){
     if(this.state.clearMode){
       this.setState({clearMode: false});
@@ -570,8 +568,7 @@ class App extends Component{
       savedNumImage: num,
       savedContainer: actions,
     });
-    console.log("Saved current model");
-    
+    console.log("Saved current model");  
   }
 
   // Load saved model
