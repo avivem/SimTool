@@ -56,8 +56,8 @@ class Canvas extends Component{
         this.onChange = this.onChange.bind(this);
     }
 
+    // Change state variables
     onChange(e){
-      // console.log(e.target)
       this.setState({ [e.target.name]: e.target.value })
     }
 
@@ -77,8 +77,6 @@ class Canvas extends Component{
         console.log("Close Popup");
     }
 
-    
-
     /** Keep track of the rate entered */
     handleChangeRate(e){
         var r = parseInt(e.target.value, 10);
@@ -91,11 +89,6 @@ class Canvas extends Component{
             }
         }
     }
-
-    onChange(e) {
-        this.setState({ [e.target.name]: e.target.value })
-    }
-
 
     /**Keep track of the unit selected in the dropdown menu */
     handleChangeUnit(e){
@@ -134,7 +127,6 @@ class Canvas extends Component{
 
         //this.props.handleChangeNode(this.state.targetId, this.state.unit, this.state.rate, r);
         this.props.handleChangeNode(this.state);
-
     }
 
     componentDidMount(){
@@ -156,7 +148,6 @@ class Canvas extends Component{
             stage: stage,
             layer: layer
         });
-
     }
 
     // Determine the To and From node, once determine pass it to a 
@@ -193,8 +184,7 @@ class Canvas extends Component{
             fromNode.stroke("black");
             fromNode.strokeWidth(5);
             layer.draw();
-        }
-        
+        }        
     }
 
     // Calculation for the arrow 
@@ -557,7 +547,6 @@ class Canvas extends Component{
             layer.draw();
             this.props.handleClearMode();
         }
-
     }
 
     render(){
@@ -629,7 +618,6 @@ class Canvas extends Component{
         }else if(this.state.type == "Station Node" && s != undefined){
             
             // do a for each to grab correct basic node
-            
             for(var x in this.props.stationNode){
                 var uid = this.props.stationNode[x].uid;
                 
@@ -693,13 +681,9 @@ class Canvas extends Component{
                             Apply
                         </button>
                     </Popup>
-                </div>
-                
-                
+                </div> 
             </div>
-        );
-    }
-
+    );}
 }
 
 export default Canvas;
