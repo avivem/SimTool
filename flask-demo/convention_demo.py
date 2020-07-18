@@ -4,8 +4,19 @@ from logic import *
 env = simpy.Environment()
 
 #Create nodes.
-rich = StartingPoint(env=env, name="Rich Start", entity_name="Richee", gen_fun=10, limit=300, uid='st')
-poor = StartingPoint(env=env, name="Poor Start", entity_name="Pooree", gen_fun=2, limit=2000, uid='st')
+rich_gen = {
+    'dist'  : 'NORMAL',
+    'loc'   : 20,
+    'scale' : 2
+}
+
+poor_gen = {
+    'dist'  : 'NORMAL',
+    'loc'   : 5,
+    'scale' : .8
+}
+rich = StartingPoint(env=env, name="Rich Start", entity_name="Richee", generation=rich_gen, limit=300, uid='st')
+poor = StartingPoint(env=env, name="Poor Start", entity_name="Pooree", generation=poor_gen, limit=2000, uid='st')
 stsplit = {
     'policy' : 'ALPHA_SEQ'
 }
@@ -84,7 +95,7 @@ tbpwsplit = {
     'pass' : ['tbtw'],
     'fail' : ['end2']
 }
-tbpw.set_split_policy(tbpwsplit)
+tbpw.set_node_logic_policy(tbpwsplit)
 
 tbtwsplit = {
     'policy': "BOOL",
@@ -97,7 +108,7 @@ tbtwsplit = {
     'pass' : ['end1'],
     'fail' : ['end2'] #Should not trigger.
 }
-tbtw.set_split_policy(tbtwsplit)
+tbtw.set_node_logic_policy(tbtwsplit)
 
 
 env.process(rich.run())

@@ -13,7 +13,7 @@ import scipy.stats as stats
     new_stdout = io.StringIO()
     sys.stdout = new_stdout """
 
-split = {
+node_logic = {
     'policy' : "RAND",
     'cond' : None,
     'cond_amount' : None,   
@@ -34,7 +34,7 @@ class Node(object):
             self.uid = uid
         self.env = env
         self.name = name
-        self.split= split
+        self.node_logic= node_logic
         #Achieve an ordered set using a dict and .keys
         self.directed_to = {}
 
@@ -77,8 +77,8 @@ class Node(object):
         pp = pprint.PrettyPrinter(indent=4)
         pp.pprint(self.__dict__)
 
-    def set_split_policy(self,split):
-        self.split = split
+    def set_node_logic_policy(self,node_logic):
+        self.node_logic = node_logic
 
 
 """
@@ -106,16 +106,16 @@ class BasicFlowEntity(object):
         self.containers[container.resource][container.name] = container
 
     def act(self):
-        if self.currentLoc.split['act'] == None:
+        if self.currentLoc.node_logic['act'] == None:
             return None
-        if self.currentLoc.split['act'] == 'SUB':
-            encon = self.containers[self.currentLoc.split['resource']][self.currentLoc.split['entity_container_name']].con
-            yield encon.get(self.currentLoc.split['act_amount'])
-            yield self.currentLoc.container.con.put(self.currentLoc.split['act_amount'])
-        elif self.currentLoc.split['act'] == 'ADD':
-            encon = self.containers[self.currentLoc.split['resource']][self.currentLoc.split['entity_container_name']].con
-            yield encon.put(self.currentLoc.split['act_amount'])
-            yield self.currentLoc.container.con.get(self.currentLoc.split['act_amount'])
+        if self.currentLoc.node_logic['act'] == 'SUB':
+            encon = self.containers[self.currentLoc.node_logic['resource']][self.currentLoc.node_logic['entity_container_name']].con
+            yield encon.get(self.currentLoc.node_logic['act_amount'])
+            yield self.currentLoc.container.con.put(self.currentLoc.node_logic['act_amount'])
+        elif self.currentLoc.node_logic['act'] == 'ADD':
+            encon = self.containers[self.currentLoc.node_logic['resource']][self.currentLoc.node_logic['entity_container_name']].con
+            yield encon.put(self.currentLoc.node_logic['act_amount'])
+            yield self.currentLoc.container.con.get(self.currentLoc.node_logic['act_amount'])
 
     #Down the road, add interact methods to components to allow for resource consumption.
     def run(self):
@@ -137,10 +137,10 @@ class BasicFlowEntity(object):
 
 #Node that generates flowing entities.
 class StartingPoint(Node):
-    def __init__(self,env,name, entity_name,gen_fun, limit=float('inf'),uid=None):
+    def __init__(self,env,name, entity_name,generation, limit=float('inf'),uid=None):
         super().__init__(env=env, name=name, uid=uid)
         self.entity_name = entity_name
-        self.gen_fun = gen_fun
+        self.generation = generation
         self.directed_to = None
         # Convert limit to 0-based.
         self.limit = limit -1
@@ -169,9 +169,9 @@ class StartingPoint(Node):
     def next_dir(self):
         path_list = sorted(self.directed_to.keys(), key=lambda x: x.name)
         if len(self.directed_to) > 1:
-            if self.split['policy'] == "RAND":
+            if self.node_logic['policy'] == "RAND":
                 next_ind = random.randint(0,len(self.directed_to)-1)
-            elif self.split['policy'] == "ALPHA_SEQ":
+            elif self.node_logic['policy'] == "ALPHA_SEQ":
                 next_ind = self.count % len(path_list)
                 #No need for increasing count in starting since already do so.
                 #self.count += 1
@@ -183,11 +183,22 @@ class StartingPoint(Node):
     def run(self):
         print(f'[{self.env.now}]:: {self} starting entity generation')
         while self.count < self.limit:
-            yield self.env.timeout(self.gen_fun)
+
+            #TODO: Add more distributions.
+            if not 'dist' in self.generation:
+                tymeout = self.generation['init']
+            elif self.generation['dist'] == 'UNIFORM':
+                tymeout = stats.uniform.rvs(loc=self.generation['loc'],scale=self.generation['scale'])
+            elif self.generation['dist'] == 'NORMAL':
+                tymeout = stats.norm.rvs(loc=self.generation['loc'],scale=self.generation['scale'])
+            elif self.generation['dist'] == 'RANDINT':
+                tymeout = stats.randint.rvs(low=self.generation['low'], high=self.generation['high'])
+
+            yield self.env.timeout(tymeout)
+
             entity = BasicFlowEntity(self.env,f'{self.entity_name} {self.count}',self,self.next_dir())
             if len(self.container_specs) > 0:
-                
-       
+
                 for resource,specs in self.container_specs.items():
                     for spec_name, spec in specs.items():
                         if not 'dist' in spec:
@@ -240,13 +251,13 @@ class BasicComponent(Node):
     def next_dir(self, entity):
         path_list = sorted(self.directed_to.keys(), key=lambda x: x.name)
         if len(self.directed_to) > 1:
-            if self.split['policy'] == "RAND":
+            if self.node_logic['policy'] == "RAND":
                 next_ind = random.randint(0,len(self.directed_to)-1)
-            elif self.split['policy'] == "ALPHA_SEQ":
+            elif self.node_logic['policy'] == "ALPHA_SEQ":
                 next_ind = self.count % len(path_list)
                 self.count += 1
-            elif self.split['policy'] == "BOOL":
-                encon = entity.containers[self.split['resource']][self.split['entity_container_name']].con
+            elif self.node_logic['policy'] == "BOOL":
+                encon = entity.containers[self.node_logic['resource']][self.node_logic['entity_container_name']].con
                 
                 passed = False
                 
@@ -254,32 +265,32 @@ class BasicComponent(Node):
                 #https://stackoverflow.com/questions/932328/python-defining-my-own-operators
 
                 #Check condition based on a container
-                if self.split['cond'] == "el>" and encon.level > self.split['cond_amount']:
+                if self.node_logic['cond'] == "el>" and encon.level > self.node_logic['cond_amount']:
                     passed = True
-                elif self.split['cond'] == "el>=" and encon.level >= self.split['cond_amount']:
+                elif self.node_logic['cond'] == "el>=" and encon.level >= self.node_logic['cond_amount']:
                     passed = True
-                elif self.split['cond'] == "el<" and encon.level < self.split['cond_amount']:
+                elif self.node_logic['cond'] == "el<" and encon.level < self.node_logic['cond_amount']:
                     passed = True
-                elif self.split['cond'] == "el<=" and encon.level <= self.split['cond_amount']:
+                elif self.node_logic['cond'] == "el<=" and encon.level <= self.node_logic['cond_amount']:
                     passed = True
-                elif self.split['cond'] == "el==" and encon.level == self.split['cond_amount']:
+                elif self.node_logic['cond'] == "el==" and encon.level == self.node_logic['cond_amount']:
                     passed = True
 
                 #Check condition based on a name
 
-                if self.split['cond'] == "en>" and entity.name > self.split['cond_amount']:
+                if self.node_logic['cond'] == "en>" and entity.name > self.node_logic['cond_amount']:
                     passed = True
-                if self.split['cond'] == "en>=" and entity.name >= self.split['cond_amount']:
+                if self.node_logic['cond'] == "en>=" and entity.name >= self.node_logic['cond_amount']:
                     passed = True
-                elif self.split['cond'] == "en<" and entity.name < self.split['cond_amount']:
+                elif self.node_logic['cond'] == "en<" and entity.name < self.node_logic['cond_amount']:
                     passed = True
-                elif self.split['cond'] == "en<=" and entity.name <= self.split['cond_amount']:
+                elif self.node_logic['cond'] == "en<=" and entity.name <= self.node_logic['cond_amount']:
                     passed = True   
-                elif self.split['cond'] == "en==" and entity.name == self.split['cond_amount']:
+                elif self.node_logic['cond'] == "en==" and entity.name == self.node_logic['cond_amount']:
                     passed = True
 
-                passlist = [x for x in self.directed_to if x.uid in self.split['pass']]
-                faillist = [x for x in self.directed_to if x.uid in self.split['fail']]
+                passlist = [x for x in self.directed_to if x.uid in self.node_logic['pass']]
+                faillist = [x for x in self.directed_to if x.uid in self.node_logic['fail']]
                 if passed:
                     next_ind = random.randint(0,len(passlist)-1)
                     return passlist[next_ind]
