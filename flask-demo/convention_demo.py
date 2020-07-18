@@ -4,13 +4,14 @@ from logic import *
 env = simpy.Environment()
 
 #Create nodes.
-st = StartingPoint(env=env, name="Hotel", entity_name="Attendee", gen_fun=10, limit=200, uid='st')
-
+rich = StartingPoint(env=env, name="Rich Start", entity_name="Richee", gen_fun=10, limit=300, uid='st')
+poor = StartingPoint(env=env, name="Poor Start", entity_name="Pooree", gen_fun=2, limit=2000, uid='st')
 stsplit = {
     'policy' : 'ALPHA_SEQ'
 }
 
-st.set_split_policy(stsplit)
+rich.set_split_policy(stsplit)
+poor.set_split_policy(stsplit)
 
 line1 = BasicComponent(env=env, name="Convention Line 1", capacity=50, time_func=1000, uid='line1')
 sec1 = BasicComponent(env=env, name="Security 1", capacity=10, time_func=100, uid='sec1')
@@ -22,18 +23,28 @@ end1 = EndingPoint(env=env, name="Convention", uid='end1')
 end2 = EndingPoint(env=env, name="Didn't attend", uid='end2')
 
 #Define spec for entity wallet
-wallet_spec = {
+wallet_spec_rich = {
     'name'     : 'Wallet',
     'resource' : 'Dollar',
-    'dist'     : 'UNIFORM',
-    'loc'      : 0,
-    'scale'    : 50
-    'capacity' : 50,
+    'dist'     : 'NORMAL',
+    'loc'      : 25,
+    'scale'    : 5,
+    'capacity' : 200,
+    'uid'      : 'container-wallet'
+}
+
+wallet_spec_poor = {
+    'name'     : 'Wallet',
+    'resource' : 'Dollar',
+    'dist'     : 'NORMAL',
+    'loc'      : 10,
+    'scale'    : 4,
+    'capacity' : 100,
     'uid'      : 'container-wallet'
 }
 #Add wallet to entities
-st.add_container_spec(wallet_spec)
-
+rich.add_container_spec(wallet_spec_rich)
+poor.add_container_spec(wallet_spec_poor)
 tickets_spec = {
     'name'     : 'Tickets',
     'resource' : 'Ticket',
@@ -41,10 +52,13 @@ tickets_spec = {
     'capacity' : 1,
     'uid'      :  'container-tickets'
 }
-st.add_container_spec(tickets_spec)
+rich.add_container_spec(tickets_spec)
+poor.add_container_spec(tickets_spec)
 
-st.set_directed_to(line1)
-st.set_directed_to(line2)
+rich.set_directed_to(line1)
+rich.set_directed_to(line2)
+poor.set_directed_to(line1)
+poor.set_directed_to(line2)
 line1.set_directed_to(sec1)
 sec1.set_directed_to(tbpw)
 line2.set_directed_to(sec2)
@@ -62,9 +76,9 @@ tbtw.add_container(tickets)
 tbpwsplit = {
     'policy': "BOOL",
     'cond': "el>=",
-    'cond_amount': 10,
+    'cond_amount': 18,
     'act' : 'SUB',
-    'act_amount' : 5,
+    'act_amount' : 18,
     'entity_container_name' : 'Wallet',
     'resource' : 'Dollar',
     'pass' : ['tbtw'],
@@ -86,7 +100,8 @@ tbtwsplit = {
 tbtw.set_split_policy(tbtwsplit)
 
 
-env.process(st.run())
+env.process(rich.run())
+env.process(poor.run())
 env.run(until=20000)
 
 

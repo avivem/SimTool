@@ -89,8 +89,9 @@ line, etc.
 
 """
 class BasicFlowEntity(object):
-    def __init__(self, env:simpy.Environment,name:str, currentLoc:Node, resource_behaviors:dict={}):
+    def __init__(self, env:simpy.Environment,name:str, start,currentLoc:Node, resource_behaviors:dict={}):
         self.env = env
+        self.start = start
         self.name = name
         self.currentLoc = currentLoc
         self.containers = {}
@@ -129,7 +130,9 @@ class BasicFlowEntity(object):
                 yield evnt
                 self.currentLoc = next_dir
 
-        self.currentLoc.entities.append(self)
+        if not self.start.name in self.currentLoc.entities:
+            self.currentLoc.entities[self.start.name] = []
+        self.currentLoc.entities[self.start.name].append(self)
         print(f'[{self.env.now}]:: {self} has reached endpoint {self.currentLoc}')
 
 #Node that generates flowing entities.
@@ -181,16 +184,23 @@ class StartingPoint(Node):
         print(f'[{self.env.now}]:: {self} starting entity generation')
         while self.count < self.limit:
             yield self.env.timeout(self.gen_fun)
-            entity = BasicFlowEntity(self.env,f'{self.entity_name} {self.count}',self.next_dir())
+            entity = BasicFlowEntity(self.env,f'{self.entity_name} {self.count}',self,self.next_dir())
             if len(self.container_specs) > 0:
                 
        
                 for resource,specs in self.container_specs.items():
                     for spec_name, spec in specs.items():
-                        if spec['dist'] == 'UNIFORM':
+                        if not 'dist' in spec:
+                            init = spec['init']
+                        elif spec['dist'] == 'UNIFORM':
                             init = stats.uniform.rvs(loc=spec['loc'],scale=spec['scale'])
                         elif spec['dist'] == 'NORMAL':
                             init = stats.norm.rvs(loc=spec['loc'],scale=spec['scale'])
+                        elif spec['dist'] == 'RANDINT':
+                            init = stats.randint.rvs(low=spec['low'], high=spec['high'])
+
+                        #Containers cannot have negative value, so round to 0
+                        init = max(0,init)
                         inputs = {
                             'owner' : entity,
                             'init' : init,
@@ -199,7 +209,6 @@ class StartingPoint(Node):
                             'capacity' : spec['capacity'],
                             'uid'      :  spec['uid']
                         }
-                        spec['owner'] = entity
                         con = BasicContainer(self.env, **inputs)
                         entity.add_container(con)
             self.env.process(entity.run())
@@ -317,7 +326,7 @@ class BasicContainer(object):
 class EndingPoint(Node):
     def __init__(self,env,name, uid=None):
         super().__init__(env=env,name=name, uid=uid)
-        self.entities = []
+        self.entities = {}
     def __str__(self):
         return self.name
 
