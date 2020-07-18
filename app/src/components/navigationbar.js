@@ -335,7 +335,8 @@ class Navigation extends Component{
         // console.log(this.state)
         // determine content in popup
         if(this.state.addNodeType == "end"){
-            content =   <div><label className="label">Name:
+            content =   <div class="container">
+                        <label className="label">Name:
                             <input 
                                 type="text" 
                                 className="form-control"
@@ -344,7 +345,8 @@ class Navigation extends Component{
                                 onChange={this.onChange} />
                         </label></div>
         }else if(this.state.addNodeType == "start"){
-            content =   <div><label className="label">Name:
+            content =   <div class="container">
+                        <label className="label">Name:
                             <input 
                                 type="text" 
                                 name="startname"
@@ -382,7 +384,8 @@ class Navigation extends Component{
                                  />
                         </label></div>
         }else{
-            content =   <div><label className="label">Name:
+            content =   <div class="container">
+                        <label className="label">Name:
                             <input 
                                 type="text" 
                                 name="stationame"
@@ -474,8 +477,7 @@ class Navigation extends Component{
           <div>
             {/*Popup for user to select node to add*/}
             <Popup open={this.state.openNode} closeOnDocumentClick = {true} onClose={this.closePopupNode}>
-              
-            
+               
               <button onClick={this.addStart} className="nodeButton">
                 <img src={StartImage} alt="start" />
                 <figcaption>Start</figcaption>
@@ -505,6 +507,7 @@ class Navigation extends Component{
           <div>
             {/*Popup for uploading image */}
             <Popup open={this.state.openImageOption} closeOnDocumentClick = {true} onClose={this.closePopupImage}>
+              <div class="container">
               <div>
 
                 {content}
@@ -518,6 +521,7 @@ class Navigation extends Component{
                 <button className="button" onClick={this.handleSubmitImage}>Submit</button>
                 {/*<button className="button" onClick={this.handleDefaultImage}>Default</button>*/} 
                 <button className="button" onClick={this.handleCancelImage}>Cancel</button>
+              </div>
               </div>
             </Popup>
           </div>

@@ -554,7 +554,7 @@ class Canvas extends Component{
         // determine content in popup
         if(this.state.type == "End Node" && endNode != undefined){
 
-            content =   <div>
+            content =   <div class="container">
                         <p>Node Name: {endNode.name}</p>
                         <label className="label">Name:
                             <input 
@@ -566,7 +566,7 @@ class Canvas extends Component{
                         </label></div>
         }else if(this.state.type == "Start Node" && startNode != undefined){
 
-            content =   <div>
+            content =   <div class="container">
                         <p>Node Name: {startNode.name}</p>
                         <p>Entity Name: {startNode.entity_name}</p>
                         <p>Generation Function: {startNode.gen_fun}</p>
@@ -612,6 +612,7 @@ class Canvas extends Component{
         }else if(this.state.type == "Station Node" && s != undefined){
             
             // do a for each to grab correct basic node
+            
             for(var x in this.props.stationNode){
                 var uid = this.props.stationNode[x].uid;
                 
@@ -620,7 +621,7 @@ class Canvas extends Component{
                 }
             }
 
-            content =   <div>
+            content =   <div class="container">
                         <p>Node Name: {s.name}</p>
                         <p>Capacity: {s.capacity}</p>
                         <p>Time Function: {s.time_func}</p>
@@ -670,10 +671,11 @@ class Canvas extends Component{
                         {/*content in popup- start, beginning or end*/}
                         
                         {content}
-
-                        <button className="button" onClick={this.handleChangeNode}>
-                            Apply
-                        </button>
+                        <div class="container">
+                            <button className="button" onClick={this.handleChangeNode}>
+                                Apply
+                            </button>
+                        </div>
                     </Popup>
                 </div> 
             </div>
