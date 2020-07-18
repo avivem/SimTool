@@ -612,7 +612,6 @@ class Canvas extends Component{
         }else if(this.state.type == "Station Node" && s != undefined){
             
             // do a for each to grab correct basic node
-            
             for(var x in this.props.stationNode){
                 var uid = this.props.stationNode[x].uid;
                 
@@ -676,13 +675,9 @@ class Canvas extends Component{
                             Apply
                         </button>
                     </Popup>
-                </div>
-                
-                
+                </div> 
             </div>
-        );
-    }
-
+    );}
 }
 
 export default Canvas;
