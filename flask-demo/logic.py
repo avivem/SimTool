@@ -6,6 +6,7 @@ import json
 import random
 import math
 import pprint
+import scipy.stats as stats
 
 """ if __name__ is not "__main__":
     old_stdout = sys.stdout
@@ -185,9 +186,21 @@ class StartingPoint(Node):
                 
        
                 for resource,specs in self.container_specs.items():
-                    for spec_uid, spec in specs.items():
+                    for spec_name, spec in specs.items():
+                        if spec['dist'] == 'UNIFORM':
+                            init = stats.uniform.rvs(loc=spec['loc'],scale=spec['scale'])
+                        elif spec['dist'] == 'NORMAL':
+                            init = stats.norm.rvs(loc=spec['loc'],scale=spec['scale'])
+                        inputs = {
+                            'owner' : entity,
+                            'init' : init,
+                            'name'     : spec['name'],
+                            'resource' : spec['resource'],
+                            'capacity' : spec['capacity'],
+                            'uid'      :  spec['uid']
+                        }
                         spec['owner'] = entity
-                        con = BasicContainer(self.env, **spec)
+                        con = BasicContainer(self.env, **inputs)
                         entity.add_container(con)
             self.env.process(entity.run())
             print(f'[{self.env.now}]:: {entity} has left {self}')

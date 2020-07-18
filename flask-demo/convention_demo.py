@@ -25,7 +25,9 @@ end2 = EndingPoint(env=env, name="Didn't attend", uid='end2')
 wallet_spec = {
     'name'     : 'Wallet',
     'resource' : 'Dollar',
-    'init'     : 6,
+    'dist'     : 'UNIFORM',
+    'loc'      : 0,
+    'scale'    : 50
     'capacity' : 50,
     'uid'      : 'container-wallet'
 }
@@ -60,7 +62,7 @@ tbtw.add_container(tickets)
 tbpwsplit = {
     'policy': "BOOL",
     'cond': "el>=",
-    'cond_amount': 5,
+    'cond_amount': 10,
     'act' : 'SUB',
     'act_amount' : 5,
     'entity_container_name' : 'Wallet',
