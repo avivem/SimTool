@@ -10,7 +10,8 @@
   margin: 20px 5px;
   border-radius: 20%;
   height: 50px;
-  width: 60px;
+  width: 70px;
+  background-color: blue;
 }
 
 .textbox{
@@ -21,7 +22,18 @@
   font-size: 18px;
 }
 
+.nodeButton{
+  padding: 12px 12px;
+  margin: 8px 8px;
+  width: 70px;
+  height: 90px;
+  border-color: white; 
+  align-items: center; 
+  position: relative;
+}
+
 .label{
-  font-size: 30px;
+  font-size: 20px;
   margin: 8px 8px;
 }
+

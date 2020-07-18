@@ -8,6 +8,8 @@ import math
 import pprint
 import scipy.stats as stats
 
+#Supported Path Traversals: RAND, ALPHA_SEQ
+
 """ if __name__ is not "__main__":
     old_stdout = sys.stdout
     new_stdout = io.StringIO()
@@ -346,11 +348,11 @@ class EndingPoint(Node):
 #class Splitter(Node):
     
 """ env = simpy.Environment()
-st = StartingPoint(env, "Starting Point 1",2)
+st = StartingPoint(env, "Starting Point 1","Person", 2, 100)
 b1 = BasicComponent(env,"Basic Component #1", 3, 7) 
 ed = EndingPoint(env,"Ending Point 1")
 st.set_directed_to(b1)
 b1.set_directed_to(ed)
 env.process(st.run())
-env.run(until=300) """
+env.run(until=5000) """
 

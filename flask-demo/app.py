@@ -1,12 +1,11 @@
 from flask import Flask, render_template,json , jsonify, request, redirect, url_for, abort
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 import simpy
-from logic import Node, StartingPoint, BasicFlowEntity, BasicComponent, EndingPoint
+from logic import Node, StartingPoint, BasicFlowEntity, BasicComponent, EndingPoint, BasicContainer
 import sys
 import io
 import uuid
 
-##TODO: replace the 400 errors with abort() instead of cat memes.
 
 ###If you are running locally and wish to see output in terminal, comment this out.
 if __name__ != "__main__":
@@ -15,23 +14,22 @@ if __name__ != "__main__":
 	sys.stdout = new_stdout
 
 app = Flask(__name__)
-cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
+cors = CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
+app.config['CORS_HEADERS'] = 'Content-Type'
 
-# just output to see if the function ran
-NODES = {
-	'start': {'start': 'start'}
-}
 
 class DataStore():
 	nodes = {}
 	save = {
 		"nodes" : {},
+		"containers" : {},
 		"dirto" : {},
 		"last_run" : None
 	}
 	starts = {}
 	basics = {}
 	ends = {}
+	containers = {}
 	env = simpy.Environment()
 data = DataStore()
 
@@ -42,82 +40,82 @@ def store():
 	elif all(elem in request.json for elem in data.save):
 			data.save = request.json
 
-			##TODO: discuss with team whether or not this presents security problems.
 			for id in data.save["nodes"]:
 				node = dict(data.save["nodes"][id])
-				tipe = {"START": StartingPoint, "BASIC": BasicComponent, "END": EndingPoint}[node["type"]]
-				tipe_dict = {"START": data.starts, "BASIC": data.basics, "END": data.ends}[node["type"]]
+				tipe = node['type']
+				tipe_func = {"START": StartingPoint, "BASIC": BasicComponent, "END": EndingPoint}[tipe]
+				tipe_dict = {"START": data.starts, "BASIC": data.basics, "END": data.ends}[tipe]
 				del node["type"]
 				node["env"] = data.env
-				n = tipe(**node)
+				n = tipe_func(**node)
 				data.nodes[n.uid] = n
 				tipe_dict[n.uid] = n
 			for entry in data.save["dirto"].keys():
 				data.nodes[entry].set_directed_to(data.save["dirto"][entry])
 			return data.save
 	else:
-		return redirect("https://http.cat/400")
+		abort(400)
+
+
+@app.route('/api/node/resource', methods = ["POST"])
+def resource():
+	if request.method == "POST":
+		if request.json['type'] == 'RESOURCE':
+			data.containers[request.json['name']] = {}
+		elif request.json['type'] == 'CONTAINER':
+			inputs = {
+				'name' : request.json['name'],
+        		'owner' : request.json['owner'],
+        		'init' : request.json['init'],
+        		'resource' : request.json['resource'],
+        		'capacity' : request.json['capacity'],
+				'uid' : request.json['uid']
+			}
+			res = inputs['resource']
+			if not res in data.containers:
+				abort(400, message=f'Resource {res} not found.')
+			con = BasicContainer(env = data.env, **inputs)
+			owner_uid = inputs['owner']
+			owner = data.nodes[owner_uid]
+			owner.add_container(con)
+			data.save['containers'][res][con.uid] = inputs
+			data.containers[res] = con
+		else:
+			abort(400)
+
 
 # Node type- JSON must have a 'type' argument with either START, BASIC or END
-@app.route('/api/node/', methods=["GET","POST"])
+@app.route('/api/node/', methods=["GET","POST", "PUT"])
 def node():
 	if request.method == "POST":
 		if not request.json:
-			return redirect("https://http.cat/400")
-		if request.json['type'] == "START":
-			inputs = {
-				'name' : request.json['name'],
-				'entity_name' : request.json['entity_name'],
-				'gen_fun' : request.json['gen_fun'],
-				'limit' : request.json['limit'],
-				'uid' : request.json['uid']
-			}
+			abort(400)
 
-			st =  StartingPoint(data.env, **inputs)
-			data.nodes[st.uid] = st
-			data.starts[st.uid] = st
-
-			data.save["nodes"][st.uid] = inputs
-			data.save["nodes"][st.uid]["type"] = "START"
-
-			return data.save["nodes"][st.uid]
-
-		elif request.json['type'] == "BASIC":
-
-			inputs = {
-				'name' : request.json['name'],
-				'capacity' : request.json['capacity'],
-				'time_func' : request.json['time_func'],
-				'uid' : request.json['uid']
-			}
-			
-			#Here, we will need to add logic to choose the right time function
-			b = BasicComponent(data.env, **inputs)
-			data.nodes[b.uid] = b
-			data.basics[b.uid] = b
-
-			data.save["nodes"][b.uid] = inputs
-			data.save["nodes"][b.uid]["type"] = "BASIC"
-			return data.save["nodes"][b.uid]
-
-		elif request.json['type'] == "END":
-
-			inputs = {
-				'name' : request.json['name'],
-				'uid' : request.json['uid']
-			}
-			
-			e = EndingPoint(data.env, **inputs)
-			data.nodes[e.uid] = e
-			data.ends[e.uid] = e
-
-			data.save["nodes"][e.uid] = inputs
-			data.save["nodes"][e.uid]["type"] = "END"
-			return data.save["nodes"][e.uid]
-		else:
-			return redirect("https://http.cat/400")
-	elif request.method == "GET":
-		return redirect("https://http.cat/400")
+		inputs = dict(request.json)
+		tipe = request.json['type']
+		tipe_func = {"START": StartingPoint, "BASIC": BasicComponent, "END": EndingPoint}[tipe]
+		tipe_dict = {"START": data.starts, "BASIC": data.basics, "END": data.ends}[tipe]
+		del inputs['type']
+		inputs["env"] = data.env
+		n = tipe_func(**inputs)
+		data.nodes[n.uid] = n
+		tipe_dict[n.uid] = n
+		data.save["nodes"][n.uid] = inputs
+		inputs['type'] = tipe
+		del inputs['env']
+		return inputs
+	# update
+	elif request.method == "PUT":
+		uid = request.json['uid']
+		if not uid in data.nodes:
+			abort(400)
+		
+		inputs = dict(request.json)
+		del inputs['type']
+		data.nodes[uid].update(inputs)
+		data.save["nodes"][uid].update(inputs)
+		return data.save["nodes"][uid]
+		
 
 @app.route('/api/dirto/', methods = ["GET","POST","DELETE"])
 def dirto():
@@ -129,8 +127,11 @@ def dirto():
 		data.nodes[frum].set_directed_to(data.nodes[to])
 		if frum not in data.save['dirto']:
 			data.save['dirto'][frum] = []
-		data.save['dirto'][frum].append(to)
-		return f'{data.nodes[frum]} directed to {data.nodes[to]}'
+		if not to in data.save['dirto'][frum]:
+			data.save['dirto'][frum].append(to)
+			return f'{data.nodes[frum]} directed to {data.nodes[to]}'
+		else:
+			return f'{data.nodes[frum]} already directed to {data.nodes[to]}'
 	else:
 		frum = request.json['from']
 		to = request.json['to']
@@ -142,6 +143,7 @@ def dirto():
 @app.route('/api/run/<int:until>')
 @app.route('/api/run/')
 def run(until=300):
+	global new_stdout
 	if len(data.starts) == 0:
 		return "Please create a starting node."
 	if len(data.ends) == 0:
@@ -149,7 +151,11 @@ def run(until=300):
 	[data.env.process(data.nodes[x].run()) for x in data.starts]
 	print(f'Running simulation until {until}')
 	data.env.run(until=until)
+
+	#Fix later when we have a logger
 	data.save["last_run"] = new_stdout.getvalue().split('\n')
+	new_stdout = io.StringIO()
+	sys.stdout = new_stdout
 	return jsonify(data.save["last_run"])
 
 # url to reset simulation
