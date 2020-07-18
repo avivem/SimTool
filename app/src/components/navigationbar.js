@@ -78,7 +78,8 @@ class Navigation extends Component{
       this.setState({
         openNode: true,
         arrowButtonColor: "#2cbebe",
-        removeButtonColor: "#ff0000"
+        removeButtonColor: "#ff0000",
+        actionButtonColor: "#2cbebe",
       });
       this.props.handleReset();
       console.log("Open Popup Node");
