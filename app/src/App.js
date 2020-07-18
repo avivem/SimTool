@@ -104,32 +104,6 @@ class App extends Component{
           imageURL: data.imageFile
         });
         this.setState({startNode: node, addedStart: true});
-
-        // request options to send in post request- START NODE
-        const requestOptionsStart = {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            type: 'START',
-            // Change the name value to this.state.name to refer to user input
-            name: data.startname,
-            entity_name: data.entity_name,
-            gen_fun: parseInt(data.gen_fun),
-            limit: parseInt(data.limit),
-            // node id is this.state.startNode[0].uid
-            uid: "start-" + this.state.count
-          })
-        };
-
-        /**fetch to api */
-        fetch('http://127.0.0.1:5000/api/node/', requestOptionsStart).then(res => res.json()).then(gotUser => {
-            console.log(gotUser);
-
-        }).catch(function() {
-            console.log("Error on add Start Node");
-        });
-
-
         break;
 
       case "station":
@@ -147,31 +121,6 @@ class App extends Component{
           imageURL: data.imageFile
         });
         this.setState({stationNode: node, addedStation: true});
-
-        // request options to send in post request- BASIC NODE
-        // placeholder values
-        const requestOptionsBasic = {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            type: 'BASIC',
-            // Change the name value to this.state.name to refer to user input
-            name:data.stationame,
-            capacity: parseInt(data.capacity),
-            time_func: parseInt(data.time_func),
-            // node id is this.state.stationNode[0].uid
-            uid: "station-" + this.state.count
-          })
-        };
-
-        /**fetch to api */
-        fetch('http://127.0.0.1:5000/api/node/', requestOptionsBasic).then(res => res.json()).then(gotUser => {
-            console.log(gotUser);
-
-        }).catch(function() {
-            console.log("Error on add Basic Node");
-        });
-
         break;
 
       case "end":
@@ -186,29 +135,6 @@ class App extends Component{
           imageURL: data.imageFile
         });
         this.setState({ endNode: node, addedEnd: true});
-
-        // request options to send in post request- END NODE
-        // placeholder values
-        const requestOptionsEnd = {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            // Change the name value to this.state.name to refer to user input
-            name: data.endname,
-            type: "END",
-            // node id is this.state.endNode[0].uid
-            uid: "end-" + this.state.count
-          })
-        };
-
-        /**fetch to api */
-        fetch('http://127.0.0.1:5000/api/node/', requestOptionsEnd).then(res => res.json()).then(gotUser => {
-            console.log(gotUser);
-
-        }).catch(function() {
-            console.log("Error on add End Node");
-        });
-
         break;
     }
 
@@ -495,7 +421,8 @@ class App extends Component{
   handleReset(){
     this.setState({
       createArrowMode: false, 
-      removeMode: false
+      removeMode: false,
+      containerMode: false,
     });
   }
 
@@ -518,7 +445,7 @@ class App extends Component{
         console.log(gotUser);
 
       }).catch(function() {
-          console.log("Error on add Basic Node");
+          console.log("Error on clear");
       });
       console.log("Clear store node/arrow");
     }
@@ -584,7 +511,7 @@ class App extends Component{
     var lst3 = this.state.savedEnd.slice(0);
     var lst4 = this.state.savedArrows.slice(0);
     var num = this.state.savedNumImage;
-    var actions = this.startNode.savedContainer.slice(0);
+    var actions = this.state.savedContainer.slice(0);
 
 
     if(makeNode == false && makeArrow == false){
@@ -627,6 +554,7 @@ class App extends Component{
 
   // Used to add node when loading 
   handleBackendLoadNodes(node){
+    console.log("Back end load");
     if(node.uid.includes("start")){
       const requestOptionsStart = {
         method: 'POST',

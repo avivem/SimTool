@@ -67,6 +67,7 @@ class AssestPopUp extends Component{
                         placeholder="Enter action name"
                         className="form-control"
                         name="actionName" 
+                        style={{width: '150px'}}
                         onChange={this.onChange} />
                 
                     <label className="label">Resource:</label>
@@ -75,10 +76,10 @@ class AssestPopUp extends Component{
                         placeholder="Enter the type of resource"
                         className="form-control"
                         name="resourceName" 
+                        style={{width: '150px'}}
                         onChange={this.onChange} />
                     
-                    <p></p>
-
+            
                     <label className="label">Resource range: </label>
                     <input 
                         type="text" 

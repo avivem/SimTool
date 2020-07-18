@@ -181,25 +181,7 @@ class Canvas extends Component{
                     currDir: "from"
                 });
 
-                this.props.addArrowState(this.state.from, target.uid)
-
-                // request options to send in connection request
-                const requestOptionsStart = {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-   
-                    // from and to nodes
-                    from: this.state.from,
-                    to: target.uid
-                  })
-                };
-                
-                // fetch to api to create connection
-                fetch(`http://127.0.0.1:5000/api/dirto/`, requestOptionsStart).then(gotUser => {
-                    console.log(gotUser);
-
-                }).catch(console.log)
+                this.props.addArrowState(this.state.from, target.uid);
             }
             else{
                 this.setState({
@@ -270,19 +252,22 @@ class Canvas extends Component{
                 lst.push(this.props.endNode[this.props.endNode.length - 1]);
             }
             else{
-                // Clear the canvas
-                layer.find('Arrow').destroy();
-                layer.find('Circle').destroy();
-                layer.find('Image').destroy();
-                layer.draw();
 
                 // Clear the back end
                 fetch('http://127.0.0.1:5000/api/clean/').then(res => res.json()).then(gotUser => {
                     console.log(gotUser);
 
                 }).catch(function() {
-                    console.log("Error on add Basic Node");
-                });
+                    console.log("Error on clean");
+                }); 
+
+                // Clear the canvas
+                layer.find('Arrow').destroy();
+                layer.find('Circle').destroy();
+                layer.find('Image').destroy();
+                layer.draw();
+
+      
 
                 // Combine all node into one list
                 this.props.startNode.forEach((elem) => {
@@ -295,10 +280,7 @@ class Canvas extends Component{
                     lst.push(elem);
                 });
 
-                // Send node to backend by using the mehtod pass in from App.js
-                lst.forEach((node) => {
-                    this.props.handleBackendLoadNodes(node);
-                })
+
 
             }
 
@@ -340,6 +322,9 @@ class Canvas extends Component{
     
                     
                     layer.add(node);
+
+                    // Send to api
+                    this.props.handleBackendLoadNodes(target);
 
                     node.on('dragmove', () => {
                         // mutate the state
@@ -433,7 +418,11 @@ class Canvas extends Component{
                         });
                         
                         layer.add(node);
-                    
+                        
+                        // Fetch to api
+                        t.props.handleBackendLoadNodes(target);
+
+                        // Track the number of image loaded
                         t.props.incrNumLoadedImage();
 
                         node.on('dragmove', () => {
@@ -453,7 +442,7 @@ class Canvas extends Component{
                                 added to the list of arrows in App.js */
                                 t.findToAndFrom(target);
                             }
-                            else if(this.props.containerMode){
+                            else if(t.props.containerMode){
                                 // Open interactive popup
                                 t.props.openContainerPopup(target.uid);
                             }
@@ -522,6 +511,23 @@ class Canvas extends Component{
                     fill: 'black',
                 });
                 layer.add(line);
+
+                const requestOptionsStart = {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+     
+                      // from and to nodes
+                      from: target.from,
+                      to: target.to
+                    })
+                  };
+                  
+                  // fetch to api to create connection
+                  fetch(`http://127.0.0.1:5000/api/dirto/`, requestOptionsStart).then(gotUser => {
+                      console.log(gotUser);
+  
+                  }).catch(console.log)
     
                 line.on('click', () => {
                     if(this.props.removeMode){
