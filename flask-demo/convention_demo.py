@@ -21,8 +21,8 @@ stsplit = {
     'policy' : 'ALPHA_SEQ'
 }
 
-rich.set_split_policy(stsplit)
-poor.set_split_policy(stsplit)
+rich.set_node_logic_policy(stsplit)
+poor.set_node_logic_policy(stsplit)
 
 line1 = BasicComponent(env=env, name="Convention Line 1", capacity=50, time_func=1000, uid='line1')
 sec1 = BasicComponent(env=env, name="Security 1", capacity=10, time_func=100, uid='sec1')
@@ -37,9 +37,11 @@ end2 = EndingPoint(env=env, name="Didn't attend", uid='end2')
 wallet_spec_rich = {
     'name'     : 'Wallet',
     'resource' : 'Dollar',
-    'dist'     : 'NORMAL',
-    'loc'      : 25,
-    'scale'    : 5,
+    'init'     : {
+        'dist'     : 'NORMAL',
+        'loc'      : 25,
+        'scale'    : 5
+    },
     'capacity' : 200,
     'uid'      : 'container-wallet'
 }
@@ -47,9 +49,11 @@ wallet_spec_rich = {
 wallet_spec_poor = {
     'name'     : 'Wallet',
     'resource' : 'Dollar',
-    'dist'     : 'NORMAL',
-    'loc'      : 10,
-    'scale'    : 4,
+    'init'     : {
+        'dist'     : 'NORMAL',
+        'loc'      : 10,
+        'scale'    : 4
+    },
     'capacity' : 100,
     'uid'      : 'container-wallet'
 }
@@ -59,7 +63,9 @@ poor.add_container_spec(wallet_spec_poor)
 tickets_spec = {
     'name'     : 'Tickets',
     'resource' : 'Ticket',
-    'init'     : 0,
+    'init'     : {
+        'init' : 0
+    },
     'capacity' : 1,
     'uid'      :  'container-tickets'
 }
@@ -79,9 +85,9 @@ tbpw.set_directed_to(end2)
 tbtw.set_directed_to(end1)
 
 #Create containers
-rev = BasicContainer(env,"Revenue",tbpw,"Dollar",0,uid='rev')
+rev = BasicContainer(env,"Revenue",tbpw,"Dollar",{'init':0},uid='rev')
 tbpw.add_container(rev)
-tickets = BasicContainer(env,"Tickets", tbtw, "Ticket", uid='tickets')
+tickets = BasicContainer(env,"Tickets", tbtw, "Ticket",uid='tickets')
 tbtw.add_container(tickets)
 
 tbpwsplit = {

@@ -107,15 +107,22 @@ class BasicFlowEntity(object):
             self.containers[container.resource] = {}
         self.containers[container.resource][container.name] = container
 
+    #TODO: look into limitation regarding container names. Different classes of entities must have the same container names.
     def act(self):
         if self.currentLoc.node_logic['act'] == None:
             return None
+
+        res = self.currentLoc.node_logic['resource']
+        conname = self.currentLoc.node_logic['entity_container_name']
+        if not res in self.containers or not conname in self.containers[res]:
+            ##Return a log entry saying entity lacked container.
+            return None
         if self.currentLoc.node_logic['act'] == 'SUB':
-            encon = self.containers[self.currentLoc.node_logic['resource']][self.currentLoc.node_logic['entity_container_name']].con
+            encon = self.containers[res][conname].con
             yield encon.get(self.currentLoc.node_logic['act_amount'])
             yield self.currentLoc.container.con.put(self.currentLoc.node_logic['act_amount'])
         elif self.currentLoc.node_logic['act'] == 'ADD':
-            encon = self.containers[self.currentLoc.node_logic['resource']][self.currentLoc.node_logic['entity_container_name']].con
+            encon = self.containers[res][conname].con
             yield encon.put(self.currentLoc.node_logic['act_amount'])
             yield self.currentLoc.container.con.get(self.currentLoc.node_logic['act_amount'])
 
@@ -203,20 +210,12 @@ class StartingPoint(Node):
 
                 for resource,specs in self.container_specs.items():
                     for spec_name, spec in specs.items():
-                        if not 'dist' in spec:
-                            init = spec['init']
-                        elif spec['dist'] == 'UNIFORM':
-                            init = stats.uniform.rvs(loc=spec['loc'],scale=spec['scale'])
-                        elif spec['dist'] == 'NORMAL':
-                            init = stats.norm.rvs(loc=spec['loc'],scale=spec['scale'])
-                        elif spec['dist'] == 'RANDINT':
-                            init = stats.randint.rvs(low=spec['low'], high=spec['high'])
-
                         #Containers cannot have negative value, so round to 0
-                        init = max(0,init)
+                        inputs = dict(spec)
+                        inputs['owner'] = entity
                         inputs = {
                             'owner' : entity,
-                            'init' : init,
+                            'init' : spec['init'],
                             'name'     : spec['name'],
                             'resource' : spec['resource'],
                             'capacity' : spec['capacity'],
@@ -259,40 +258,48 @@ class BasicComponent(Node):
                 next_ind = self.count % len(path_list)
                 self.count += 1
             elif self.node_logic['policy'] == "BOOL":
-                encon = entity.containers[self.node_logic['resource']][self.node_logic['entity_container_name']].con
-                
-                passed = False
-                
-                #When this works, use infix operators to reduce the copied code.
-                #https://stackoverflow.com/questions/932328/python-defining-my-own-operators
-
-                #Check condition based on a container
-                if self.node_logic['cond'] == "el>" and encon.level > self.node_logic['cond_amount']:
-                    passed = True
-                elif self.node_logic['cond'] == "el>=" and encon.level >= self.node_logic['cond_amount']:
-                    passed = True
-                elif self.node_logic['cond'] == "el<" and encon.level < self.node_logic['cond_amount']:
-                    passed = True
-                elif self.node_logic['cond'] == "el<=" and encon.level <= self.node_logic['cond_amount']:
-                    passed = True
-                elif self.node_logic['cond'] == "el==" and encon.level == self.node_logic['cond_amount']:
-                    passed = True
-
-                #Check condition based on a name
-
-                if self.node_logic['cond'] == "en>" and entity.name > self.node_logic['cond_amount']:
-                    passed = True
-                if self.node_logic['cond'] == "en>=" and entity.name >= self.node_logic['cond_amount']:
-                    passed = True
-                elif self.node_logic['cond'] == "en<" and entity.name < self.node_logic['cond_amount']:
-                    passed = True
-                elif self.node_logic['cond'] == "en<=" and entity.name <= self.node_logic['cond_amount']:
-                    passed = True   
-                elif self.node_logic['cond'] == "en==" and entity.name == self.node_logic['cond_amount']:
-                    passed = True
-
+                res = self.node_logic['resource']
+                conname = self.node_logic['entity_container_name']
                 passlist = [x for x in self.directed_to if x.uid in self.node_logic['pass']]
                 faillist = [x for x in self.directed_to if x.uid in self.node_logic['fail']]
+
+                #Check if the container exists in entity, if not fail immediately:
+                if not res in entity.containers or not conname in entity.containers[res]:
+                    next_ind = random.randint(0,len(faillist)-1)
+                    return faillist[next_ind]
+                else:
+                    encon = entity.containers[res][conname].con
+                    passed = False
+                    
+                    #When this works, use infix operators to reduce the copied code.
+                    #https://stackoverflow.com/questions/932328/python-defining-my-own-operators
+
+                    #Check condition based on a container
+                    if self.node_logic['cond'] == "el>" and encon.level > self.node_logic['cond_amount']:
+                        passed = True
+                    elif self.node_logic['cond'] == "el>=" and encon.level >= self.node_logic['cond_amount']:
+                        passed = True
+                    elif self.node_logic['cond'] == "el<" and encon.level < self.node_logic['cond_amount']:
+                        passed = True
+                    elif self.node_logic['cond'] == "el<=" and encon.level <= self.node_logic['cond_amount']:
+                        passed = True
+                    elif self.node_logic['cond'] == "el==" and encon.level == self.node_logic['cond_amount']:
+                        passed = True
+
+                    #Check condition based on a name
+
+                    if self.node_logic['cond'] == "en>" and entity.name > self.node_logic['cond_amount']:
+                        passed = True
+                    if self.node_logic['cond'] == "en>=" and entity.name >= self.node_logic['cond_amount']:
+                        passed = True
+                    elif self.node_logic['cond'] == "en<" and entity.name < self.node_logic['cond_amount']:
+                        passed = True
+                    elif self.node_logic['cond'] == "en<=" and entity.name <= self.node_logic['cond_amount']:
+                        passed = True   
+                    elif self.node_logic['cond'] == "en==" and entity.name == self.node_logic['cond_amount']:
+                        passed = True
+
+                
                 if passed:
                     next_ind = random.randint(0,len(passlist)-1)
                     return passlist[next_ind]
@@ -317,11 +324,24 @@ class BasicComponent(Node):
 #Wrapper for SimPy containers that allow us to differentiate between types of resources and
 #identifies the owner for a container.
 class BasicContainer(object):
-    def __init__(self, env, name, owner, resource,init = 0, capacity = float('inf'),uid=None):
+    def __init__(self, env, name, owner, resource,init = {'init' : 0}, capacity = float('inf'),uid=None):
         if uid is None:
             self.uid = uuid.uuid4().hex
         else:
             self.uid = uid
+
+        if not 'dist' in init:
+            if init['init'] == 'inf':
+                init = math.inf
+            else:
+                init = init['init']
+        elif init['dist'] == 'UNIFORM':
+            init = stats.uniform.rvs(loc=init['loc'],scale=init['scale'])
+        elif init['dist'] == 'NORMAL':
+            init = stats.norm.rvs(loc=init['loc'],scale=init['scale'])
+        elif init['dist'] == 'RANDINT':
+            init = stats.randint.rvs(low=init['low'], high=init['high'])
+        init = max(0,init)
         self.env = env
         self.name = name
         self.owner = owner

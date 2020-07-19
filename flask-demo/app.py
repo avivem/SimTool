@@ -23,6 +23,7 @@ class DataStore():
 	save = {
 		"nodes" : {},
 		"containers" : {},
+		"container_spacs" : {},
 		"dirto" : {},
 		"last_run" : None
 	}
@@ -30,6 +31,7 @@ class DataStore():
 	basics = {}
 	ends = {}
 	containers = {}
+	container_specs = {}
 	env = simpy.Environment()
 data = DataStore()
 
@@ -57,7 +59,7 @@ def store():
 		abort(400)
 
 
-@app.route('/api/node/resource', methods = ["POST"])
+""" @app.route('/api/node/resource', methods = ["POST"])
 def resource():
 	if request.method == "POST":
 		if request.json['type'] == 'RESOURCE':
@@ -81,7 +83,43 @@ def resource():
 			data.save['containers'][res][con.uid] = inputs
 			data.containers[res] = con
 		else:
-			abort(400)
+			abort(400) """
+
+@app.route('/api/container_spec/', methods=['GET','POST'])
+def container_spec():
+	if request.method == "GET":
+		return data.container_specs[request.json['resource']][request.json['uid']]
+	else:	
+		if not request.json['resource'] in data.container_specs:
+			data.container_specs[request.json['resource']] = {}
+	
+		inputs = dict(request.json)
+		data.container_specs[request.json['resource']][request.json['uid']] = inputs
+		return jsonify(inputs)
+
+@app.route('/api/node/container', methods=['GET','POST', 'UPDATE'])
+def container():
+	if request.method == "POST":
+		res = request.json['resource']
+		if not res in data.save['containers']:
+			data.save['containers'][res] = {}
+		data.save['containers'][res] = request.json
+		con = dict(request.json)
+		con['env'] = data.env
+		con['owner'] = data.nodes[con['owner']]
+		bcon = BasicContainer(**con)
+		if not res in data.containers:
+			data.containers[res] = {}
+		data.containers[res][con['uid']] = bcon
+		con['owner'].add_container(bcon)
+
+@app.route('/api/node/container_spec', methods=['PUT','DELETE'])
+def node_container_spec():
+	if request.method == "PUT":
+		node = data.nodes[request.json['node']]
+		spec = data.container_specs[request.json['resource']][request.json['uid']]
+		node.add_container_spec(spec)
+
 
 
 # Node type- JSON must have a 'type' argument with either START, BASIC or END
