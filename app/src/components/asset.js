@@ -12,6 +12,8 @@ class AssestPopUp extends Component{
             lowerAmount: 0,
             upperAmount: 0,
             maxAmount: 0,
+            scale: 0,
+            loc: 0,
             showErrorMessage: false,
         }
         
@@ -30,12 +32,14 @@ class AssestPopUp extends Component{
      submitInteraction(){
         var action = this.state.actionName;
         var resource = this.state.resourceName;
-        var lower = parseInt(this.state.lowerAmount);
-        var upper = parseInt(this.state.upperAmount);
+ //       var lower = parseInt(this.state.lowerAmount);
+ //       var upper = parseInt(this.state.upperAmount);
+        var loc = parseInt(this.state.loc);
+        var scale = parseInt(this.state.scale);
         var max = parseInt(this.state.maxAmount);
         if(this.props.selectedNodeID.includes("start")){
-            if(lower < upper && upper <= max){
-                this.props.addContainer(this.props.selectedNodeID, action, resource, lower, upper, max);
+            if(max > loc){
+                this.props.addContainer(this.props.selectedNodeID, action, resource, loc, scale, max);
                 this.closeContainerPopup();
             }
             else{
@@ -56,11 +60,15 @@ class AssestPopUp extends Component{
     }
 
     render(){
+
+
         return (
             <Popup open={this.props.openContainer} closeOnDocumentClick = {true} onClose={this.closeContainerPopup} >
+                <div style={{alignContent: 'center'}}>
+                    <h1>Add Resource</h1>
+                </div>
 
-                <div className="input-group">
-                    
+                <div className="input-group">                    
                     <label className="label">Action Name:</label>
                     <input 
                         type="text" 
@@ -78,9 +86,13 @@ class AssestPopUp extends Component{
                         name="resourceName" 
                         style={{width: '150px'}}
                         onChange={this.onChange} />
+                </div>
+            
+                <div className="input-group">                    
+
                     
             
-                    <label className="label">Resource range: </label>
+    {/*                <label className="label">Resource range: </label>
                     <input 
                         type="text" 
                         className="form-control"
@@ -92,8 +104,24 @@ class AssestPopUp extends Component{
                         className="form-control"
                         name="upperAmount" 
                         onChange={this.onChange} />
-            
-                    <label className="label">Max Resource Amount</label> 
+        */}
+
+                    
+                    <label className="label">Scale: </label> 
+                    <input 
+                        type="text" 
+                        className="form-control"
+                        name="scale" 
+                        onChange={this.onChange} />
+                    
+                    <label className="label">Loc: </label> 
+                    <input 
+                        type="text" 
+                        className="form-control"
+                        name="loc" 
+                        onChange={this.onChange} />
+
+                    <label className="label">Max Resource Amount: </label> 
                     <input 
                         type="text" 
                         className="form-control"
@@ -102,7 +130,7 @@ class AssestPopUp extends Component{
                     
                 </div>
                 <div>
-                    {this.state.showErrorMessage ? <p>Enter valid range/max amount</p> : <div></div>}
+                    {this.state.showErrorMessage ? <p>Max can't be smaller than the mean</p> : <div></div>}
                     <button className="button" onClick={this.submitInteraction}>
                         Apply
                     </button>

@@ -642,15 +642,15 @@ class App extends Component{
   }
 
   // Add interaction to list
-  addContainer(selectedNodeID, action, resource, lower, upper, max){
+  addContainer(selectedNodeID, action, resource, loc, scale, max){
     var lst = this.state.containers;
     lst.push({
       uid: "action" + this.state.count,
       actionTo: selectedNodeID,
       actionName: action,
       resourceName: resource,
-      lowerAmount: lower,
-      upperAmount: upper,
+      loc: loc,
+      scale: scale,
       maxAmount: max      
     });
 
