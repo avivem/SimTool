@@ -14,10 +14,13 @@ class AssestPopUp extends Component{
             maxAmount: 0,
             scale: 0,
             loc: 0,
+            distribution: "NORMAL",
             showErrorMessage: false,
+            
         }
         
         this.onChange = this.onChange.bind(this);
+        this.changeDist = this.changeDist.bind(this);
         this.submitInteraction = this.submitInteraction.bind(this);
 
         this.closeContainerPopup = this.closeContainerPopup.bind(this);
@@ -28,18 +31,26 @@ class AssestPopUp extends Component{
         this.setState({ [e.target.name]: e.target.value })
     }
 
+    // change for distribution
+    changeDist(e){
+        this.setState({
+            distribution: e.target.value,
+        });
+    }
+
      // Handle submit data of the interaction
      submitInteraction(){
         var action = this.state.actionName;
         var resource = this.state.resourceName;
  //       var lower = parseInt(this.state.lowerAmount);
  //       var upper = parseInt(this.state.upperAmount);
+        var dist = this.state.distribution;
         var loc = parseInt(this.state.loc);
         var scale = parseInt(this.state.scale);
         var max = parseInt(this.state.maxAmount);
         if(this.props.selectedNodeID.includes("start")){
             if(max > loc){
-                this.props.addContainer(this.props.selectedNodeID, action, resource, loc, scale, max);
+                this.props.addContainer(this.props.selectedNodeID, action, dist, resource, loc, scale, max);
                 this.closeContainerPopup();
             }
             else{
@@ -50,6 +61,8 @@ class AssestPopUp extends Component{
             this.props.addContainer(this.props.selectedNodeID, action, resource, 0, 0, 0);
             this.closeContainerPopup();
         }
+
+        console.log(dist);
     }
 
     closeContainerPopup(){
@@ -106,7 +119,20 @@ class AssestPopUp extends Component{
                         onChange={this.onChange} />
         */}
 
-                    
+
+                    <label className="label">Distribution:&nbsp;
+                        <select 
+                            className="paymentType" 
+                            name="distribution"
+                            onChange={this.changeDist} 
+                            value={this.state.distribution}>
+                            <option value="NORMAL">NORMAL</option>
+                            <option value="CONSTANT">CONSTANT</option>
+                            <option value="UNIFORM">UNIFORM</option>
+                            <option value="RANDOM INT">RANDOM INT</option>
+                        </select>
+                    </label>
+                
                     <label className="label">Scale: </label> 
                     <input 
                         type="text" 
