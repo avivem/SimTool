@@ -642,23 +642,38 @@ class App extends Component{
   }
 
   // Add interaction/resource to list
-  addContainer(selectedNodeID, action, dist, resource, loc, scale, max){
+  addContainer(selectedNodeID, action, dist, resource, loc, scale, max, constantVal){
     var lst = this.state.containers;
-    lst.push({
-      uid: "action" + this.state.count,
-      actionTo: selectedNodeID,
-      actionName: action,
-      resourceName: resource,
-      distribution: dist,
-      loc: loc,
-      scale: scale,
-      maxAmount: max      
-    });
+    if(dist == "CONSTANT"){
+      lst.push({
+        uid: "resource" + this.state.count,
+        actionTo: selectedNodeID,
+        actionName: action,
+        resourceName: resource,
+        distribution: dist,
+        init: constantVal
+      })
+    }
+    else{
+      lst.push({
+        uid: "resource" + this.state.count,
+        actionTo: selectedNodeID,
+        actionName: action,
+        resourceName: resource,
+        distribution: dist,
+        loc: loc,
+        scale: scale,
+        maxAmount: max      
+      });
+  
+    }
 
     this.setState((state) => ({
       containers: lst,
       count: state.count + 1,
     }));
+
+    console.log(lst);
   }
 
   // Open interaction popup

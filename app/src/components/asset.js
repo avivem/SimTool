@@ -14,6 +14,7 @@ class AssestPopUp extends Component{
             maxAmount: 0,
             scale: 0,
             loc: 0,
+            constantValue: 0,
             distribution: "NORMAL",
             showErrorMessage: false,
             
@@ -48,9 +49,10 @@ class AssestPopUp extends Component{
         var loc = parseInt(this.state.loc);
         var scale = parseInt(this.state.scale);
         var max = parseInt(this.state.maxAmount);
+        var constantVal = parseInt(this.state.constantValue)
         if(this.props.selectedNodeID.includes("start")){
-            if(max > loc){
-                this.props.addContainer(this.props.selectedNodeID, action, dist, resource, loc, scale, max);
+            if(max >= loc || dist == "CONSTANT"){
+                this.props.addContainer(this.props.selectedNodeID, action, dist, resource, loc, scale, max, constantVal);
                 this.closeContainerPopup();
             }
             else{
@@ -74,6 +76,46 @@ class AssestPopUp extends Component{
 
     render(){
 
+
+        let content;
+        if(this.state.distribution == "CONSTANT"){
+            content = 
+                <div className="input-group">        
+                    <label className="label">Value: </label> 
+                    <input 
+                        type="text" 
+                        className="form-control"
+                        name="constantValue" 
+                        onChange={this.onChange} />
+                </div>
+
+        }
+        else{
+            content =
+                <div className="input-group">        
+                    <label className="label">Scale: </label> 
+                    <input 
+                        type="text" 
+                        className="form-control"
+                        name="scale" 
+                        onChange={this.onChange} />
+                    
+                    <label className="label">Loc: </label> 
+                    <input 
+                        type="text" 
+                        className="form-control"
+                        name="loc" 
+                        onChange={this.onChange} />
+
+                    <label className="label">Max Resource Amount: </label> 
+                    <input 
+                        type="text" 
+                        className="form-control"
+                        name="maxAmount" 
+                        onChange={this.onChange} />
+                </div>            
+
+        }
 
         return (
             <Popup open={this.props.openContainer} closeOnDocumentClick = {true} onClose={this.closeContainerPopup} >
@@ -101,7 +143,7 @@ class AssestPopUp extends Component{
                         onChange={this.onChange} />
                 </div>
             
-                <div className="input-group">                    
+                                  
 
                     
             
@@ -118,7 +160,7 @@ class AssestPopUp extends Component{
                         name="upperAmount" 
                         onChange={this.onChange} />
         */}
-
+                <div className="input-group">  
 
                     <label className="label">Distribution:&nbsp;
                         <select 
@@ -132,29 +174,13 @@ class AssestPopUp extends Component{
                             <option value="RANDOM INT">RANDOM INT</option>
                         </select>
                     </label>
-                
-                    <label className="label">Scale: </label> 
-                    <input 
-                        type="text" 
-                        className="form-control"
-                        name="scale" 
-                        onChange={this.onChange} />
-                    
-                    <label className="label">Loc: </label> 
-                    <input 
-                        type="text" 
-                        className="form-control"
-                        name="loc" 
-                        onChange={this.onChange} />
 
-                    <label className="label">Max Resource Amount: </label> 
-                    <input 
-                        type="text" 
-                        className="form-control"
-                        name="maxAmount" 
-                        onChange={this.onChange} />
+               </div>
+
+               {content}
+                
                     
-                </div>
+                 
                 <div>
                     {this.state.showErrorMessage ? <p>Max can't be smaller than the mean</p> : <div></div>}
                     <button className="button" onClick={this.submitInteraction}>
