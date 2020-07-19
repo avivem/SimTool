@@ -98,9 +98,9 @@ def container_spec():
 		data.container_specs[request.json['resource']][request.json['uid']] = inputs
 		return jsonify(inputs)
 
-@app.route('/api/node/container', methods=['GET','POST', 'UPDATE'])
+@app.route('/api/node/container/', methods=['PUT'])
 def container():
-	if request.method == "POST":
+	if request.method == "PUT":
 		res = request.json['resource']
 		if not res in data.save['containers']:
 			data.save['containers'][res] = {}
@@ -113,13 +113,15 @@ def container():
 			data.containers[res] = {}
 		data.containers[res][con['uid']] = bcon
 		con['owner'].add_container(bcon)
+		return f"Container {bcon} added to {con['owner']}"
 
-@app.route('/api/node/container_spec', methods=['PUT','DELETE'])
+@app.route('/api/node/container_spec/', methods=['PUT','DELETE'])
 def node_container_spec():
 	if request.method == "PUT":
 		node = data.nodes[request.json['node']]
 		spec = data.container_specs[request.json['resource']][request.json['uid']]
 		node.add_container_spec(spec)
+		return f"Container Specification {spec} added to {node}"
 
 @app.route('/api/node/logic', methods=['PUT'])
 def node_logic():

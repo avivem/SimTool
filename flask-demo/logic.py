@@ -260,8 +260,8 @@ class BasicComponent(Node):
             elif self.node_logic['policy'] == "BOOL":
                 res = self.node_logic['resource']
                 conname = self.node_logic['entity_container_name']
-                passlist = [x for x in self.directed_to if x.uid in self.node_logic['pass']]
-                faillist = [x for x in self.directed_to if x.uid in self.node_logic['fail']]
+                passlist = [x for x in self.directed_to if x in self.node_logic['pass']]
+                faillist = [x for x in self.directed_to if x in self.node_logic['fail']]
 
                 #Check if the container exists in entity, if not fail immediately:
                 if not res in entity.containers or not conname in entity.containers[res]:
@@ -304,7 +304,11 @@ class BasicComponent(Node):
                     next_ind = random.randint(0,len(passlist)-1)
                     return passlist[next_ind]
                 else:
-                    next_ind = random.randint(0,len(faillist)-1)
+
+                    try:
+                        next_ind = random.randint(0,len(faillist)-1)
+                    except:
+                        raise ValueError(f"self: {self}, faillist: {faillist}, passlist: {passlist}, directed_to: {self.directed_to}, node logic: {self.node_logic}")
                     return faillist[next_ind]
         else:
             next_ind = 0
