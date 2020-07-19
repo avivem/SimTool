@@ -308,7 +308,11 @@ class BasicComponent(Node):
                     return faillist[next_ind]
         else:
             next_ind = 0
-        return path_list[next_ind]
+        
+        try:
+            return path_list[next_ind]
+        except:
+            raise ValueError(f'self is {self}, path_list is {path_list}, index is {next_ind}')
     
     #Returns a timeout event which represents the amount of time a component
     #needs to do it's thing.

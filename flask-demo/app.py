@@ -25,6 +25,7 @@ class DataStore():
 		"containers" : {},
 		"container_spacs" : {},
 		"dirto" : {},
+		"logic" : {},
 		"last_run" : None
 	}
 	starts = {}
@@ -120,6 +121,20 @@ def node_container_spec():
 		spec = data.container_specs[request.json['resource']][request.json['uid']]
 		node.add_container_spec(spec)
 
+@app.route('/api/node/logic', methods=['PUT'])
+def node_logic():
+	if request.method == "PUT":
+		logic = dict(request.json)
+		data.save["logic"][logic['owner']] = request.json
+		node = data.nodes[logic['owner']]
+		del logic['owner']
+
+		if 'pass' in logic:
+			logic['pass'] = [data.nodes[x] for x in data.nodes if x in logic['pass']]
+			logic['fail'] = [data.nodes[x] for x in data.nodes if x in logic['fail']]
+		node.set_node_logic_policy(logic)
+		return request.json
+		
 
 
 # Node type- JSON must have a 'type' argument with either START, BASIC or END

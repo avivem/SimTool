@@ -35,15 +35,15 @@ end2 = EndingPoint(env=env, name="Didn't attend", uid='end2')
 
 #Define spec for entity wallet
 wallet_spec_rich = {
-    'name'     : 'Wallet',
-    'resource' : 'Dollar',
-    'init'     : {
-        'dist'     : 'NORMAL',
-        'loc'      : 25,
-        'scale'    : 5
+    "name"     : "Wallet",
+    "resource" : "Dollar",
+    "init"     : {
+        "dist"     : "NORMAL",
+        "loc"      : 25,
+        "scale"    : 5
     },
-    'capacity' : 200,
-    'uid'      : 'container-wallet'
+    "capacity" : 200,
+    "uid"      : "container-wallet-rich"
 }
 
 wallet_spec_poor = {
@@ -55,7 +55,7 @@ wallet_spec_poor = {
         'scale'    : 4
     },
     'capacity' : 100,
-    'uid'      : 'container-wallet'
+    'uid'      : 'container-wallet-poor'
 }
 #Add wallet to entities
 rich.add_container_spec(wallet_spec_rich)
