@@ -101,6 +101,9 @@ class BasicFlowEntity(object):
         
     def __str__(self):
         return f'{self.name}'
+    
+    def __repr__(self):
+        return f'{self.name}: {self.containers}'
 
     def add_container(self, container):
         if not container.resource in self.containers:
@@ -114,17 +117,22 @@ class BasicFlowEntity(object):
 
         res = self.currentLoc.node_logic['resource']
         conname = self.currentLoc.node_logic['entity_container_name']
+        act_amount = self.currentLoc.node_logic['act_amount']
         #if not res in self.containers or not conname in self.containers[res]:
         #    ##Return a log entry saying entity lacked container.
         #    return None
         if self.currentLoc.node_logic['act'] == 'SUB':
-            encon = self.containers[res][conname].con
-            yield encon.get(self.currentLoc.node_logic['act_amount'])
-            yield self.currentLoc.container.con.put(self.currentLoc.node_logic['act_amount'])
+            
+            encon = self.containers[res][conname]
+            print(f'[{self.env.now}]::\t{self.currentLoc} is subtracting {act_amount} of {res} from {self}\'s {encon}')
+            yield encon.con.get(act_amount)
+            yield self.currentLoc.container.con.put(act_amount)
         elif self.currentLoc.node_logic['act'] == 'ADD':
-            encon = self.containers[res][conname].con
-            yield encon.put(self.currentLoc.node_logic['act_amount'])
-            yield self.currentLoc.container.con.get(self.currentLoc.node_logic['act_amount'])
+           
+            encon = self.containers[res][conname]
+            print(f'[{self.env.now}]::\t{self.currentLoc} is adding {act_amount} of {res} to {self}\'s {encon}')
+            yield encon.con.put(act_amount)
+            yield self.currentLoc.container.con.get(act_amount)
 
     #Down the road, add interact methods to components to allow for resource consumption.
     def run(self):
@@ -142,8 +150,8 @@ class BasicFlowEntity(object):
         if not self.start.name in self.currentLoc.entities:
             self.currentLoc.entities[self.start.name] = []
         self.currentLoc.entities[self.start.name].append(self)
-        print(f'[{self.env.now}]:: {self} has reached endpoint {self.currentLoc}')
-        print(f"{self.containers['Ticket']['Tickets'].con.level}",file=sys.stderr)
+        print(f'[{self.env.now}]::\t{self} has reached endpoint {self.currentLoc}')
+        #print(f"{self.containers['Ticket']['Tickets'].con.level}",file=sys.stderr)
 
 #Node that generates flowing entities.
 class StartingPoint(Node):
@@ -191,7 +199,7 @@ class StartingPoint(Node):
         return path_list[next_ind]
 
     def run(self):
-        print(f'[{self.env.now}]:: {self} starting entity generation')
+        print(f'[{self.env.now}]::\t{self} starting entity generation')
         while self.count < self.limit:
 
             #TODO: Add more distributions.
@@ -226,9 +234,9 @@ class StartingPoint(Node):
                         con = BasicContainer(self.env, **inputs)
                         entity.add_container(con)
             self.env.process(entity.run())
-            print(f'[{self.env.now}]:: {entity} has left {self}')
+            print(f'[{self.env.now}]::\t{entity} has left {self}')
             self.count += 1
-        print(f'[{self.env.now}]:: {self} ending entity generation')
+        print(f'[{self.env.now}]::\t{self} ending entity generation')
             
             
 #A Node that represents a "cog in a machine" such as bank tellers in a bank, or
@@ -307,24 +315,24 @@ class BasicComponent(Node):
                     elif self.node_logic['cond'] == "en==" and entity.name == self.node_logic['cond_amount']:
                         passed = True
 
-                print(f"",file=sys.stderr)
+                """ print(f"",file=sys.stderr)
                 print(f"{entity}",file=sys.stderr)
                 print(f"{entity.containers['Dollar']['Wallet'].con.level}",file=sys.stderr)
                 print(f"passlist: {passlist}",file=sys.stderr)
                 print(f"faillist: {faillist}",file=sys.stderr)
                 pprint.pprint(self.directed_to, sys.stderr)
-                print(f"Passed or failed?: {passed}",file=sys.stderr)
+                print(f"Passed or failed?: {passed}",file=sys.stderr) """
                 
                 
                 if passed:
                     next_ind = random.randint(0,len(passlist)-1)
-                    print(f"Going to {passlist[next_ind]}",file=sys.stderr)
+                    print(f'[{self.env.now}]::\t{entity} Going to {passlist[next_ind]}')
                     return passlist[next_ind]
                 else:
 
                     try:
                         next_ind = random.randint(0,len(faillist)-1)
-                        print(f"Going to {faillist[next_ind]}",file=sys.stderr)
+                        print(f'[{self.env.now}]::\t{entity} Going to {faillist[next_ind]}')
                     except:
                         raise ValueError(f"self: {self}, faillist: {faillist}, passlist: {passlist}, directed_to: {self.directed_to}, node logic: {self.node_logic}")
                     return faillist[next_ind]
@@ -339,7 +347,7 @@ class BasicComponent(Node):
     #Returns a timeout event which represents the amount of time a component
     #needs to do it's thing.
     def interact(self, entity):
-        print(f'[{self.env.now}]:: {entity} is now interacting with {self}')
+        print(f'[{self.env.now}]::\t{entity} is now interacting with {self}')
         return (self.env.timeout(self.time_func),self.next_dir(entity))
 
     
@@ -375,6 +383,9 @@ class BasicContainer(object):
         self.resource = resource
         self.capacity = capacity
         self.con = simpy.Container(env, float(capacity), float(init))
+
+    def __repr__(self):
+        return f"{self.name}"
 
     def update(self, args):
         for k,v in args.items():

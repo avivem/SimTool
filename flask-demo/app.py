@@ -23,7 +23,7 @@ class DataStore():
 	save = {
 		"nodes" : {},
 		"containers" : {},
-		"container_spacs" : {},
+		"container_specs" : {},
 		"dirto" : {},
 		"logic" : {},
 		"last_run" : None
@@ -56,6 +56,7 @@ def store():
 				tipe_dict[n.uid] = n
 			for entry in data.save["dirto"].keys():
 				data.nodes[entry].set_directed_to(data.save["dirto"][entry])
+			for entry in data.save["container_specs"]
 			return data.save
 	else:
 		abort(400)
