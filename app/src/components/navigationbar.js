@@ -233,6 +233,7 @@ class Navigation extends Component{
         this.setState({
           imageFile: URL.createObjectURL(e.target.files[0])
         });
+        console.log(e.target.files[0]);
         console.log("Upload file");          
       }
     }

@@ -4,6 +4,8 @@ import StartImage from "../image/start.png";
 import StationImage from "../image/station.png";
 import EndImage from "../image/end.png";
 
+import Test from "./start.png"
+
 import Konva from 'konva';
 import Popup from "reactjs-popup";
 
@@ -124,7 +126,6 @@ class Canvas extends Component{
 
         console.log("Close Popup");
 
-        console.log(this.state);
 
         //this.props.handleChangeNode(this.state.targetId, this.state.unit, this.state.rate, r);
         this.props.handleChangeNode(this.state);
@@ -271,8 +272,6 @@ class Canvas extends Component{
                     lst.push(elem);
                 });
 
-
-
             }
 
             var t = this;
@@ -298,6 +297,9 @@ class Canvas extends Component{
          //           url = this.props.imageEnd;
                 } 
                 
+
+                
+
                 if(url == null){
                     var radius = 20
                     var node = new Konva.Circle({
@@ -325,7 +327,7 @@ class Canvas extends Component{
                     
                     layer.add(node);
                     layer.add(label);
-                    console.log(target);
+
                     // Send to api
                     this.props.handleBackendLoadNodes(target);
 
@@ -418,7 +420,7 @@ class Canvas extends Component{
                 else{
                     
                     this.props.incrNumImage();
-                    
+
                     Konva.Image.fromURL(url, function (node) {
                         var w = 50;
                         var h = 50;
@@ -449,6 +451,8 @@ class Canvas extends Component{
                         layer.add(node);
                         layer.add(label)
                         
+                    
+
                         // Fetch to api
                         t.props.handleBackendLoadNodes(target);
 
