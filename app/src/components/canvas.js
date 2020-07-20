@@ -255,9 +255,9 @@ class Canvas extends Component{
                 layer.find('Arrow').destroy();
                 layer.find('Circle').destroy();
                 layer.find('Image').destroy();
-                layer.draw();
+                layer.find('Text').destroy();
 
-      
+                layer.draw();
 
                 // Combine all node into one list
                 this.props.startNode.forEach((elem) => {
@@ -298,10 +298,11 @@ class Canvas extends Component{
                 } 
                 
                 if(url == null){
+                    var radius = 20
                     var node = new Konva.Circle({
                         id: target.uid,
                         fill: colorFill,
-                        radius: 20,
+                        radius: radius,
                         shadowBlur: 10,
                         stroke:"black",
                         strokeWidth: 5,
@@ -309,17 +310,39 @@ class Canvas extends Component{
                         x: target.x,
                         y: target.y
                     });
+
+                    var label = new Konva.Text({
+                        text: target.name,
+                        fontFamily: 'Calibri',
+                        fontSize: 18,
+                        padding: 5,
+                        fill: 'black',
+                        x: target.x,
+                        y: target.y + radius
+                      });
     
                     
                     layer.add(node);
+
+                    layer.add(label);
 
                     // Send to api
                     this.props.handleBackendLoadNodes(target);
 
                     node.on('dragmove', () => {
+                        // Store the shift
+                        var xChange = node.x() - target.x;
+                        var yChange = node.y() - target.y;
+                        
                         // mutate the state
                         target.x = node.x();
                         target.y = node.y();
+
+                        // Move the label
+                        label.move({
+                            x: xChange,
+                            y: yChange
+                        });
             
                         // update nodes from the new state
                         this.update();
@@ -397,6 +420,9 @@ class Canvas extends Component{
                     this.props.incrNumImage();
                     
                     Konva.Image.fromURL(url, function (node) {
+                        var w = 50;
+                        var h = 50;
+                        
                         node.setAttrs({
                             id: target.uid,
                             x: target.x,
@@ -404,10 +430,24 @@ class Canvas extends Component{
                             shadowBlur: 10,
                             stroke:"black",
                             strokeWidth: 5,
-                            draggable: true,    
+                            draggable: true,
+                            width: w,
+                            height: h,    
                         });
+
+                        var label = new Konva.Text({
+                            text: target.name,
+                            fontFamily: 'Calibri',
+                            fontSize: 18,
+                            padding: 5,
+                            fill: 'black',
+                            x: target.x,
+                            y: target.y + h,
+                            
+                          });
                         
                         layer.add(node);
+                        layer.add(label)
                         
                         // Fetch to api
                         t.props.handleBackendLoadNodes(target);
@@ -416,9 +456,19 @@ class Canvas extends Component{
                         t.props.incrNumLoadedImage();
 
                         node.on('dragmove', () => {
+                            // Store the shift
+                            var xChange = node.x() - target.x;
+                            var yChange = node.y() - target.y;
+                            
                             // mutate the state
                             target.x = node.x();
                             target.y = node.y();
+
+                            // Move the label
+                            label.move({
+                                x: xChange,
+                                y: yChange
+                            });
                 
                             // update nodes from the new state
                             t.update();
@@ -544,6 +594,7 @@ class Canvas extends Component{
             layer.find('Arrow').destroy();
             layer.find('Circle').destroy();
             layer.find('Image').destroy();
+            layer.find('Text').destroy();
             layer.draw();
             this.props.handleClearMode();
         }
