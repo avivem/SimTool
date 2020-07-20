@@ -61,7 +61,7 @@ def store():
 # =======
 # 			for entry in data.save["container_specs"]
 # >>>>>>> d32b25e2e2847d7317a0ab9bdc09e559c1017342
-			return data.save
+
 	else:
 		abort(400)
 
