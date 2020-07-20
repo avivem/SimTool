@@ -99,7 +99,9 @@ class App extends Component{
           unit: "Second",
           name: data.startname,
           entity_name: data.entity_name,
-          gen_fun: parseInt(data.gen_fun),
+          dist: data.dist,
+          loc: parseInt(data.loc),
+          scale: parseInt(data.scale),
           limit: parseInt(data.limit),
           imageURL: data.imageFile
         });
@@ -167,7 +169,9 @@ class App extends Component{
          // need to change startNode array
          this.state.startNode[0].name = change.startname;
          this.state.startNode[0].entity_name = change.entity_name;
-         this.state.startNode[0].gen_fun = change.gen_fun;
+         this.state.startNode[0].dist = change.dist;
+         this.state.startNode[0].loc = change.loc;
+         this.state.startNode[0].scale = change.scale;
          this.state.startNode[0].limit = change.limit;
 
          // request options to send in post request- START NODE
@@ -567,9 +571,9 @@ class App extends Component{
           name: node.name,
           entity_name: node.entity_name,
           generation: {
-            dist: "NORMAL",
-            loc: 20,
-            scale: 2
+            dist: node.dist,
+            loc: node.loc,
+            scale: node.scale
           },
           limit: node.limit,
           uid: node.uid

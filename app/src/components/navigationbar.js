@@ -22,7 +22,9 @@ class Navigation extends Component{
         stationname: '',
         endname: '',
         entity_name: '',
-        gen_fun: 0,
+        dist: "NORMAL",
+        loc: 0,
+        scale: 0,
         limit: 0,
         capacity: 0,
         time_func: 0,
@@ -356,12 +358,30 @@ class Navigation extends Component{
                                 onChange={this.onChange}
                                  />
                         </label>
-                        <label className="label">Gen Function:
+                        <label className="label">Gen Function dist:
                             <input 
                                 type="text" 
                                 className="form-control"
                                 placeholder="Enter generation function"
-                                name="gen_fun" 
+                                name="dist" 
+                                onChange={this.onChange}
+                                 />
+                        </label>
+                        <label className="label">Gen Function loc:
+                            <input 
+                                type="text" 
+                                className="form-control"
+                                placeholder="Enter generation function"
+                                name="loc" 
+                                onChange={this.onChange}
+                                 />
+                        </label>
+                        <label className="label">Gen Function scale:
+                            <input 
+                                type="text" 
+                                className="form-control"
+                                placeholder="Enter generation function"
+                                name="scale" 
                                 onChange={this.onChange}
                                  />
                         </label>

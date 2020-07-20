@@ -6,6 +6,7 @@ import json
 import random
 import math
 import pprint
+import scipy
 import scipy.stats as stats
 
 #Supported Path Traversals: RAND, ALPHA_SEQ
