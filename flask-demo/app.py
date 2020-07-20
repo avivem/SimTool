@@ -36,6 +36,7 @@ class DataStore():
 	env = simpy.Environment()
 data = DataStore()
 
+#TODO: update Store to handle loading container info.
 @app.route('/api/store/', methods = ["GET", "POST"])
 def store():
 	if request.method == "GET":
@@ -59,33 +60,7 @@ def store():
 	else:
 		abort(400)
 
-
-""" @app.route('/api/node/resource', methods = ["POST"])
-def resource():
-	if request.method == "POST":
-		if request.json['type'] == 'RESOURCE':
-			data.containers[request.json['name']] = {}
-		elif request.json['type'] == 'CONTAINER':
-			inputs = {
-				'name' : request.json['name'],
-        		'owner' : request.json['owner'],
-        		'init' : request.json['init'],
-        		'resource' : request.json['resource'],
-        		'capacity' : request.json['capacity'],
-				'uid' : request.json['uid']
-			}
-			res = inputs['resource']
-			if not res in data.containers:
-				abort(400, message=f'Resource {res} not found.')
-			con = BasicContainer(env = data.env, **inputs)
-			owner_uid = inputs['owner']
-			owner = data.nodes[owner_uid]
-			owner.add_container(con)
-			data.save['containers'][res][con.uid] = inputs
-			data.containers[res] = con
-		else:
-			abort(400) """
-
+#Handles creation of container specs.
 @app.route('/api/container_spec/', methods=['GET','POST'])
 def container_spec():
 	if request.method == "GET":
@@ -98,6 +73,7 @@ def container_spec():
 		data.container_specs[request.json['resource']][request.json['uid']] = inputs
 		return jsonify(inputs)
 
+#Handles adding a new container to a node. TODO: add functionality to remove containers / update.
 @app.route('/api/node/container/', methods=['PUT'])
 def container():
 	if request.method == "PUT":
@@ -115,6 +91,7 @@ def container():
 		con['owner'].add_container(bcon)
 		return f"Container {bcon} added to {con['owner']}"
 
+#Handles adding a container specification to a starting node.
 @app.route('/api/node/container_spec/', methods=['PUT','DELETE'])
 def node_container_spec():
 	if request.method == "PUT":
@@ -123,6 +100,7 @@ def node_container_spec():
 		node.add_container_spec(spec)
 		return f"Container Specification {spec} added to {node}"
 
+#Handles assigning logic to a node (determines where to send an entity and what to do with their resources.)
 @app.route('/api/node/logic', methods=['PUT'])
 def node_logic():
 	if request.method == "PUT":
@@ -197,7 +175,7 @@ def dirto():
  # url to run the simulation
 @app.route('/api/run/<int:until>')
 @app.route('/api/run/')
-def run(until=300):
+def run(until=20000):
 	global new_stdout
 	if len(data.starts) == 0:
 		return "Please create a starting node."
@@ -230,45 +208,6 @@ def clean():
 	global data
 	data = DataStore()
 	return "Graph has been reset"
-
-# # set resources on node
-# @app.route('api/resource', methods=["POST"])
-# def resource():
-#  	if request.resource == "POST":
-#  		# wallet example
-# 		wallet_spec = {
-# 			'name' : request.json['name'],
-# 			'resource' : request.json['resource'],
-# 			'init' : request.json['init'],
-# 			'capacity' : request.json['capacity'],
-# 			'uid' : request.json['uid']
-# 		}
-
-# 		st.add_container_spec(wallet_spec)
-
-# 		# return?
-# 		return data.save["nodes"][st.uid]
-
-
-# @app.route('api/container', methods=["POST"])
-# def container():
-# 	# would creating the resource here and the container work better?
-# 	wallet_spec = {
-# 		'name' : request.json['name'],
-# 		'resource' : request.json['resource'],
-# 		'init' : request.json['init'],
-# 		'capacity' : request.json['capacity'],
-# 		'uid' : request.json['uid']
-# 	}
-
-# 	st.add_container_spec(wallet_spec)
-
-# 	# node will be the one being sent from ui
-
-# 	revenue = BasicContainer(env,"Revenue",node,"Dollar",0,uid='rev')
-# 	node.add_container(revenue)
-
-# 	# is split being set by the user?
 
 
 
