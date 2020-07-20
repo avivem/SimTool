@@ -120,14 +120,13 @@ class AssestPopUp extends Component{
         return (
             <Popup open={this.props.openContainer} closeOnDocumentClick = {true} onClose={this.closeContainerPopup} >
                 <div style={{alignContent: 'center'}}>
-                    <h1>Add Resource</h1>
+                    <h1>Add Entity Container Specification</h1>
                 </div>
 
                 <div className="input-group">                    
-                    <label className="label">Action Name:</label>
+                    <label className="label">Specification Name:</label>
                     <input 
                         type="text" 
-                        placeholder="Enter action name"
                         className="form-control"
                         name="actionName" 
                         style={{width: '150px'}}
@@ -136,7 +135,6 @@ class AssestPopUp extends Component{
                     <label className="label">Resource:</label>
                     <input 
                         type="text" 
-                        placeholder="Enter the type of resource"
                         className="form-control"
                         name="resourceName" 
                         style={{width: '150px'}}
