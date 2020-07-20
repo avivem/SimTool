@@ -120,7 +120,6 @@ class Canvas extends Component{
             open: false
         });
 
-        // fetch to api to update node
         console.log("Close Popup");
 
         console.log(this.state);
@@ -514,6 +513,7 @@ class Canvas extends Component{
                   };
                   
                   // fetch to api to create connection
+                  // should prob move this to App.js
                   fetch(`http://127.0.0.1:5000/api/dirto/`, requestOptionsStart).then(gotUser => {
                       console.log(gotUser);
   
