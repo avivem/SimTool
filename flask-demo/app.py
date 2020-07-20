@@ -56,11 +56,6 @@ def store():
 				tipe_dict[n.uid] = n
 			for entry in data.save["dirto"].keys():
 				data.nodes[entry].set_directed_to(data.save["dirto"][entry])
-# <<<<<<< HEAD
-# 			# for entry in data.save["container_specs"]
-# =======
-# 			for entry in data.save["container_specs"]
-# >>>>>>> d32b25e2e2847d7317a0ab9bdc09e559c1017342
 
 	else:
 		abort(400)
