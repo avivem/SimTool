@@ -111,7 +111,7 @@ class BasicFlowEntity(object):
         self.containers[container.resource][container.name] = container
 
     #TODO: look into limitation regarding container names. Different classes of entities must have the same container names.
-    def act(self):
+    def act(self, passed):
         if self.currentLoc.node_logic['act'] == None:
             return None
 
@@ -121,16 +121,16 @@ class BasicFlowEntity(object):
         #if not res in self.containers or not conname in self.containers[res]:
         #    ##Return a log entry saying entity lacked container.
         #    return None
-        if self.currentLoc.node_logic['act'] == 'SUB':
+        if self.currentLoc.node_logic['act'] == 'SUB' and passed:
             
             encon = self.containers[res][conname]
-            print(f'[{self.env.now}]::\t{self.currentLoc} is subtracting {act_amount} of {res} from {self}\'s {encon}')
+            print(f'[{self.env.now}]::\t{self.currentLoc} is subtracting {act_amount} of {res} from {self}\'s {encon}. Old bal: {encon.con.level}. New bal: {encon.con.level - act_amount}')
             yield encon.con.get(act_amount)
             yield self.currentLoc.container.con.put(act_amount)
-        elif self.currentLoc.node_logic['act'] == 'ADD':
+        elif self.currentLoc.node_logic['act'] == 'ADD' and passed:
            
             encon = self.containers[res][conname]
-            print(f'[{self.env.now}]::\t{self.currentLoc} is adding {act_amount} of {res} to {self}\'s {encon}')
+            print(f'[{self.env.now}]::\t{self.currentLoc} is adding {act_amount} of {res} to {self}\'s {encon}. Old bal: {encon.con.level}. New bal: {encon.con.level + act_amount}')
             yield encon.con.put(act_amount)
             yield self.currentLoc.container.con.get(act_amount)
 
@@ -142,14 +142,15 @@ class BasicFlowEntity(object):
             with self.currentLoc.resource.request() as req:
                 #Tell environment I'm waiting.
                 yield req
-                (evnt, next_dir) = self.currentLoc.interact(self)
-                self.env.process(self.act())
+                (evnt, (next_dir, passed)) = self.currentLoc.interact(self)
+                self.env.process(self.act(passed))
                 yield evnt
                 self.currentLoc = next_dir
 
-        if not self.start.name in self.currentLoc.entities:
-            self.currentLoc.entities[self.start.name] = []
-        self.currentLoc.entities[self.start.name].append(self)
+        #if not self.start.name in self.currentLoc.entities:
+        #    self.currentLoc.entities[self.start.name] = []
+        #self.currentLoc.entities[self.start.name].append(self)
+        self.currentLoc.entities.append(self)
         print(f'[{self.env.now}]::\t{self} has reached endpoint {self.currentLoc}')
         #print(f"{self.containers['Ticket']['Tickets'].con.level}",file=sys.stderr)
 
@@ -327,7 +328,7 @@ class BasicComponent(Node):
                 if passed:
                     next_ind = random.randint(0,len(passlist)-1)
                     print(f'[{self.env.now}]::\t{entity} Going to {passlist[next_ind]}')
-                    return passlist[next_ind]
+                    return (passlist[next_ind], True)
                 else:
 
                     try:
@@ -335,12 +336,12 @@ class BasicComponent(Node):
                         print(f'[{self.env.now}]::\t{entity} Going to {faillist[next_ind]}')
                     except:
                         raise ValueError(f"self: {self}, faillist: {faillist}, passlist: {passlist}, directed_to: {self.directed_to}, node logic: {self.node_logic}")
-                    return faillist[next_ind]
+                    return (faillist[next_ind], False)
         else:
             next_ind = 0
         
         try:
-            return path_list[next_ind]
+            return (path_list[next_ind], True)
         except:
             raise ValueError(f'self is {self}, path_list is {path_list}, index is {next_ind}')
     
@@ -396,7 +397,8 @@ class BasicContainer(object):
 class EndingPoint(Node):
     def __init__(self,env,name, uid=None):
         super().__init__(env=env,name=name, uid=uid)
-        self.entities = {}
+        #self.entities = {}
+        self.entities = []
     def __str__(self):
         return self.name
     def __repr__(self):
