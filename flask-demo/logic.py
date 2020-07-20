@@ -114,9 +114,9 @@ class BasicFlowEntity(object):
 
         res = self.currentLoc.node_logic['resource']
         conname = self.currentLoc.node_logic['entity_container_name']
-        if not res in self.containers or not conname in self.containers[res]:
-            ##Return a log entry saying entity lacked container.
-            return None
+        #if not res in self.containers or not conname in self.containers[res]:
+        #    ##Return a log entry saying entity lacked container.
+        #    return None
         if self.currentLoc.node_logic['act'] == 'SUB':
             encon = self.containers[res][conname].con
             yield encon.get(self.currentLoc.node_logic['act_amount'])
@@ -143,6 +143,7 @@ class BasicFlowEntity(object):
             self.currentLoc.entities[self.start.name] = []
         self.currentLoc.entities[self.start.name].append(self)
         print(f'[{self.env.now}]:: {self} has reached endpoint {self.currentLoc}')
+        print(f"{self.containers['Ticket']['Tickets'].con.level}",file=sys.stderr)
 
 #Node that generates flowing entities.
 class StartingPoint(Node):
@@ -206,6 +207,7 @@ class StartingPoint(Node):
             yield self.env.timeout(tymeout)
 
             entity = BasicFlowEntity(self.env,f'{self.entity_name} {self.count}',self,self.next_dir())
+            self.entities.append(entity)
             if len(self.container_specs) > 0:
 
                 for resource,specs in self.container_specs.items():
@@ -244,6 +246,9 @@ class BasicComponent(Node):
     def __str__(self):
         return self.name
 
+    def __repr__(self):
+        return f"{self.name}"
+
     def add_container(self, container):
         self.container = container
 
@@ -263,10 +268,13 @@ class BasicComponent(Node):
                 passlist = [x for x in self.directed_to if x in self.node_logic['pass']]
                 faillist = [x for x in self.directed_to if x in self.node_logic['fail']]
 
+                #pprint.pprint(f"self: {self}, entity: {entity} faillist: {faillist}, passlist: {passlist}, directed_to: {self.directed_to}",sys.stderr)
                 #Check if the container exists in entity, if not fail immediately:
-                if not res in entity.containers or not conname in entity.containers[res]:
-                    next_ind = random.randint(0,len(faillist)-1)
-                    return faillist[next_ind]
+                #if not res in entity.containers or not conname in entity.containers[res]:
+                #    next_ind = random.randint(0,len(faillist)-1)
+                #    return faillist[next_ind]
+                if False:
+                    print("test")
                 else:
                     encon = entity.containers[res][conname].con
                     passed = False
@@ -299,14 +307,24 @@ class BasicComponent(Node):
                     elif self.node_logic['cond'] == "en==" and entity.name == self.node_logic['cond_amount']:
                         passed = True
 
+                print(f"",file=sys.stderr)
+                print(f"{entity}",file=sys.stderr)
+                print(f"{entity.containers['Dollar']['Wallet'].con.level}",file=sys.stderr)
+                print(f"passlist: {passlist}",file=sys.stderr)
+                print(f"faillist: {faillist}",file=sys.stderr)
+                pprint.pprint(self.directed_to, sys.stderr)
+                print(f"Passed or failed?: {passed}",file=sys.stderr)
+                
                 
                 if passed:
                     next_ind = random.randint(0,len(passlist)-1)
+                    print(f"Going to {passlist[next_ind]}",file=sys.stderr)
                     return passlist[next_ind]
                 else:
 
                     try:
                         next_ind = random.randint(0,len(faillist)-1)
+                        print(f"Going to {faillist[next_ind]}",file=sys.stderr)
                     except:
                         raise ValueError(f"self: {self}, faillist: {faillist}, passlist: {passlist}, directed_to: {self.directed_to}, node logic: {self.node_logic}")
                     return faillist[next_ind]
@@ -370,6 +388,8 @@ class EndingPoint(Node):
         self.entities = {}
     def __str__(self):
         return self.name
+    def __repr__(self):
+        return f"{self.name}"
 
 #Possible Splitter node that handles path choosing logic.
 #For now, paths chosen randomly.

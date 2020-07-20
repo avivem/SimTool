@@ -272,5 +272,6 @@ def clean():
 
 
 
-
+if __name__ == '__main_':
+    app.run()
 

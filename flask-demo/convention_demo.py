@@ -87,7 +87,7 @@ tbtw.set_directed_to(end1)
 #Create containers
 rev = BasicContainer(env,"Revenue",tbpw,"Dollar",{'init':0},uid='rev')
 tbpw.add_container(rev)
-tickets = BasicContainer(env,"Tickets", tbtw, "Ticket",uid='tickets')
+tickets = BasicContainer(env,"Tickets", tbtw, "Ticket",{'init':"inf"},uid='tickets')
 tbtw.add_container(tickets)
 
 tbpwsplit = {
@@ -98,21 +98,21 @@ tbpwsplit = {
     'act_amount' : 18,
     'entity_container_name' : 'Wallet',
     'resource' : 'Dollar',
-    'pass' : ['tbtw'],
-    'fail' : ['end2']
+    'pass' : [tbtw],
+    'fail' : [end2]
 }
 tbpw.set_node_logic_policy(tbpwsplit)
 
 tbtwsplit = {
     'policy': "BOOL",
     'cond': "el==",
-    'cond_amount': 1,
-    'act' : None,
-    'act_amount' : None,
+    'cond_amount': 0,
+    'act' : 'ADD',
+    'act_amount' : 1,
     'entity_container_name' : 'Tickets',
     'resource' : 'Ticket',
-    'pass' : ['end1'],
-    'fail' : ['end2'] #Should not trigger.
+    'pass' : [end1],
+    'fail' : [end2] #Should not trigger.
 }
 tbtw.set_node_logic_policy(tbtwsplit)
 
