@@ -99,7 +99,9 @@ class App extends Component{
           unit: "Second",
           name: data.startname,
           entity_name: data.entity_name,
-          gen_fun: parseInt(data.gen_fun),
+          dist: data.dist,
+          loc: parseInt(data.loc),
+          scale: parseInt(data.scale),
           limit: parseInt(data.limit),
           imageURL: data.imageFile
         });
@@ -167,7 +169,9 @@ class App extends Component{
          // need to change startNode array
          this.state.startNode[0].name = change.startname;
          this.state.startNode[0].entity_name = change.entity_name;
-         this.state.startNode[0].gen_fun = change.gen_fun;
+         this.state.startNode[0].dist = change.dist;
+         this.state.startNode[0].loc = change.loc;
+         this.state.startNode[0].scale = change.scale;
          this.state.startNode[0].limit = change.limit;
 
          // request options to send in post request- START NODE
@@ -437,14 +441,20 @@ class App extends Component{
         stationNode: [],
         endNode: []
       });
-      
+
+      const requestClean = {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+      }
+
       // Clear the back end
-      fetch('http://127.0.0.1:5000/api/clean/').then(res => res.json()).then(gotUser => {
+      fetch('http://127.0.0.1:5000/api/clean/', requestClean).then(res => res.json()).then(gotUser => {
         console.log(gotUser);
 
       }).catch(function() {
           console.log("Error on clear");
       });
+
       console.log("Clear store node/arrow");
     }
     
@@ -560,7 +570,11 @@ class App extends Component{
           type: 'START',
           name: node.name,
           entity_name: node.entity_name,
-          gen_fun: node.gen_fun,
+          generation: {
+            dist: node.dist,
+            loc: node.loc,
+            scale: node.scale
+          },
           limit: node.limit,
           uid: node.uid
         })
@@ -653,6 +667,30 @@ class App extends Component{
         distribution: dist,
         init: constantVal
       })
+
+      const addcontainer = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          // Change the name value to this.state.name to refer to user input
+          name: action,
+          resource: resource,
+          intit : {
+            init: 0
+          },
+          capacity: 1,
+          uid: "resource" + this.state.count
+        })
+      };
+
+      /**fetch to api tos set container*/
+      fetch('http://127.0.0.1:5000/api/addcontainer/', addcontainer).then(res => res.json()).then(gotUser => {
+          console.log(gotUser);
+
+      }).catch(function() {
+          console.log("Error on add Contaier");
+      });
+
     }
     else{
       lst.push({
@@ -664,6 +702,31 @@ class App extends Component{
         loc: loc,
         scale: scale,
         maxAmount: max      
+      });
+
+      const addcontainer = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          // Change the name value to this.state.name to refer to user input
+          name: action,
+          resource: resource,
+          intit : {
+            dist: dist,
+            loc: loc,
+            scale: scale
+          },
+          capacity: max,
+          uid: "resource" + this.state.count
+        })
+      };
+
+      /**fetch to api tos set container*/
+      fetch('http://127.0.0.1:5000/api/addcontainer/', addcontainer).then(res => res.json()).then(gotUser => {
+          console.log(gotUser);
+
+      }).catch(function() {
+          console.log("Error on add Contaier");
       });
   
     }

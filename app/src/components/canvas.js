@@ -29,7 +29,9 @@ class Canvas extends Component{
             currDir: "from",
 
             startname: "default name",
-            gen_fun: 10,
+            dist: "NORMAL",
+            loc: 0,
+            scale: 0,
             entity_name: "default entity name",
             limit: 100,
 
@@ -120,7 +122,6 @@ class Canvas extends Component{
             open: false
         });
 
-        // fetch to api to update node
         console.log("Close Popup");
 
         console.log(this.state);
@@ -323,9 +324,8 @@ class Canvas extends Component{
     
                     
                     layer.add(node);
-
                     layer.add(label);
-
+                    console.log(target);
                     // Send to api
                     this.props.handleBackendLoadNodes(target);
 
@@ -564,6 +564,7 @@ class Canvas extends Component{
                   };
                   
                   // fetch to api to create connection
+                  // should prob move this to App.js
                   fetch(`http://127.0.0.1:5000/api/dirto/`, requestOptionsStart).then(gotUser => {
                       console.log(gotUser);
   
@@ -626,7 +627,9 @@ class Canvas extends Component{
             content =   <div class="container">
                         <p>Node Name: {startNode.name}</p>
                         <p>Entity Name: {startNode.entity_name}</p>
-                        <p>Generation Function: {startNode.gen_fun}</p>
+                        <p>Generation Function dist: {startNode.dist}</p>
+                        <p>Generation Function loc: {startNode.loc}</p>
+                        <p>Generation Function scale: {startNode.scale}</p>
                         <p>Limit: {startNode.limit}</p>
 
                         <label className="label">Name:
@@ -638,12 +641,30 @@ class Canvas extends Component{
                                 onChange={this.onChange}
                                  />
                         </label>
-                        <label className="label">Gen Function:
+                        <label className="label">Gen Function dist:
                             <input 
                                 type="text" 
                                 className="form-control"
                                 placeholder="Enter generation function"
-                                name="gen_fun" 
+                                name="dist" 
+                                onChange={this.onChange}
+                                 />
+                        </label>
+                        <label className="label">Gen Function loc:
+                            <input 
+                                type="text" 
+                                className="form-control"
+                                placeholder="Enter generation function"
+                                name="loc" 
+                                onChange={this.onChange}
+                                 />
+                        </label>
+                        <label className="label">Gen Function scale:
+                            <input 
+                                type="text" 
+                                className="form-control"
+                                placeholder="Enter generation function"
+                                name="scale" 
                                 onChange={this.onChange}
                                  />
                         </label>
