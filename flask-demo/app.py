@@ -23,13 +23,16 @@ class DataStore():
 	save = {
 		"nodes" : {},
 		"containers" : {},
+		"container_spacs" : {},
 		"dirto" : {},
+		"logic" : {},
 		"last_run" : None
 	}
 	starts = {}
 	basics = {}
 	ends = {}
 	containers = {}
+	container_specs = {}
 	env = simpy.Environment()
 data = DataStore()
 
@@ -57,7 +60,7 @@ def store():
 		abort(400)
 
 
-@app.route('/api/node/resource', methods = ["POST"])
+""" @app.route('/api/node/resource', methods = ["POST"])
 def resource():
 	if request.method == "POST":
 		if request.json['type'] == 'RESOURCE':
@@ -81,7 +84,59 @@ def resource():
 			data.save['containers'][res][con.uid] = inputs
 			data.containers[res] = con
 		else:
-			abort(400)
+			abort(400) """
+
+@app.route('/api/container_spec/', methods=['GET','POST'])
+def container_spec():
+	if request.method == "GET":
+		return data.container_specs[request.json['resource']][request.json['uid']]
+	else:	
+		if not request.json['resource'] in data.container_specs:
+			data.container_specs[request.json['resource']] = {}
+	
+		inputs = dict(request.json)
+		data.container_specs[request.json['resource']][request.json['uid']] = inputs
+		return jsonify(inputs)
+
+@app.route('/api/node/container/', methods=['PUT'])
+def container():
+	if request.method == "PUT":
+		res = request.json['resource']
+		if not res in data.save['containers']:
+			data.save['containers'][res] = {}
+		data.save['containers'][res] = request.json
+		con = dict(request.json)
+		con['env'] = data.env
+		con['owner'] = data.nodes[con['owner']]
+		bcon = BasicContainer(**con)
+		if not res in data.containers:
+			data.containers[res] = {}
+		data.containers[res][con['uid']] = bcon
+		con['owner'].add_container(bcon)
+		return f"Container {bcon} added to {con['owner']}"
+
+@app.route('/api/node/container_spec/', methods=['PUT','DELETE'])
+def node_container_spec():
+	if request.method == "PUT":
+		node = data.nodes[request.json['node']]
+		spec = data.container_specs[request.json['resource']][request.json['uid']]
+		node.add_container_spec(spec)
+		return f"Container Specification {spec} added to {node}"
+
+@app.route('/api/node/logic', methods=['PUT'])
+def node_logic():
+	if request.method == "PUT":
+		logic = dict(request.json)
+		data.save["logic"][logic['owner']] = request.json
+		node = data.nodes[logic['owner']]
+		del logic['owner']
+
+		if 'pass' in logic:
+			logic['pass'] = [data.nodes[x] for x in data.nodes if x in logic['pass']]
+			logic['fail'] = [data.nodes[x] for x in data.nodes if x in logic['fail']]
+		node.set_node_logic_policy(logic)
+		return request.json
+		
 
 
 # Node type- JSON must have a 'type' argument with either START, BASIC or END
@@ -165,17 +220,58 @@ def reset():
 	for k,v in data.nodes.items():
 		v.update({'env': data.env})
 		v.reset()
+	for k,v in data.containers.items():
+		v.update({'env': data.env})
 	return "Simulation has been reset."
 
 # url to clean the graph for a new sim.
-@app.route('/api/clean/', methods=["GET"])
+@app.route('/api/clean/', methods=["DELETE"])
 def clean():
 	global data
 	data = DataStore()
 	return "Graph has been reset"
 
+# # set resources on node
+# @app.route('api/resource', methods=["POST"])
+# def resource():
+#  	if request.resource == "POST":
+#  		# wallet example
+# 		wallet_spec = {
+# 			'name' : request.json['name'],
+# 			'resource' : request.json['resource'],
+# 			'init' : request.json['init'],
+# 			'capacity' : request.json['capacity'],
+# 			'uid' : request.json['uid']
+# 		}
+
+# 		st.add_container_spec(wallet_spec)
+
+# 		# return?
+# 		return data.save["nodes"][st.uid]
+
+
+# @app.route('api/container', methods=["POST"])
+# def container():
+# 	# would creating the resource here and the container work better?
+# 	wallet_spec = {
+# 		'name' : request.json['name'],
+# 		'resource' : request.json['resource'],
+# 		'init' : request.json['init'],
+# 		'capacity' : request.json['capacity'],
+# 		'uid' : request.json['uid']
+# 	}
+
+# 	st.add_container_spec(wallet_spec)
+
+# 	# node will be the one being sent from ui
+
+# 	revenue = BasicContainer(env,"Revenue",node,"Dollar",0,uid='rev')
+# 	node.add_container(revenue)
+
+# 	# is split being set by the user?
 
 
 
-
+if __name__ == '__main_':
+    app.run()
 
