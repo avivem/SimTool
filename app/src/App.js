@@ -587,6 +587,24 @@ class App extends Component{
       }).catch(function() {
           console.log("Error on add Start Node");
       });
+
+      const requestOptionsStartLogic = {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          owner: node.uid,
+          policy: "ALPHA_SEQ"
+        })
+      };
+
+      fetch('http://127.0.0.1:5000/api/node/logic', requestOptionsStartLogic).then(res => res.json()).then(gotUser => {
+          console.log(gotUser);
+
+      }).catch(function() {
+          console.log("Error on add Start Node");
+      });
+
+
     }
     else if(node.uid.includes("station")){
       const requestOptionsBasic = {
@@ -684,7 +702,7 @@ class App extends Component{
       };
 
       /**fetch to api tos set container*/
-      fetch('http://127.0.0.1:5000/api/addcontainer/', addcontainer).then(res => res.json()).then(gotUser => {
+      fetch('http://127.0.0.1:5000/api/container_spec/', addcontainer).then(res => res.json()).then(gotUser => {
           console.log(gotUser);
 
       }).catch(function() {
@@ -704,7 +722,7 @@ class App extends Component{
         maxAmount: max      
       });
 
-      const addcontainer = {
+      const addcontainerspec = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -717,12 +735,32 @@ class App extends Component{
             scale: scale
           },
           capacity: max,
-          uid: "resource" + this.state.count
+          uid: "container" + selectedNodeID
         })
       };
 
       /**fetch to api tos set container*/
-      fetch('http://127.0.0.1:5000/api/addcontainer/', addcontainer).then(res => res.json()).then(gotUser => {
+      fetch('http://127.0.0.1:5000/api/container_spec/', addcontainerspec).then(res => res.json()).then(gotUser => {
+          console.log(gotUser);
+
+      }).catch(function() {
+          console.log("Error on add Contaier");
+      });
+
+
+      const assigncontainerspec = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          // Change the name value to this.state.name to refer to user input
+          node: selectedNodeID,
+          resource: resource,
+          uid: "container" + selectedNodeID
+        })
+      };
+
+      /**fetch to api tos set container*/
+      fetch('http://127.0.0.1:5000/api/container_spec/', assigncontainerspec).then(res => res.json()).then(gotUser => {
           console.log(gotUser);
 
       }).catch(function() {
