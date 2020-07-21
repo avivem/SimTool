@@ -15,7 +15,7 @@ class AssestPopUp extends Component{
             scale: 0,
             loc: 0,
             constantValue: 0,
-            distribution: "NORMAL",
+            distribution: "",
             showErrorMessage: false,
             
         }
@@ -45,6 +45,8 @@ class AssestPopUp extends Component{
         var resource = this.state.resourceName;
  //       var lower = parseInt(this.state.lowerAmount);
  //       var upper = parseInt(this.state.upperAmount);
+
+        // these are not being set
         var dist = this.state.distribution;
         var loc = parseInt(this.state.loc);
         var scale = parseInt(this.state.scale);
@@ -60,7 +62,7 @@ class AssestPopUp extends Component{
             }
         }
         else{
-            this.props.addContainer(this.props.selectedNodeID, action, resource, 0, 0, 0);
+            this.props.addContainer(this.props.selectedNodeID, action, "NORMAL", resource, 0, 0, 0);
             this.closeContainerPopup();
         }
 
@@ -79,6 +81,7 @@ class AssestPopUp extends Component{
 
         let content;
         if(this.state.distribution == "CONSTANT"){
+            this.state.distribution = "CONSTANT"
             content = 
                 <div className="input-group">        
                     <label className="label">Value: </label> 
@@ -140,11 +143,7 @@ class AssestPopUp extends Component{
                         style={{width: '150px'}}
                         onChange={this.onChange} />
                 </div>
-            
-                                  
-
-                    
-            
+    
     {/*                <label className="label">Resource range: </label>
                     <input 
                         type="text" 

@@ -4,7 +4,7 @@ import StartImage from "../image/start.png";
 import StationImage from "../image/station.png";
 import EndImage from "../image/end.png";
 
-import Test from "./start.png"
+// import Test from "./start.png"
 
 import Konva from 'konva';
 import Popup from "reactjs-popup";

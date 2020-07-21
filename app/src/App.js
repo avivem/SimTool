@@ -99,7 +99,9 @@ class App extends Component{
           unit: "Second",
           name: data.startname,
           entity_name: data.entity_name,
-          gen_fun: parseInt(data.gen_fun),
+          dist: data.dist,
+          loc: parseInt(data.loc),
+          scale: parseInt(data.scale),
           limit: parseInt(data.limit),
           imageURL: data.imageFile
         });
@@ -167,7 +169,9 @@ class App extends Component{
          // need to change startNode array
          this.state.startNode[0].name = change.startname;
          this.state.startNode[0].entity_name = change.entity_name;
-         this.state.startNode[0].gen_fun = change.gen_fun;
+         this.state.startNode[0].dist = change.dist;
+         this.state.startNode[0].loc = change.loc;
+         this.state.startNode[0].scale = change.scale;
          this.state.startNode[0].limit = change.limit;
 
          // request options to send in post request- START NODE
@@ -181,7 +185,11 @@ class App extends Component{
              // Change the name value to this.state.name to refer to user input
              name: change.startname,
              entity_name: change.entity_name,
-             gen_fun: parseInt(change.gen_fun),
+             generation: {
+               dist: change.dist,
+               loc: parseInt(change.loc),
+               scale: parseInt(change.scale),
+             },
              limit: parseInt(change.limit),
 
            })
@@ -437,14 +445,20 @@ class App extends Component{
         stationNode: [],
         endNode: []
       });
-      
+
+      const requestClean = {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+      }
+
       // Clear the back end
-      fetch('http://127.0.0.1:5000/api/clean/').then(res => res.json()).then(gotUser => {
+      fetch('http://127.0.0.1:5000/api/clean/', requestClean).then(res => res.json()).then(gotUser => {
         console.log(gotUser);
 
       }).catch(function() {
           console.log("Error on clear");
       });
+
       console.log("Clear store node/arrow");
     }
     
@@ -560,7 +574,11 @@ class App extends Component{
           type: 'START',
           name: node.name,
           entity_name: node.entity_name,
-          gen_fun: node.gen_fun,
+          generation: {
+            dist: node.dist,
+            loc: node.loc,
+            scale: node.scale
+          },
           limit: node.limit,
           uid: node.uid
         })
@@ -662,6 +680,7 @@ class App extends Component{
   // Add interaction/resource to list
   addContainer(selectedNodeID, action, dist, resource, loc, scale, max, constantVal){
     var lst = this.state.containers;
+    console.log(dist);
     if(dist == "CONSTANT"){
       lst.push({
         uid: "resource" + this.state.count,
@@ -679,11 +698,11 @@ class App extends Component{
           // Change the name value to this.state.name to refer to user input
           name: action,
           resource: resource,
-          intit : {
+          init : {
             init: 0
           },
           capacity: 1,
-          uid: "resource" + this.state.count
+          uid: "conatainer" + this.state.count
         })
       };
 
@@ -694,6 +713,7 @@ class App extends Component{
       }).catch(function() {
           console.log("Error on add Contaier");
       });
+
     }
     else{
       lst.push({
@@ -714,13 +734,13 @@ class App extends Component{
           // Change the name value to this.state.name to refer to user input
           name: action,
           resource: resource,
-          intit : {
+          init : {
             dist: dist,
             loc: loc,
             scale: scale
           },
           capacity: max,
-          uid: "container" + selectedNodeID
+          uid: "container" + this.state.count
         })
       };
 
@@ -733,24 +753,24 @@ class App extends Component{
       });
 
 
-      const assigncontainerspec = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          // Change the name value to this.state.name to refer to user input
-          node: selectedNodeID,
-          resource: resource,
-          uid: "container" + selectedNodeID
-        })
-      };
+      // const assigncontainerspec = {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({
+      //     // Change the name value to this.state.name to refer to user input
+      //     node: selectedNodeID,
+      //     resource: resource,
+      //     uid: "container" + this.state.count
+      //   })
+      // };
 
-      /**fetch to api tos set container*/
-      fetch('http://127.0.0.1:5000/api/container_spec/', assigncontainerspec).then(res => res.json()).then(gotUser => {
-          console.log(gotUser);
+      // /**fetch to api tos set container*/
+      // fetch('http://127.0.0.1:5000/api/container_spec/', assigncontainerspec).then(res => res.json()).then(gotUser => {
+      //     console.log(gotUser);
 
-      }).catch(function() {
-          console.log("Error on add Contaier");
-      });
+      // }).catch(function() {
+      //     console.log("Error on add Contaier");
+      // });
   
     }
 
