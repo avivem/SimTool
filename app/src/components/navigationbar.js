@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import Popup from "reactjs-popup";
 
-import StartImage from "../image/start-circle.png";
-import StationImage from "../image/station-circle.png";
-import EndImage from "../image/end-circle.png";
+import StartImage from "../image/start.png";
+import StationImage from "../image/station.png";
+import EndImage from "../image/end.png";
 
 import './css/popup.css';
 
@@ -22,9 +22,7 @@ class Navigation extends Component{
         stationname: '',
         endname: '',
         entity_name: '',
-        dist: "NORMAL",
-        loc: 0,
-        scale: 0,
+        gen_fun: 0,
         limit: 0,
         capacity: 0,
         time_func: 0,
@@ -235,6 +233,7 @@ class Navigation extends Component{
         this.setState({
           imageFile: URL.createObjectURL(e.target.files[0])
         });
+        console.log(e.target.files[0]);
         console.log("Upload file");          
       }
     }
@@ -248,7 +247,7 @@ class Navigation extends Component{
       switch(this.state.addNodeType){
         case "start":
           this.props.handleImageUpload("start", this.state.imageFile)
-
+          // fetch to api to create node
           this.props.handleAddNode("start",this.state);
           break;
       
@@ -358,30 +357,12 @@ class Navigation extends Component{
                                 onChange={this.onChange}
                                  />
                         </label>
-                        <label className="label">Gen Function dist:
+                        <label className="label">Gen Function:
                             <input 
                                 type="text" 
                                 className="form-control"
                                 placeholder="Enter generation function"
-                                name="dist" 
-                                onChange={this.onChange}
-                                 />
-                        </label>
-                        <label className="label">Gen Function loc:
-                            <input 
-                                type="text" 
-                                className="form-control"
-                                placeholder="Enter generation function"
-                                name="loc" 
-                                onChange={this.onChange}
-                                 />
-                        </label>
-                        <label className="label">Gen Function scale:
-                            <input 
-                                type="text" 
-                                className="form-control"
-                                placeholder="Enter generation function"
-                                name="scale" 
+                                name="gen_fun" 
                                 onChange={this.onChange}
                                  />
                         </label>

@@ -4,6 +4,8 @@ import StartImage from "../image/start.png";
 import StationImage from "../image/station.png";
 import EndImage from "../image/end.png";
 
+import Test from "./start.png"
+
 import Konva from 'konva';
 import Popup from "reactjs-popup";
 
@@ -124,10 +126,35 @@ class Canvas extends Component{
 
         console.log("Close Popup");
 
-        console.log(this.state);
 
         //this.props.handleChangeNode(this.state.targetId, this.state.unit, this.state.rate, r);
         this.props.handleChangeNode(this.state);
+
+
+        // Change the label of the selected node
+        var layer = this.state.layer;
+        var label = layer.findOne("#" + "name-" + this.state.targetId);
+
+        switch(this.state.type){
+            case "Start Node":
+                label.text(this.state.startname);
+                break;
+
+            case "Station Node":
+                label.text(this.state.stationname);
+                break;
+
+            case "End Node":
+                label.text(this.state.endname);
+                break;
+
+            default:
+                console.log("Error: Can't find node label to change name")
+
+        }
+
+        this.state.layer.batchDraw();
+
     }
 
     componentDidMount(){
@@ -256,9 +283,9 @@ class Canvas extends Component{
                 layer.find('Arrow').destroy();
                 layer.find('Circle').destroy();
                 layer.find('Image').destroy();
-                layer.draw();
+                layer.find('Text').destroy();
 
-      
+                layer.draw();
 
                 // Combine all node into one list
                 this.props.startNode.forEach((elem) => {
@@ -271,56 +298,75 @@ class Canvas extends Component{
                     lst.push(elem);
                 });
 
-
-
             }
 
             var t = this;
             // Go through all of the element in the lst and make the node on the canvas.
             // lst - have many element when loading and 1 element when regular adding node.
             lst.forEach((target) => {
-                var colorFill = "";
                 var header = "";
                 var url = target.imageURL;
+                var imageObj = new Image();
                 if(target.uid.includes("start")){
-                    colorFill = 'red';
                     header = "Start Node";
-         //           url = this.props.imageStart;
+                    imageObj.src = StartImage;
                 }
                 if(target.uid.includes("station")){
-                    colorFill = 'green';
                     header = "Station Node";
-         //           url = this.props.imageStation;
+                    imageObj.src = StationImage;
                 }
                 if(target.uid.includes("end")){
-                    colorFill = 'blue';
                     header = "End Node";
-         //           url = this.props.imageEnd;
+                    imageObj.src = EndImage;
                 } 
                 
                 if(url == null){
+                    var radius = 30
                     var node = new Konva.Circle({
                         id: target.uid,
-                        fill: colorFill,
-                        radius: 20,
+                        radius: radius,
                         shadowBlur: 10,
                         stroke:"black",
                         strokeWidth: 5,
                         draggable: true,
                         x: target.x,
-                        y: target.y
+                        y: target.y,
+                        fillPatternImage: imageObj,
+                        fillPatternOffset: { x: 35, y: 32 },
                     });
+
+                    var label = new Konva.Text({
+                        id: "name-" + target.uid,
+                        text: target.name,
+                        fontFamily: 'Calibri',
+                        fontSize: 18,
+                        padding: 5,
+                        fill: 'black',
+                        x: target.x,
+                        y: target.y + radius
+                      });
     
                     
                     layer.add(node);
-                    console.log(target);
+                    layer.add(label);
+
                     // Send to api
                     this.props.handleBackendLoadNodes(target);
 
                     node.on('dragmove', () => {
+                        // Store the shift
+                        var xChange = node.x() - target.x;
+                        var yChange = node.y() - target.y;
+                        
                         // mutate the state
                         target.x = node.x();
                         target.y = node.y();
+
+                        // Move the label
+                        label.move({
+                            x: xChange,
+                            y: yChange
+                        });
             
                         // update nodes from the new state
                         this.update();
@@ -396,8 +442,11 @@ class Canvas extends Component{
                 else{
                     
                     this.props.incrNumImage();
-                    
+
                     Konva.Image.fromURL(url, function (node) {
+                        var w = 50;
+                        var h = 50;
+                        
                         node.setAttrs({
                             id: target.uid,
                             x: target.x,
@@ -405,11 +454,27 @@ class Canvas extends Component{
                             shadowBlur: 10,
                             stroke:"black",
                             strokeWidth: 5,
-                            draggable: true,    
+                            draggable: true,
+                            width: w,
+                            height: h,    
                         });
+
+                        var label = new Konva.Text({
+                            text: target.name,
+                            fontFamily: 'Calibri',
+                            fontSize: 18,
+                            padding: 5,
+                            fill: 'black',
+                            x: target.x,
+                            y: target.y + h,
+                            
+                          });
                         
                         layer.add(node);
+                        layer.add(label)
                         
+                    
+
                         // Fetch to api
                         t.props.handleBackendLoadNodes(target);
 
@@ -417,9 +482,19 @@ class Canvas extends Component{
                         t.props.incrNumLoadedImage();
 
                         node.on('dragmove', () => {
+                            // Store the shift
+                            var xChange = node.x() - target.x;
+                            var yChange = node.y() - target.y;
+                            
                             // mutate the state
                             target.x = node.x();
                             target.y = node.y();
+
+                            // Move the label
+                            label.move({
+                                x: xChange,
+                                y: yChange
+                            });
                 
                             // update nodes from the new state
                             t.update();
@@ -546,6 +621,7 @@ class Canvas extends Component{
             layer.find('Arrow').destroy();
             layer.find('Circle').destroy();
             layer.find('Image').destroy();
+            layer.find('Text').destroy();
             layer.draw();
             this.props.handleClearMode();
         }

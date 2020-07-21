@@ -99,9 +99,7 @@ class App extends Component{
           unit: "Second",
           name: data.startname,
           entity_name: data.entity_name,
-          dist: data.dist,
-          loc: parseInt(data.loc),
-          scale: parseInt(data.scale),
+          gen_fun: parseInt(data.gen_fun),
           limit: parseInt(data.limit),
           imageURL: data.imageFile
         });
@@ -169,9 +167,7 @@ class App extends Component{
          // need to change startNode array
          this.state.startNode[0].name = change.startname;
          this.state.startNode[0].entity_name = change.entity_name;
-         this.state.startNode[0].dist = change.dist;
-         this.state.startNode[0].loc = change.loc;
-         this.state.startNode[0].scale = change.scale;
+         this.state.startNode[0].gen_fun = change.gen_fun;
          this.state.startNode[0].limit = change.limit;
 
          // request options to send in post request- START NODE
@@ -441,20 +437,14 @@ class App extends Component{
         stationNode: [],
         endNode: []
       });
-
-      const requestClean = {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-      }
-
+      
       // Clear the back end
-      fetch('http://127.0.0.1:5000/api/clean/', requestClean).then(res => res.json()).then(gotUser => {
+      fetch('http://127.0.0.1:5000/api/clean/').then(res => res.json()).then(gotUser => {
         console.log(gotUser);
 
       }).catch(function() {
           console.log("Error on clear");
       });
-
       console.log("Clear store node/arrow");
     }
     
@@ -570,11 +560,7 @@ class App extends Component{
           type: 'START',
           name: node.name,
           entity_name: node.entity_name,
-          generation: {
-            dist: node.dist,
-            loc: node.loc,
-            scale: node.scale
-          },
+          gen_fun: node.gen_fun,
           limit: node.limit,
           uid: node.uid
         })
@@ -708,7 +694,6 @@ class App extends Component{
       }).catch(function() {
           console.log("Error on add Contaier");
       });
-
     }
     else{
       lst.push({
