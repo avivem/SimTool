@@ -129,6 +129,32 @@ class Canvas extends Component{
 
         //this.props.handleChangeNode(this.state.targetId, this.state.unit, this.state.rate, r);
         this.props.handleChangeNode(this.state);
+
+
+        // Change the label of the selected node
+        var layer = this.state.layer;
+        var label = layer.findOne("#" + "name-" + this.state.targetId);
+
+        switch(this.state.type){
+            case "Start Node":
+                label.text(this.state.startname);
+                break;
+
+            case "Station Node":
+                label.text(this.state.stationname);
+                break;
+
+            case "End Node":
+                label.text(this.state.endname);
+                break;
+
+            default:
+                console.log("Error: Can't find node label to change name")
+
+        }
+
+        this.state.layer.batchDraw();
+
     }
 
     componentDidMount(){
@@ -278,43 +304,39 @@ class Canvas extends Component{
             // Go through all of the element in the lst and make the node on the canvas.
             // lst - have many element when loading and 1 element when regular adding node.
             lst.forEach((target) => {
-                var colorFill = "";
                 var header = "";
                 var url = target.imageURL;
+                var imageObj = new Image();
                 if(target.uid.includes("start")){
-                    colorFill = 'red';
                     header = "Start Node";
-         //           url = this.props.imageStart;
+                    imageObj.src = StartImage;
                 }
                 if(target.uid.includes("station")){
-                    colorFill = 'green';
                     header = "Station Node";
-         //           url = this.props.imageStation;
+                    imageObj.src = StationImage;
                 }
                 if(target.uid.includes("end")){
-                    colorFill = 'blue';
                     header = "End Node";
-         //           url = this.props.imageEnd;
+                    imageObj.src = EndImage;
                 } 
                 
-
-                
-
                 if(url == null){
-                    var radius = 20
+                    var radius = 30
                     var node = new Konva.Circle({
                         id: target.uid,
-                        fill: colorFill,
                         radius: radius,
                         shadowBlur: 10,
                         stroke:"black",
                         strokeWidth: 5,
                         draggable: true,
                         x: target.x,
-                        y: target.y
+                        y: target.y,
+                        fillPatternImage: imageObj,
+                        fillPatternOffset: { x: 35, y: 32 },
                     });
 
                     var label = new Konva.Text({
+                        id: "name-" + target.uid,
                         text: target.name,
                         fontFamily: 'Calibri',
                         fontSize: 18,

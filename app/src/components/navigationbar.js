@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import Popup from "reactjs-popup";
 
-import StartImage from "../image/start-circle.png";
-import StationImage from "../image/station-circle.png";
-import EndImage from "../image/end-circle.png";
+import StartImage from "../image/start.png";
+import StationImage from "../image/station.png";
+import EndImage from "../image/end.png";
 
 import './css/popup.css';
 
