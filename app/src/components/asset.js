@@ -62,7 +62,8 @@ class AssestPopUp extends Component{
             }
         }
         else{
-            this.props.addContainer(this.props.selectedNodeID, action, "NORMAL", resource, 0, 0, 0);
+            console.log(dist);
+            this.props.addContainer(this.props.selectedNodeID, action, dist, resource, 0, 0, 0);
             this.closeContainerPopup();
         }
 

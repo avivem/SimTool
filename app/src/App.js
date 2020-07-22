@@ -702,7 +702,7 @@ class App extends Component{
             init: 0
           },
           capacity: 1,
-          uid: "conatainer" + this.state.count
+          uid: "container" + this.state.count
         })
       };
 
@@ -735,7 +735,7 @@ class App extends Component{
           name: action,
           resource: resource,
           init : {
-            dist: dist,
+            dist: "NORMAL",
             loc: loc,
             scale: scale
           },
