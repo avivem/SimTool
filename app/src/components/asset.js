@@ -79,7 +79,6 @@ class AssestPopUp extends Component{
 
     render(){
 
-
         let content;
         if(this.state.distribution == "CONSTANT"){
             this.state.distribution = "CONSTANT"

@@ -385,6 +385,10 @@ class Canvas extends Component{
                             // Open interactive popup
                             this.props.openContainerPopup(target.uid);
                         }
+                        else if(this.props.updateMode){
+                            // Open interactive popup
+                            this.props.openUpdatePopup(target.uid);
+                        }
                         else if(this.props.removeMode){
                             // remove arrows
                             this.props.arrows.forEach(arrow => {
@@ -512,6 +516,10 @@ class Canvas extends Component{
                                 // Open interactive popup
                                 t.props.openContainerPopup(target.uid);
                             }
+                            else if(this.props.updateMode){
+                                // Open interactive popup
+                                this.props.openUpdatePopup(target.uid);
+                            }
                             else if(t.props.removeMode){
                                 // remove arrows
                                 t.props.arrows.forEach(arrow => {
@@ -628,137 +636,6 @@ class Canvas extends Component{
     }
 
     render(){
-        let content;
-
-        var endNode = this.props.endNode[0];
-        var startNode = this.props.startNode[0];
-        var s = this.props.stationNode[0];
-        // need to get node info from props- use ui
-
-        // determine content in popup
-        if(this.state.type == "End Node" && endNode != undefined){
-
-            content =   <div class="container">
-                        <p>Node Name: {endNode.name}</p>
-                        <label className="label">Name:
-                            <input 
-                                type="text" 
-                                className="form-control"
-                                placeholder="Enter node name"
-                                name="endname"
-                                onChange={this.onChange} />
-                        </label></div>
-        }else if(this.state.type == "Start Node" && startNode != undefined){
-
-            content =   <div class="container">
-                        <p>Node Name: {startNode.name}</p>
-                        <p>Entity Name: {startNode.entity_name}</p>
-                        <p>Generation Function dist: {startNode.dist}</p>
-                        <p>Generation Function loc: {startNode.loc}</p>
-                        <p>Generation Function scale: {startNode.scale}</p>
-                        <p>Limit: {startNode.limit}</p>
-
-                        <label className="label">Name:
-                            <input 
-                                type="text" 
-                                name="startname"
-                                placeholder="Enter node name"
-                                className="form-control"
-                                onChange={this.onChange}
-                                 />
-                        </label>
-                        <label className="label">Gen Function dist:
-                            <input 
-                                type="text" 
-                                className="form-control"
-                                placeholder="Enter generation function"
-                                name="dist" 
-                                onChange={this.onChange}
-                                 />
-                        </label>
-                        <label className="label">Gen Function loc:
-                            <input 
-                                type="text" 
-                                className="form-control"
-                                placeholder="Enter generation function"
-                                name="loc" 
-                                onChange={this.onChange}
-                                 />
-                        </label>
-                        <label className="label">Gen Function scale:
-                            <input 
-                                type="text" 
-                                className="form-control"
-                                placeholder="Enter generation function"
-                                name="scale" 
-                                onChange={this.onChange}
-                                 />
-                        </label>
-                        <label className="label">Entity Name:
-                            <input 
-                                type="text" 
-                                className="form-control"
-                                placeholder="Enter entity name"
-                                name="entity_name" 
-                                onChange={this.onChange}
-                                 />
-                        </label>
-                        <label className="label">Limit:
-                            <input 
-                                type="text" 
-                                placeholder="Enter enter limit"
-                                className="form-control"
-                                name="limit" 
-                                
-                                onChange={this.onChange}
-                                 />
-                        </label></div>
-        }else if(this.state.type == "Station Node" && s != undefined){
-            
-            // do a for each to grab correct basic node
-            
-            for(var x in this.props.stationNode){
-                var uid = this.props.stationNode[x].uid;
-                
-                if(uid== this.state.targetId){
-                    s = this.props.stationNode[x];
-                }
-            }
-
-            content =   <div class="container">
-                        <p>Node Name: {s.name}</p>
-                        <p>Capacity: {s.capacity}</p>
-                        <p>Time Function: {s.time_func}</p>
-
-                        <label className="label">Name:
-                            <input 
-                                type="text" 
-                                name="stationname"
-                                placeholder="Enter node name"
-                                className="form-control"
-                                
-                                onChange={this.onChange}
-                            />
-                        </label>
-                        <label className="label">Capacity:
-                            <input 
-                                type="text" 
-                                placeholder="Enter node capacity"
-                                className="form-control"
-                                name="capacity" 
-                                onChange={this.onChange}
-                                 />
-                        </label>
-                        <label className="label">Time Function:
-                            <input 
-                                type="text" 
-                                placeholder="Enter time function"
-                                className="form-control"
-                                name="time_func" 
-                                onChange={this.onChange}
-                                 />
-                        </label></div>
-        }
 
         return(
             <div>
@@ -766,22 +643,6 @@ class Canvas extends Component{
                 <p>.</p>
                 <p>.</p>
                 <div id="container"></div>
-
-                <div>
-                    {/*Popup for the node*/ }
-                    <Popup open={this.state.open} closeOnDocumentClick = {true} onClose={this.closePopup}>
-                        <h1>{this.state.type}</h1>
-
-                        {/*content in popup- start, beginning or end*/}
-                        
-                        {content}
-                        <div class="container">
-                            <button className="button" onClick={this.handleChangeNode}>
-                                Apply
-                            </button>
-                        </div>
-                    </Popup>
-                </div> 
             </div>
     );}
 }

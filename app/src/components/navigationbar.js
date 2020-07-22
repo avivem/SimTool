@@ -29,6 +29,7 @@ class Navigation extends Component{
         capacity: 0,
         time_func: 0,
         arrowButtonColor: "#2cbebe",
+        updateButtonColor: "#2cbebe",
         actionButtonColor: "#2cbebe",
 
         removeButtonColor: "#ff0000",
@@ -68,6 +69,7 @@ class Navigation extends Component{
       this.handleLoad = this.handleLoad.bind(this);
 
       this.handleContainer= this.handleContainer.bind(this);
+      this.handleUpdate= this.handleUpdate.bind(this);
     }
 
     onChange(e){
@@ -314,9 +316,11 @@ class Navigation extends Component{
 
     // Turn on container mode
     handleContainer(){
+
       if(this.props.containerMode){
         this.setState({
           actionButtonColor: "#2cbebe",
+          updateButtonColor: "#2cbebe",
           arrowButtonColor: "#2cbebe",
           removeButtonColor: "#ff0000"
         });
@@ -324,12 +328,36 @@ class Navigation extends Component{
       else{
         this.setState({
           actionButtonColor: "#1e8080", 
+          updateButtonColor: "#2cbebe",
           arrowButtonColor: "#2cbebe",
           removeButtonColor: "#ff0000"
         });
       }
       
       this.props.handleContainer();
+    }
+
+    // Turn on update mode
+    handleUpdate(){
+      
+      if(this.props.updateMode){
+        this.setState({
+          updateButtonColor: "#2cbebe",
+          actionButtonColor: "#2cbebe",
+          arrowButtonColor: "#2cbebe",
+          removeButtonColor: "#ff0000"
+        });
+      }
+      else{
+        this.setState({
+          updateButtonColor: "#1e8080", 
+          actionButtonColor: "#2cbebe",
+          arrowButtonColor: "#2cbebe",
+          removeButtonColor: "#ff0000"
+        });
+      }
+      
+      this.props.handleUpdate();
     }
 
     render(){
@@ -458,6 +486,9 @@ class Navigation extends Component{
               </li>
               <li class="nav-item">
                 <button className="button" style={{backgroundColor:this.state.actionButtonColor}} onClick={this.handleContainer}>Assets</button>
+              </li>
+              <li class="nav-item">
+                <button className="button" style={{backgroundColor:this.state.updateButtonColor}} onClick={this.handleUpdate}>Update</button>
               </li>
               <li class="nav-item">
                 <button className="button" style={{backgroundColor:this.state.removeButtonColor}} onClick={this.handleRemoveMode}>x</button>
