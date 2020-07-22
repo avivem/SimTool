@@ -65,6 +65,7 @@ class App extends Component{
     this.handleReset= this.handleReset.bind(this);
 
     this.handleClearMode = this.handleClearMode.bind(this);
+    this.handleResetSim = this.handleResetSim.bind(this);
     
     this.handleImageUpload = this.handleImageUpload.bind(this);
 
@@ -476,6 +477,24 @@ class App extends Component{
     
   }
 
+  // Reset Simulation to run again
+  handleResetSim(){
+    const requestReset = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    }
+
+    //Send request to backend to reset the simulation timer.
+    //Aviv: I am keeping the gotUser syntax but this should be renamed with everything else.
+    fetch('http://127.0.0.1:5000/api/reset/', requestReset).then(res => res.json()).then(gotUser => {
+      console.log(gotUser);
+    }).catch(function() {
+      console.log("Error on reset. Check backend.");
+    });
+
+    console.log("Simulation has been reset.")
+  }
+
   //Handle upload image
   handleImageUpload(nodeType, image){
     switch(nodeType){
@@ -864,6 +883,7 @@ class App extends Component{
             removeMode={this.state.removeMode}
             handleReset={this.handleReset} 
             handleClearMode={this.handleClearMode}
+            handleResetSim={this.handleResetSim}
             handleImageUpload={this.handleImageUpload}
             handleSave={this.handleSave}
             handleLoad={this.handleLoad}
@@ -893,6 +913,7 @@ class App extends Component{
 
             clearMode={this.state.clearMode}
             handleClearMode={this.handleClearMode}
+            handleResetSim={this.handleResetSim}
 
             imageStart={this.state.imageStart}
             imageStation={this.state.imageStation}

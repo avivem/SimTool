@@ -57,6 +57,7 @@ class Navigation extends Component{
       this.handleRemoveMode = this.handleRemoveMode.bind(this);
 
       this.handleClearMode = this.handleClearMode.bind(this);
+      this.handleResetSim = this.handleResetSim.bind(this);
 
       this.handleImageUpload = this.handleImageUpload.bind(this);
       this.handleSubmitImage = this.handleSubmitImage.bind(this);
@@ -228,6 +229,11 @@ class Navigation extends Component{
     // Clear canvas
     handleClearMode(){
       this.props.handleClearMode();
+    }
+
+    //Reset Simulation
+    handleResetSim(){
+      this.props.handleResetSim();
     }
 
     // Upload the image file
@@ -512,7 +518,10 @@ class Navigation extends Component{
               <li class="nav-item active">
                 <button className="button" style={{backgroundColor:'yellow', color:"black"}} onClick={this.openPopupData}>Data</button>
               </li>
-             <li class="nav-item active">
+              <li class="nav-item active">
+                <button className="button" style={{backgroundColor:'yellow', color:"black"}} onClick={this.handleResetSim}>Reset</button>
+              </li>
+              <li class="nav-item active">
                 <button className="button" style={{backgroundColor:'yellow', color:"black"}} onClick={this.handleClearMode}>Clear</button>
               </li>
               <li class="nav-item active">
