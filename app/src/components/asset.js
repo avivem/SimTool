@@ -7,7 +7,7 @@ class AssestPopUp extends Component{
         super(props);
 
         this.state = {
-            actionName: "",
+            specName: "",
             resourceName: "",
             lowerAmount: 0,
             upperAmount: 0,
@@ -15,7 +15,7 @@ class AssestPopUp extends Component{
             scale: 0,
             loc: 0,
             constantValue: 0,
-            distribution: "",
+            distribution: "Normal",
             showErrorMessage: false,
             
         }
@@ -24,7 +24,7 @@ class AssestPopUp extends Component{
         this.changeDist = this.changeDist.bind(this);
         this.submitInteraction = this.submitInteraction.bind(this);
 
-        this.closeContainerPopup = this.closeContainerPopup.bind(this);
+        this.closeSpecPopup = this.closeSpecPopup.bind(this);
     }
 
     onChange(e){
@@ -41,7 +41,7 @@ class AssestPopUp extends Component{
 
      // Handle submit data of the interaction
      submitInteraction(){
-        var action = this.state.actionName;
+        var specName = this.state.specName;
         var resource = this.state.resourceName;
  //       var lower = parseInt(this.state.lowerAmount);
  //       var upper = parseInt(this.state.upperAmount);
@@ -52,29 +52,21 @@ class AssestPopUp extends Component{
         var scale = parseInt(this.state.scale);
         var max = parseInt(this.state.maxAmount);
         var constantVal = parseInt(this.state.constantValue)
-        if(this.props.selectedNodeID.includes("start")){
-            if(max >= loc || dist == "CONSTANT"){
-                this.props.addContainer(this.props.selectedNodeID, action, dist, resource, loc, scale, max, constantVal);
-                this.closeContainerPopup();
-            }
-            else{
-                this.setState({showErrorMessage: true});
-            }
+        if(max >= loc || dist == "CONSTANT"){
+            this.props.addSpec(specName, dist, resource, loc, scale, max, constantVal);
+            this.closeSpecPopup();
         }
         else{
-            console.log(dist);
-            this.props.addContainer(this.props.selectedNodeID, action, dist, resource, 0, 0, 0);
-            this.closeContainerPopup();
+            this.setState({showErrorMessage: true});
         }
-
         console.log(dist);
     }
 
-    closeContainerPopup(){
+    closeSpecPopup(){
         this.setState({
             showErrorMessage: false
         });
-        this.props.closeContainerPopup();
+        this.props.closeSpecPopup();
     }
 
     render(){
@@ -121,7 +113,7 @@ class AssestPopUp extends Component{
         }
 
         return (
-            <Popup open={this.props.openContainer} closeOnDocumentClick = {true} onClose={this.closeContainerPopup} >
+            <Popup open={this.props.openSpec} closeOnDocumentClick = {true} onClose={this.closeSpecPopup} >
                 <div style={{alignContent: 'center'}}>
                     <h1>Add Entity Container Specification</h1>
                 </div>
@@ -131,7 +123,7 @@ class AssestPopUp extends Component{
                     <input 
                         type="text" 
                         className="form-control"
-                        name="actionName" 
+                        name="specName" 
                         style={{width: '150px'}}
                         onChange={this.onChange} />
                 

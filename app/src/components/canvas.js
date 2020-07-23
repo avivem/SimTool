@@ -21,7 +21,6 @@ class Canvas extends Component{
             stage: "",
             layer: "",
             open: false,
-            openContainer: false,
             targetId: "",
             type: "",
             name: "",

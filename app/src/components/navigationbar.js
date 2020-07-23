@@ -31,7 +31,7 @@ class Navigation extends Component{
         arrowButtonColor: "#2cbebe",
         updateButtonColor: "#2cbebe",
         actionButtonColor: "#2cbebe",
-
+        
         removeButtonColor: "#ff0000",
         log: null
 
@@ -71,6 +71,7 @@ class Navigation extends Component{
 
       this.handleContainer= this.handleContainer.bind(this);
       this.handleUpdate= this.handleUpdate.bind(this);
+      this.openSpecPopup = this.openSpecPopup.bind(this);
     }
 
     onChange(e){
@@ -343,6 +344,16 @@ class Navigation extends Component{
       this.props.handleContainer();
     }
 
+    openSpecPopup(){
+      this.setState({
+        arrowButtonColor: "#2cbebe",
+        removeButtonColor: "#ff0000",
+        actionButtonColor: "#2cbebe",
+      })
+      this.props.handleReset();
+      this.props.openSpecPopup()
+    }
+
     // Turn on update mode
     handleUpdate(){
       
@@ -491,7 +502,10 @@ class Navigation extends Component{
                 <button className="button" style={{backgroundColor:this.state.arrowButtonColor}} onClick={this.addArrowMode}>→</button>
               </li>
               <li class="nav-item">
-                <button className="button" style={{backgroundColor:this.state.actionButtonColor}} onClick={this.handleContainer}>Assets</button>
+                <button className="button" style={{backgroundColor:this.state.actionButtonColor}} onClick={this.handleContainer}>Container</button>
+              </li>
+              <li class="nav-item">
+                <button className="button" style={{backgroundColor: "#2cbebe"}} onClick={this.openSpecPopup}>Spec</button>
               </li>
               <li class="nav-item">
                 <button className="button" style={{backgroundColor:this.state.updateButtonColor}} onClick={this.handleUpdate}>Update</button>

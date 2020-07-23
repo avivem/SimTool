@@ -6,6 +6,7 @@ import Navigation from './components/navigationbar'
 import Canvas from './components/canvas'
 import AssetPopUp from './components/asset'
 import UpdatePopUp from './components/update'
+import ContainerPopup from './components/container';
 
 
 class App extends Component{
@@ -41,7 +42,12 @@ class App extends Component{
       numImageToLoad: 0,
       containerMode: false,
       updateMode: false,
+      
       containers: [],
+      specs: [],
+
+      openSpec: false,
+      openContainer: false,
 
       selectedNodeID: "",
     }
@@ -75,16 +81,20 @@ class App extends Component{
     this.incrNumLoadedImage = this.incrNumLoadedImage.bind(this);
     this.handleBackendLoadNodes = this.handleBackendLoadNodes.bind(this);
 
-    this.handleContainer = this.handleContainer.bind(this);
-    this.addContainer = this.addContainer.bind(this);
-
     this.openContainerPopup = this.openContainerPopup.bind(this);
     this.closeContainerPopup = this.closeContainerPopup.bind(this);
+    this.handleContainer = this.handleContainer.bind(this);
+    this.submitContainer = this.submitContainer.bind(this);
 
     this.handleUpdate = this.handleUpdate.bind(this);
 
     this.openUpdatePopup = this.openUpdatePopup.bind(this);
     this.closeUpdatePopup = this.closeUpdatePopup.bind(this);
+
+    this.openSpecPopup = this.openSpecPopup.bind(this);
+    this.closeSpecPopup = this.closeSpecPopup.bind(this);
+    this.addSpec = this.addSpec.bind(this);
+    
   }
 
 
@@ -711,48 +721,44 @@ class App extends Component{
   }
 
   // Add interaction/resource to list
-  addContainer(selectedNodeID, action, dist, resource, loc, scale, max, constantVal){
-    var lst = this.state.containers;
+  addSpec(specName, dist, resource, loc, scale, max, constantVal){
+    var lst = this.state.specs;
     console.log(dist);
+    
+    var addcontainerspec;
     if(dist == "CONSTANT"){
       lst.push({
-        uid: "resource" + this.state.count,
-        actionTo: selectedNodeID,
-        actionName: action,
+        uid: "spec-" + this.state.count,
+        specTo: [],
+        name: specName,
         resourceName: resource,
         distribution: dist,
         init: constantVal
       })
 
-      const addcontainer = {
+      addcontainerspec = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           // Change the name value to this.state.name to refer to user input
-          name: action,
+          name: specName,
           resource: resource,
           init : {
-            init: 0
+            dist: dist,
+            loc: constantVal,
+            scale: constantVal
           },
-          capacity: 1,
+          capacity: max,
           uid: "container" + this.state.count
         })
       };
 
-      /**fetch to api tos set container*/
-      fetch('http://127.0.0.1:5000/api/container_spec/', addcontainer).then(res => res.json()).then(gotUser => {
-          console.log(gotUser);
-
-      }).catch(function() {
-          console.log("Error on add Contaier");
-      });
-
     }
     else{
       lst.push({
-        uid: "resource" + this.state.count,
-        actionTo: selectedNodeID,
-        actionName: action,
+        uid: "spec-" + this.state.count,
+        specTo: [],
+        name: specName,
         resourceName: resource,
         distribution: dist,
         loc: loc,
@@ -760,15 +766,15 @@ class App extends Component{
         maxAmount: max      
       });
 
-      const addcontainerspec = {
+      addcontainerspec = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           // Change the name value to this.state.name to refer to user input
-          name: action,
+          name: specName,
           resource: resource,
           init : {
-            dist: "NORMAL",
+            dist: dist,
             loc: loc,
             scale: scale
           },
@@ -776,15 +782,6 @@ class App extends Component{
           uid: "container" + this.state.count
         })
       };
-
-      /**fetch to api tos set container*/
-      fetch('http://127.0.0.1:5000/api/container_spec/', addcontainerspec).then(res => res.json()).then(gotUser => {
-          console.log(gotUser);
-
-      }).catch(function() {
-          console.log("Error on add Contaier");
-      });
-
 
       // const assigncontainerspec = {
       //   method: 'POST',
@@ -807,11 +804,24 @@ class App extends Component{
   
     }
 
+
+
+    /**fetch to api tos set container*/
+    fetch('http://127.0.0.1:5000/api/container_spec/', addcontainerspec).then(res => res.json()).then(gotUser => {
+        console.log(gotUser);
+
+    }).catch(function() {
+        console.log("Error on add Contaier");
+    });
+
+
+
     this.setState((state) => ({
       containers: lst,
       count: state.count + 1,
     }));
 
+    console.log("Add spec")
     console.log(lst);
   }
 
@@ -821,15 +831,74 @@ class App extends Component{
         openContainer: true,
         selectedNodeID: n
     });
-    console.log("Open Interactive Popup");
+    console.log("Open container Popup");
   }
 
-  // Open interaction popup
+  // close interaction popup
   closeContainerPopup(){
       this.setState({
           openContainer: false
       });
-      console.log("Close Interactive Popup");
+      console.log("Close container Popup");
+  }
+
+  submitContainer(selectedNode, name, resource, init, capacity){
+    var lst = this.state.containers;
+    lst.push({
+      uid: "container-" + this.state.count,
+      selectedNode: selectedNode,
+      name: name,
+      resource,
+      init: init,
+      capacity: capacity
+    });
+
+    const addcontainer = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        // Change the name value to this.state.name to refer to user input
+        name: name,
+        resource: resource,
+        init : {
+          init: init
+        },
+        capacity: capacity,
+        uid: "container-" + this.state.count
+      })
+    };
+
+    /**fetch to api tos set container*/
+    fetch('http://127.0.0.1:5000/api/container_spec/', addcontainer).then(res => res.json()).then(gotUser => {
+        console.log(gotUser);
+
+    }).catch(function() {
+        console.log("Error on add Contaier");
+    });
+
+    this.setState((state) => ({
+      count: state.count + 1 
+    }));
+
+    console.log("Added container");
+    console.log(lst);
+
+  }
+
+  // Open interaction popup
+  openSpecPopup(){
+    this.setState({
+        openSpec: true,
+    });
+    console.log("Open spec Popup");
+  }
+
+  // close interaction popup
+  closeSpecPopup(){
+      this.setState({
+          openSpec: false
+      });
+      console.log("Close spec Popup");
   }
 
   //Handle update for the node
@@ -890,7 +959,9 @@ class App extends Component{
             containerMode={this.state.containerMode}
             updateMode={this.state.updateMode}
             handleContainer={this.handleContainer} 
-            handleUpdate={this.handleUpdate}/>
+            handleUpdate={this.handleUpdate}
+            openSpecPopup={this.openSpecPopup}/>
+            
         </div>
         <div>
           <Canvas 
@@ -939,11 +1010,10 @@ class App extends Component{
 
         <div>
           <AssetPopUp 
-          openContainer={this.state.openContainer}
-          handleContainer={this.handleContainer}
-          addContainer={this.addContainer}
-          closeContainerPopup={this.closeContainerPopup}
-          selectedNodeID={this.state.selectedNodeID} />
+          openSpec={this.state.openSpec}
+          addSpec={this.addSpec}
+          closeSpecPopup={this.closeSpecPopup}
+           />
         </div>
 
         <div>
@@ -954,6 +1024,14 @@ class App extends Component{
           selectedNodeID={this.state.selectedNodeID} />
         </div>
         
+        <div>
+          <ContainerPopup
+          selectedNodeID={this.state.selectedNodeID}
+          openContainer= {this.state.openContainer}
+          closeContainerPopup={this.closeContainerPopup}
+          submitContainer={this.submitContainer}
+          />
+        </div>
           
 
       </div>
