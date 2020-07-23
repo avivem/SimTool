@@ -7,17 +7,6 @@ class UpdatePopUp extends Component{
         super(props);
 
         this.state = {
-            actionName: "",
-            resourceName: "",
-            lowerAmount: 0,
-            upperAmount: 0,
-            maxAmount: 0,
-            scale: 0,
-            loc: 0,
-            constantValue: 0,
-            distribution: "",
-            showErrorMessage: false,
-
             startname: "default name",
             dist: "NORMAL",
             loc: 0,
@@ -33,22 +22,14 @@ class UpdatePopUp extends Component{
         }
         
         this.onChange = this.onChange.bind(this);
-        this.changeDist = this.changeDist.bind(this);
         this.submitInteraction = this.submitInteraction.bind(this);
 
-        this.closeContainerPopup = this.closeContainerPopup.bind(this);
+        this.closeUpdatePopup = this.closeUpdatePopup.bind(this);
     }
 
     onChange(e){
         // console.log(e.target)
         this.setState({ [e.target.name]: e.target.value })
-    }
-
-    // change for distribution
-    changeDist(e){
-        this.setState({
-            distribution: e.target.value,
-        });
     }
 
      // Handle submit data of the interaction
@@ -82,27 +63,26 @@ class UpdatePopUp extends Component{
         console.log(dist);
     }
 
-    closeContainerPopup(){
+    closeUpdatePopup(){
         this.setState({
             showErrorMessage: false
         });
-        this.props.closeContainerPopup();
+        this.props.closeUpdatePopup();
     }
 
     render(){
 
-
         let content;
 
-        var endNode = this.props.endNode;
-        var startNode = this.props.startNode;
+        var endNode = this.props.endNode[0];
+        var startNode = this.props.startNode[0];
         var s = this.props.stationNode;
-        // need to get node info from props- use ui
 
-        console.log(this.props);
+        // find type
+        var type= this.props.selectedNodeID.substr(0, this.props.selectedNodeID.indexOf('-')); 
 
         // determine content in popup
-        if(this.state.type == "End Node" && endNode != undefined){
+        if(type == "end" && endNode != undefined){
 
             content =   <div class="container">
                         <p>Node Name: {endNode.name}</p>
@@ -114,8 +94,8 @@ class UpdatePopUp extends Component{
                                 name="endname"
                                 onChange={this.onChange} />
                         </label></div>
-        }else if(this.state.type == "Start Node" && startNode != undefined){
-
+        }else if(type == "start" && startNode != undefined){
+            console.log('start');
             content =   <div class="container">
                         <p>Node Name: {startNode.name}</p>
                         <p>Entity Name: {startNode.entity_name}</p>
@@ -179,10 +159,9 @@ class UpdatePopUp extends Component{
                                 onChange={this.onChange}
                                  />
                         </label></div>
-        }else if(this.state.type == "Station Node" && s != undefined){
+        }else if(type == "station" && s != undefined){
             
             // do a for each to grab correct basic node
-            
             for(var x in this.props.stationNode){
                 var uid = this.props.stationNode[x].uid;
                 

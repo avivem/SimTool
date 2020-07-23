@@ -1030,7 +1030,10 @@ class App extends Component{
           openUpdate={this.state.openUpdate}
           handleUpdate={this.handleUpdate}
           closeUpdatePopup={this.closeUpdatePopup}
-          selectedNodeID={this.state.selectedNodeID} />
+          selectedNodeID={this.state.selectedNodeID}
+          startNode={this.state.startNode}
+          stationNode={this.state.stationNode} 
+          endNode={this.state.endNode}/>
         </div>
         
         <div>
