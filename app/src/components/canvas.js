@@ -7,10 +7,15 @@ import EndImage from "../image/end.png";
 // import Test from "./start.png"
 
 import Konva from 'konva';
-import Popup from "reactjs-popup";
+import Sidebar from "react-sidebar";
+
 
 import './css/popup.css';
+import './css/sidebar.css';
+import SpecSideBar from './sidebar';
 
+
+const mql = window.matchMedia(`(min-width: 800px)`);
 
 
 class Canvas extends Component{
@@ -18,8 +23,11 @@ class Canvas extends Component{
         super(props);
 
         this.state = {
+            sidebarDocked: mql.matches,
+            sidebarOpen: true,
+
             stage: "",
-            layer: "",
+            canvasLayer: "",
             open: false,
             targetId: "",
             type: "",
@@ -43,6 +51,9 @@ class Canvas extends Component{
             endname: "default name",
         }
 
+        this.mediaQueryChanged = this.mediaQueryChanged.bind(this);
+        this.onSetSidebarOpen = this.onSetSidebarOpen.bind(this);
+
         this.openPopup = this.openPopup.bind(this);
         this.closePopup = this.closePopup.bind(this);
 
@@ -57,6 +68,22 @@ class Canvas extends Component{
         this.getConnectorPoints = this.getConnectorPoints.bind(this);
 
         this.onChange = this.onChange.bind(this);
+    }
+
+    componentWillMount() {
+        mql.addListener(this.mediaQueryChanged);
+    }
+
+    componentWillUnmount() {
+        mql.removeListener(this.mediaQueryChanged);
+    }
+
+    onSetSidebarOpen(open) {
+        this.setState({ sidebarOpen: open });
+    }
+
+    mediaQueryChanged() {
+        this.setState({ sidebarDocked: mql.matches, sidebarOpen: false });
     }
 
     // Change state variables
@@ -131,7 +158,7 @@ class Canvas extends Component{
 
 
         // Change the label of the selected node
-        var layer = this.state.layer;
+        var layer = this.state.canvasLayer;
         var label = layer.findOne("#" + "name-" + this.state.targetId);
 
         switch(this.state.type){
@@ -152,7 +179,7 @@ class Canvas extends Component{
 
         }
 
-        this.state.layer.batchDraw();
+        this.state.canvasLayer.batchDraw();
 
     }
 
@@ -163,24 +190,27 @@ class Canvas extends Component{
         var height = window.innerHeight;
 
         var stage = new Konva.Stage({
-            container: 'container',
+            container: 'canvas-container',
             width: width,
             height: height,
             draggable: true
         });
-        var layer = new Konva.Layer();
-        stage.add(layer);
+        var canvasLayer = new Konva.Layer();
+        
+        stage.add(canvasLayer);
+        
 
         this.setState({
             stage: stage,
-            layer: layer
+            canvasLayer: canvasLayer,
+            
         });
     }
 
     // Determine the To and From node, once determine pass it to a 
     // function in App.js to add the arrow to the list
     findToAndFrom(target){
-        var layer = this.state.layer;
+        var layer = this.state.canvasLayer;
         if(this.state.currDir == "from"){
             this.setState({
                 from: target.uid,
@@ -232,7 +262,7 @@ class Canvas extends Component{
 
     // Change arrow as the node are dragged.
     update(){
-        var layer = this.state.layer;
+        var layer = this.state.canvasLayer;
 
         this.props.arrows.forEach((connect) =>{
             // Get the node
@@ -254,7 +284,7 @@ class Canvas extends Component{
 
     componentDidUpdate(prevProps, prevState){
 
-        var layer = this.state.layer;
+        var layer = this.state.canvasLayer;
 
         // Adding/Loading node
         if(this.props.addedStart || this.props.addedStation || this.props.addedEnd || this.props.loadMode){
@@ -635,17 +665,46 @@ class Canvas extends Component{
             layer.draw();
             this.props.handleClearMode();
         }
+
+
     }
 
     render(){
+        /*var sidebar = [<p>.</p>,<p>.</p>,<p>.</p>]
+        this.props.specs.forEach((e) => {
+            sidebar.push(<p className="tab">Name: {e.name} <br/> Resource: {e.resourceName}</p>)
+        });
+*/
+        var sidebar = <SpecSideBar
+                        specs={this.props.specs}
+                        canvas={this.state.layer} />
+
+        var content = <div className="content">
+                        <p>.</p>
+                        <p>.</p>
+                        <p>.</p>
+                        <div id="canvas-container"></div>
+                    </div>
+
+
+        const sidebarStyles = {
+            sidebar: {
+                backgroundColor: '#707070',
+                width: '200px'
+            }
+        }
 
         return(
-            <div>
-                <p>.</p>
-                <p>.</p>
-                <p>.</p>
-                <div id="container"></div>
-            </div>
+            <Sidebar
+            styles={sidebarStyles}
+            open={this.state.sidebarOpen}
+            docked={this.state.sidebarDocked}
+            onSetOpen={this.onSetSidebarOpen}
+            sidebar={sidebar}
+            children={content}
+            />
+                
+             
     );}
 }
 

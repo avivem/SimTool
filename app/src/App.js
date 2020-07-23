@@ -7,7 +7,6 @@ import Canvas from './components/canvas'
 import AssetPopUp from './components/asset'
 import UpdatePopUp from './components/update'
 import ContainerPopup from './components/container';
-import SpecSideBar from './components/sidebar';
 
 
 class App extends Component{
@@ -944,11 +943,7 @@ class App extends Component{
   render(){
     return (
       <div className="App">
-        <div>
-          <SpecSideBar 
-          specs={this.state.specs}
-          />
-        </div>
+        
 
         <div className="head">
           <Navigation 
@@ -974,6 +969,8 @@ class App extends Component{
         
         <div>
           <Canvas 
+            specs={this.state.specs}
+
             startNode={this.state.startNode} 
             stationNode={this.state.stationNode} 
             endNode={this.state.endNode}
