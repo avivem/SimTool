@@ -257,6 +257,7 @@ class Canvas extends Component{
 
         var layer = this.state.layer;
 
+        // Adding/Loading node
         if(this.props.addedStart || this.props.addedStation || this.props.addedEnd || this.props.loadMode){
             /** New node are added to the end of the array so just needed to look at the end*/
             var lst = [];
@@ -556,6 +557,7 @@ class Canvas extends Component{
             
         }
         
+        // Create arrow and load arrow
         if(this.props.createArrow || (this.props.loadModeMakeArrow && this.props.numLoadedImage == this.props.numImageToLoad)){
             /** New node are added to the end of the array so just needed to look at the end*/
             var lst = []
@@ -606,6 +608,7 @@ class Canvas extends Component{
                 });    
             });
 
+            
             this.update();
             if(this.props.createArrow){
                 this.props.confirmAdded();
