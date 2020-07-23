@@ -502,7 +502,7 @@ class Navigation extends Component{
                 <button className="button" style={{backgroundColor:this.state.arrowButtonColor}} onClick={this.addArrowMode}>→</button>
               </li>
               <li class="nav-item">
-                <button className="button" style={{backgroundColor:this.state.actionButtonColor}} onClick={this.handleContainer}>Container</button>
+                <button className="button" style={{backgroundColor:this.state.actionButtonColor}} onClick={this.handleContainer}>Contain</button>
               </li>
               <li class="nav-item">
                 <button className="button" style={{backgroundColor: "#2cbebe"}} onClick={this.openSpecPopup}>Spec</button>

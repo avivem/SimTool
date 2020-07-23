@@ -7,6 +7,7 @@ import Canvas from './components/canvas'
 import AssetPopUp from './components/asset'
 import UpdatePopUp from './components/update'
 import ContainerPopup from './components/container';
+import SpecSideBar from './components/sidebar';
 
 
 class App extends Component{
@@ -943,6 +944,12 @@ class App extends Component{
   render(){
     return (
       <div className="App">
+        <div>
+          <SpecSideBar 
+          specs={this.state.specs}
+          />
+        </div>
+
         <div className="head">
           <Navigation 
             handleAddNode={this.addNode}
@@ -963,6 +970,8 @@ class App extends Component{
             openSpecPopup={this.openSpecPopup}/>
             
         </div>
+
+        
         <div>
           <Canvas 
             startNode={this.state.startNode} 
@@ -1032,6 +1041,7 @@ class App extends Component{
           submitContainer={this.submitContainer}
           />
         </div>
+        
           
 
       </div>
