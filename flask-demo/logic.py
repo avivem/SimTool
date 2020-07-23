@@ -8,14 +8,31 @@ import math
 import pprint
 import scipy
 import scipy.stats as stats
+import logging
+import numpy as np
 
-#Supported Path Traversals: RAND, ALPHA_SEQ
+strStream = io.StringIO()
 
-""" if __name__ is not "__main__":
-    old_stdout = sys.stdout
-    new_stdout = io.StringIO()
-    sys.stdout = new_stdout """
+#Create logger for event messages.
+evnt_logger = logging.getLogger('evnt_logger')
+#Set level to INFO (lowest level)
+evnt_logger.setLevel(logging.INFO)
+#Format for all messages. (can set special message formats per handler.)
+formatter = logging.Formatter('[%(sim_time)s]:: %(message)s')
+#Create handler for stdout
+outputHandler = logging.StreamHandler(sys.stdout)
+#Create handler to put results into custom Stream
+strHandler = logging.StreamHandler(strStream)
+outputHandler.setLevel(logging.INFO)
+strHandler.setLevel(logging.INFO)
 
+outputHandler.setFormatter(formatter)
+strHandler.setFormatter(formatter)
+evnt_logger.addHandler(outputHandler)
+evnt_logger.addHandler(strHandler)
+
+
+#Supported Path Traversals: RAND, ALPHA_SEQ, BOOL
 node_logic = {
     'policy' : "RAND",
     'cond' : None,
@@ -78,10 +95,13 @@ class Node(object):
 
     def p(self):
         pp = pprint.PrettyPrinter(indent=4)
-        pp.pprint(self.__dict__)
+        #evnt_logger.info(self.__dict__,extra={'sim_time':self.env.now})
 
     def set_node_logic_policy(self,node_logic):
         self.node_logic = node_logic
+
+    def summary(self):
+        pass
 
 
 """
@@ -125,15 +145,18 @@ class BasicFlowEntity(object):
         if self.currentLoc.node_logic['act'] == 'SUB' and passed:
             
             encon = self.containers[res][conname]
-            print(f'[{self.env.now}]::\t{self.currentLoc} is subtracting {act_amount} of {res} from {self}\'s {encon}. Old bal: {encon.con.level}. New bal: {encon.con.level - act_amount}')
+            evnt_logger.info(f'\t{self.currentLoc} is subtracting {act_amount} of {res} from {self}\'s {encon}. Old bal: {encon.con.level}. New bal: {encon.con.level - act_amount}', extra={'sim_time':self.env.now})
             yield encon.con.get(act_amount)
             yield self.currentLoc.container.con.put(act_amount)
         elif self.currentLoc.node_logic['act'] == 'ADD' and passed:
            
             encon = self.containers[res][conname]
-            print(f'[{self.env.now}]::\t{self.currentLoc} is adding {act_amount} of {res} to {self}\'s {encon}. Old bal: {encon.con.level}. New bal: {encon.con.level + act_amount}')
+            evnt_logger.info(f'\t{self.currentLoc} is adding {act_amount} of {res} to {self}\'s {encon}. Old bal: {encon.con.level}. New bal: {encon.con.level + act_amount}',extra={'sim_time':self.env.now})
             yield encon.con.put(act_amount)
             yield self.currentLoc.container.con.get(act_amount)
+
+    def resources_snapshot(self):
+        return {k:v.summary() for (k,v) in self.containers}
 
     #Down the road, add interact methods to components to allow for resource consumption.
     def run(self):
@@ -143,17 +166,19 @@ class BasicFlowEntity(object):
             with self.currentLoc.resource.request() as req:
                 #Tell environment I'm waiting.
                 yield req
+                self.currentLoc.entity_resources_before[self] = self.resources_snapshot()
                 (evnt, (next_dir, passed)) = self.currentLoc.interact(self)
                 self.env.process(self.act(passed))
                 yield evnt
+                self.currentLoc.entity_resources_after[self] = self.resources_snapshot()
                 self.currentLoc = next_dir
 
         #if not self.start.name in self.currentLoc.entities:
         #    self.currentLoc.entities[self.start.name] = []
         #self.currentLoc.entities[self.start.name].append(self)
         self.currentLoc.entities.append(self)
-        print(f'[{self.env.now}]::\t{self} has reached endpoint {self.currentLoc}')
-        #print(f"{self.containers['Ticket']['Tickets'].con.level}",file=sys.stderr)
+        evnt_logger.info(f'\t{self} has reached endpoint {self.currentLoc}',extra={'sim_time':self.env.now})
+        #evnt_logger.info(f"{self.containers['Ticket']['Tickets'].con.level}",file=sys.stderr,extra={'sim_time':self.env.now})
 
 #Node that generates flowing entities.
 class StartingPoint(Node):
@@ -168,6 +193,7 @@ class StartingPoint(Node):
         self.count = 0
         self.container_specs = {}
         self.action = env.process(self.run())
+        
     def __str__(self):
         return self.name
 
@@ -201,7 +227,7 @@ class StartingPoint(Node):
         return path_list[next_ind]
 
     def run(self):
-        print(f'[{self.env.now}]::\t{self} starting entity generation')
+        evnt_logger.info(f'\t{self} starting entity generation',extra={'sim_time':self.env.now})
         while self.count < self.limit:
 
             #TODO: Add more distributions.
@@ -236,9 +262,14 @@ class StartingPoint(Node):
                         con = BasicContainer(self.env, **inputs)
                         entity.add_container(con)
             self.env.process(entity.run())
-            print(f'[{self.env.now}]::\t{entity} has left {self}')
+            evnt_logger.info(f'\t{entity} has left {self}',extra={'sim_time':self.env.now})
             self.count += 1
-        print(f'[{self.env.now}]::\t{self} ending entity generation')
+        evnt_logger.info(f'\t{self} ending entity generation',extra={'sim_time':self.env.now})
+
+    def summary(self):
+        return {
+            "num_entities_encountered" : self.count
+        }
             
             
 #A Node that represents a "cog in a machine" such as bank tellers in a bank, or
@@ -252,6 +283,8 @@ class BasicComponent(Node):
         self.time_func = time_func
         self.container = None
         self.count = 0
+        self.entity_resources_before = {}
+        self.entity_resources_after = {}
 
     def __str__(self):
         return self.name
@@ -278,13 +311,13 @@ class BasicComponent(Node):
                 passlist = [x for x in self.directed_to if x in self.node_logic['pass']]
                 faillist = [x for x in self.directed_to if x in self.node_logic['fail']]
 
-                #pprint.pprint(f"self: {self}, entity: {entity} faillist: {faillist}, passlist: {passlist}, directed_to: {self.directed_to}",sys.stderr)
+                #pprint.pevnt_logger.info(f"self: {self}, entity: {entity} faillist: {faillist}, passlist: {passlist}, directed_to: {self.directed_to}",sys.stderr,extra={'sim_time':self.env.now})
                 #Check if the container exists in entity, if not fail immediately:
                 #if not res in entity.containers or not conname in entity.containers[res]:
                 #    next_ind = random.randint(0,len(faillist)-1)
                 #    return faillist[next_ind]
                 if False:
-                    print("test")
+                    evnt_logger.info("test",extra={'sim_time':self.env.now})
                 else:
                     encon = entity.containers[res][conname].con
                     passed = False
@@ -317,24 +350,24 @@ class BasicComponent(Node):
                     elif self.node_logic['cond'] == "en==" and entity.name == self.node_logic['cond_amount']:
                         passed = True
 
-                """ print(f"",file=sys.stderr)
-                print(f"{entity}",file=sys.stderr)
-                print(f"{entity.containers['Dollar']['Wallet'].con.level}",file=sys.stderr)
-                print(f"passlist: {passlist}",file=sys.stderr)
-                print(f"faillist: {faillist}",file=sys.stderr)
-                pprint.pprint(self.directed_to, sys.stderr)
-                print(f"Passed or failed?: {passed}",file=sys.stderr) """
+                """ evnt_logger.info(f"",file=sys.stderr,extra={'sim_time':self.env.now})
+                evnt_logger.info(f"{entity}",file=sys.stderr,extra={'sim_time':self.env.now})
+                evnt_logger.info(f"{entity.containers['Dollar']['Wallet'].con.level}",file=sys.stderr,extra={'sim_time':self.env.now})
+                evnt_logger.info(f"passlist: {passlist}",file=sys.stderr,extra={'sim_time':self.env.now})
+                evnt_logger.info(f"faillist: {faillist}",file=sys.stderr,extra={'sim_time':self.env.now})
+                pprint.pevnt_logger.info(self.directed_to, sys.stderr,extra={'sim_time':self.env.now})
+                evnt_logger.info(f"Passed or failed?: {passed}",file=sys.stderr,extra={'sim_time':self.env.now}) """
                 
                 
                 if passed:
                     next_ind = random.randint(0,len(passlist)-1)
-                    print(f'[{self.env.now}]::\t{entity} Going to {passlist[next_ind]}')
+                    evnt_logger.info(f'\t{entity} Going to {passlist[next_ind]}',extra={'sim_time':self.env.now})
                     return (passlist[next_ind], True)
                 else:
 
                     try:
                         next_ind = random.randint(0,len(faillist)-1)
-                        print(f'[{self.env.now}]::\t{entity} Going to {faillist[next_ind]}')
+                        evnt_logger.info(f'\t{entity} Going to {faillist[next_ind]}',extra={'sim_time':self.env.now})
                     except:
                         raise ValueError(f"self: {self}, faillist: {faillist}, passlist: {passlist}, directed_to: {self.directed_to}, node logic: {self.node_logic}")
                     return (faillist[next_ind], False)
@@ -349,13 +382,25 @@ class BasicComponent(Node):
     #Returns a timeout event which represents the amount of time a component
     #needs to do it's thing.
     def interact(self, entity):
-        print(f'[{self.env.now}]::\t{entity} is now interacting with {self}')
+        evnt_logger.info(f'\t{entity} is now interacting with {self}',extra={'sim_time':self.env.now})
         return (self.env.timeout(self.time_func),self.next_dir(entity))
-
-    
 
     def reset(self):
         self.count = 0
+
+    def summary_resource(self, resource):
+        {
+            
+        }
+
+    def summary(self):
+        return {
+            "num_entities_encountered" : self.count,
+            "entity_resources_before" : {
+                
+            },
+            "entity_resources_after"
+        }
 
 #Wrapper for SimPy containers that allow us to differentiate between types of resources and
 #identifies the owner for a container.
@@ -393,6 +438,15 @@ class BasicContainer(object):
         for k,v in args.items():
             setattr(self, k, v)
 
+    def summary(self):
+        return {
+            "owner" : self.owner,
+            "resource" : self.resource
+            "init" : self.init,
+            "capacity" : self.capacity,
+            "level" : self.con.level
+        }
+
 
 #Collection point for entities that have travelled through the system.
 class EndingPoint(Node):
@@ -405,16 +459,6 @@ class EndingPoint(Node):
     def __repr__(self):
         return f"{self.name}"
 
-#Possible Splitter node that handles path choosing logic.
-#For now, paths chosen randomly.
-#class Splitter(Node):
-    
-""" env = simpy.Environment()
-st = StartingPoint(env, "Starting Point 1","Person", 2, 100)
-b1 = BasicComponent(env,"Basic Component #1", 3, 7) 
-ed = EndingPoint(env,"Ending Point 1")
-st.set_directed_to(b1)
-b1.set_directed_to(ed)
-env.process(st.run())
-env.run(until=5000) """
-
+def run(env,until=math.inf):
+    env.run(until)
+    return strStream.getvalue()

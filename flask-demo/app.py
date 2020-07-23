@@ -1,17 +1,17 @@
 from flask import Flask, render_template,json , jsonify, request, redirect, url_for, abort
 from flask_cors import CORS, cross_origin
 import simpy
-from logic import Node, StartingPoint, BasicFlowEntity, BasicComponent, EndingPoint, BasicContainer
+from logic import Node, StartingPoint, BasicFlowEntity, BasicComponent, EndingPoint, BasicContainer, run
 import sys
 import io
 import uuid
 
 
 ###If you are running locally and wish to see output in terminal, comment this out.
-if __name__ != "__main__":
+""" if __name__ != "__main__":
 	old_stdout = sys.stdout
 	new_stdout = io.StringIO()
-	sys.stdout = new_stdout
+	sys.stdout = new_stdout """
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
@@ -183,12 +183,10 @@ def run(until=20000):
 		return "Please create an ending node."
 	[data.env.process(data.nodes[x].run()) for x in data.starts]
 	print(f'Running simulation until {until}')
-	data.env.run(until=until)
+	result = logic.run(env,until)
 
 	#Fix later when we have a logger
-	data.save["last_run"] = new_stdout.getvalue().split('\n')
-	new_stdout = io.StringIO()
-	sys.stdout = new_stdout
+	data.save["last_run"] = result.split('\n')
 	return jsonify(data.save["last_run"])
 
 # url to reset simulation
