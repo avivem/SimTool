@@ -231,6 +231,40 @@ class UpdatePopUp extends Component{
             <Popup open={this.props.openUpdate} closeOnDocumentClick = {true} onClose={this.closeUpdatePopup} >
 
                {content}
+                <div class="container">
+                    <p>Node Name: placeholder</p>
+                    <p>Capacity: placeholder</p>
+                    <p>Time Function: placeholder</p>
+
+                    <label className="label">Name:
+                        <input 
+                            type="text" 
+                            name="stationname"
+                            placeholder="Enter node name"
+                            className="form-control"
+                            
+                            onChange={this.onChange}
+                        />
+                    </label>
+                    <label className="label">Capacity:
+                        <input 
+                            type="text" 
+                            placeholder="Enter node capacity"
+                            className="form-control"
+                            name="capacity" 
+                            onChange={this.onChange}
+                             />
+                    </label>
+                    <label className="label">Time Function:
+                        <input 
+                            type="text" 
+                            placeholder="Enter time function"
+                            className="form-control"
+                            name="time_func" 
+                            onChange={this.onChange}
+                             />
+                    </label>
+                </div>
 
                 <div>
                     {this.state.showErrorMessage ? <p>Max can't be smaller than the mean</p> : <div></div>}
