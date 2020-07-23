@@ -34,33 +34,8 @@ class UpdatePopUp extends Component{
 
      // Handle submit data of the interaction
      submitInteraction(){
-        var action = this.state.actionName;
-        var resource = this.state.resourceName;
- //       var lower = parseInt(this.state.lowerAmount);
- //       var upper = parseInt(this.state.upperAmount);
-
-        // these are not being set
-        var dist = this.state.distribution;
-        var loc = parseInt(this.state.loc);
-        var scale = parseInt(this.state.scale);
-        var max = parseInt(this.state.maxAmount);
-        var constantVal = parseInt(this.state.constantValue)
-        if(this.props.selectedNodeID.includes("start")){
-            if(max >= loc || dist == "CONSTANT"){
-                this.props.addContainer(this.props.selectedNodeID, action, dist, resource, loc, scale, max, constantVal);
-                this.closeContainerPopup();
-            }
-            else{
-                this.setState({showErrorMessage: true});
-            }
-        }
-        else{
-            console.log(dist);
-            this.props.addContainer(this.props.selectedNodeID, action, dist, resource, 0, 0, 0);
-            this.closeContainerPopup();
-        }
-
-        console.log(dist);
+        var change;
+        this.props.handleChangeNode(change);
     }
 
     closeUpdatePopup(){

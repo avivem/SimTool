@@ -192,14 +192,16 @@ class Navigation extends Component{
         this.setState({
           actionButtonColor: "#2cbebe",
           arrowButtonColor: "#2cbebe",
-          removeButtonColor: "#ff0000"
+          removeButtonColor: "#ff0000",
+          updateButtonColor: "#2cbebe",
         });
       }
       else{
         this.setState({
           actionButtonColor: "#2cbebe",
           arrowButtonColor: "#1e8080",
-          removeButtonColor: "#ff0000"
+          removeButtonColor: "#ff0000",
+          updateButtonColor: "#2cbebe",
         });
       }
       this.props.addArrowMode();  
@@ -212,14 +214,16 @@ class Navigation extends Component{
         this.setState({
           actionButtonColor: "#2cbebe",
           removeButtonColor: "#ff0000",
-          arrowButtonColor: "#2cbebe"
+          arrowButtonColor: "#2cbebe",
+          updateButtonColor: "#2cbebe",
         });
       }
       else{
         this.setState({
           actionButtonColor: "#2cbebe",
           removeButtonColor: "#cc0000",
-          arrowButtonColor: "#2cbebe"
+          arrowButtonColor: "#2cbebe",
+          updateButtonColor: "#2cbebe",
 
         });
       }
