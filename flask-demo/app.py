@@ -192,7 +192,7 @@ def run(until=20000):
 	return jsonify(data.save["last_run"])
 
 # url to reset simulation
-@app.route('/api/reset/')
+@app.route('/api/reset/', methods=["POST"])
 def reset():
 	data.env = simpy.Environment()
 	for k,v in data.nodes.items():

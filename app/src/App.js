@@ -4,7 +4,8 @@ import './App.css';
 
 import Navigation from './components/navigationbar'
 import Canvas from './components/canvas'
-import AssestPopUp from './components/asset'
+import AssetPopUp from './components/asset'
+import UpdatePopUp from './components/update'
 
 
 class App extends Component{
@@ -39,6 +40,7 @@ class App extends Component{
       numLoadedImage: 0,
       numImageToLoad: 0,
       containerMode: false,
+      updateMode: false,
       containers: [],
 
       selectedNodeID: "",
@@ -63,6 +65,7 @@ class App extends Component{
     this.handleReset= this.handleReset.bind(this);
 
     this.handleClearMode = this.handleClearMode.bind(this);
+    this.handleResetSim = this.handleResetSim.bind(this);
     
     this.handleImageUpload = this.handleImageUpload.bind(this);
 
@@ -77,6 +80,11 @@ class App extends Component{
 
     this.openContainerPopup = this.openContainerPopup.bind(this);
     this.closeContainerPopup = this.closeContainerPopup.bind(this);
+
+    this.handleUpdate = this.handleUpdate.bind(this);
+
+    this.openUpdatePopup = this.openUpdatePopup.bind(this);
+    this.closeUpdatePopup = this.closeUpdatePopup.bind(this);
   }
 
 
@@ -301,14 +309,16 @@ class App extends Component{
       this.setState({
         createArrowMode: false,
         removeMode: false,
-        containerMode: false
+        containerMode: false,
+        updateMode: false
       });
     }
     else{
       this.setState({
         createArrowMode: true,
         removeMode: false,
-        containerMode: false
+        containerMode: false,
+        updateMode: false
       });
     }   
   }
@@ -339,14 +349,16 @@ class App extends Component{
       this.setState({
         removeMode: false,
         createArrowMode: false,
-        containerMode: false
+        containerMode: false,
+        updateMode: false
       });
     }
     else{
       this.setState({
         removeMode: true,
         createArrowMode: false,
-        containerMode: false
+        containerMode: false,
+        updateMode: false
       });
       console.log("Handle Remove");
     }
@@ -428,6 +440,7 @@ class App extends Component{
       createArrowMode: false, 
       removeMode: false,
       containerMode: false,
+      updateMode: false
     });
   }
 
@@ -462,6 +475,24 @@ class App extends Component{
       console.log("Clear store node/arrow");
     }
     
+  }
+
+  // Reset Simulation to run again
+  handleResetSim(){
+    const requestReset = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    }
+
+    //Send request to backend to reset the simulation timer.
+    //Aviv: I am keeping the gotUser syntax but this should be renamed with everything else.
+    fetch('http://127.0.0.1:5000/api/reset/', requestReset).then(res => res.json()).then(gotUser => {
+      console.log(gotUser);
+    }).catch(function() {
+      console.log("Error on reset. Check backend.");
+    });
+
+    console.log("Simulation has been reset.")
   }
 
   //Handle upload image
@@ -662,6 +693,7 @@ class App extends Component{
     if(this.state.containerMode){
       this.setState({
         containerMode: false,
+        updateMode: false,
         createArrowMode: false,
         removeMode: false,
       });
@@ -670,6 +702,7 @@ class App extends Component{
     else{
       this.setState({
         containerMode: true,
+        updateMode: false,
         createArrowMode: false,
         removeMode: false,
       });
@@ -702,7 +735,7 @@ class App extends Component{
             init: 0
           },
           capacity: 1,
-          uid: "conatainer" + this.state.count
+          uid: "container" + this.state.count
         })
       };
 
@@ -735,7 +768,7 @@ class App extends Component{
           name: action,
           resource: resource,
           init : {
-            dist: dist,
+            dist: "NORMAL",
             loc: loc,
             scale: scale
           },
@@ -799,6 +832,45 @@ class App extends Component{
       console.log("Close Interactive Popup");
   }
 
+  //Handle update for the node
+  handleUpdate(){
+    if(this.state.updateMode){
+      this.setState({
+        updateMode: false,
+        containerMode: false,
+        createArrowMode: false,
+        removeMode: false,
+      });
+      console.log("Update mode off");
+    }
+    else{
+      this.setState({
+        updateMode: true,
+        containerMode: false,
+        createArrowMode: false,
+        removeMode: false,
+      });
+      console.log("Update mode on");
+    }
+  }
+
+  // Open interaction popup
+  openUpdatePopup(n){
+    this.setState({
+        openUpdate: true,
+        selectedNodeID: n
+    });
+    console.log("Open Interactive Popup");
+  }
+
+  // Open interaction popup
+  closeUpdatePopup(){
+      this.setState({
+          openUpdate: false
+      });
+      console.log("Close Interactive Popup");
+  }
+
   render(){
     return (
       <div className="App">
@@ -811,11 +883,14 @@ class App extends Component{
             removeMode={this.state.removeMode}
             handleReset={this.handleReset} 
             handleClearMode={this.handleClearMode}
+            handleResetSim={this.handleResetSim}
             handleImageUpload={this.handleImageUpload}
             handleSave={this.handleSave}
             handleLoad={this.handleLoad}
             containerMode={this.state.containerMode}
-            handleContainer={this.handleContainer} />
+            updateMode={this.state.updateMode}
+            handleContainer={this.handleContainer} 
+            handleUpdate={this.handleUpdate}/>
         </div>
         <div>
           <Canvas 
@@ -838,6 +913,7 @@ class App extends Component{
 
             clearMode={this.state.clearMode}
             handleClearMode={this.handleClearMode}
+            handleResetSim={this.handleResetSim}
 
             imageStart={this.state.imageStart}
             imageStation={this.state.imageStation}
@@ -855,15 +931,26 @@ class App extends Component{
             
             openContainerPopup={this.openContainerPopup}
             containerMode={this.state.containerMode}
+
+            openUpdatePopup={this.openUpdatePopup}
+            updateMode={this.state.updateMode}
             ></Canvas>
         </div>
 
         <div>
-          <AssestPopUp 
+          <AssetPopUp 
           openContainer={this.state.openContainer}
           handleContainer={this.handleContainer}
           addContainer={this.addContainer}
           closeContainerPopup={this.closeContainerPopup}
+          selectedNodeID={this.state.selectedNodeID} />
+        </div>
+
+        <div>
+          <UpdatePopUp 
+          openUpdate={this.state.openUpdate}
+          handleUpdate={this.handleUpdate}
+          closeUpdatePopup={this.closeUpdatePopup}
           selectedNodeID={this.state.selectedNodeID} />
         </div>
         
