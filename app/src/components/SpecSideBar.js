@@ -12,6 +12,7 @@ class SpecSideBar extends Component{
         };
         
     }
+    
     componentDidMount(){
         /** create the stage and layer when page is first loaded */
 
@@ -21,7 +22,14 @@ class SpecSideBar extends Component{
         var stage = new Konva.Stage({
             width: width,
             height: height,
-            container: "sidebar-container"
+            container: "sidebar-container",
+            draggable: true,
+            dragBoundFunc: function (pos) {
+                return {
+                  x: this.absolutePosition().x,
+                  y: pos.y,
+                };
+            },
         });
         var layer = new Konva.Layer();
         
@@ -42,7 +50,7 @@ class SpecSideBar extends Component{
         var yLoc = 120;
         this.props.specs.forEach((e) =>{
             var spec = layer.findOne('#' + e.uid);
-            console.log(spec)
+            console.log("Position" + yLoc)
             if(spec == undefined){
                 console.log("TIME ")
                 console.log("Add tabb")
@@ -57,7 +65,6 @@ class SpecSideBar extends Component{
                     width: 150,
                     padding: 20,
                     align: 'center',
-                    draggable: true
                   });
 
                   var rect = new Konva.Rect({
@@ -80,11 +87,15 @@ class SpecSideBar extends Component{
                 layer.add(rect, label);
                 yLoc = yLoc + label.height();
 
-                label.on('dragmove', () => {
-                   label.moveTo(this.props.canvas); 
-
+                label.on('click', () => {
+                    this.props.openSpecSelectPopup(e);
                 });
+
                 
+                
+            }
+            else{
+                yLoc = spec.y() + spec.height() + 10;
             }
         });
 
@@ -97,9 +108,7 @@ class SpecSideBar extends Component{
        
 
         return (
-            <div id="sidebar-container">
-               
-            </div>
+            <div id="sidebar-container" />
        
         );
     }

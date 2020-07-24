@@ -12,7 +12,7 @@ import Sidebar from "react-sidebar";
 
 import './css/popup.css';
 import './css/sidebar.css';
-import SpecSideBar from './sidebar';
+import SpecSideBar from './SpecSideBar';
 
 
 const mql = window.matchMedia(`(min-width: 800px)`);
@@ -680,7 +680,8 @@ class Canvas extends Component{
 */
         var sidebar = <SpecSideBar
                         specs={this.props.specs}
-                        canvas={this.state.layer} />
+                        canvas={this.state.layer}
+                        openSpecSelectPopup={this.props.openSpecSelectPopup} />
 
         var content = <div className="content">
                         <p>.</p>

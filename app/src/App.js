@@ -7,6 +7,7 @@ import Canvas from './components/canvas'
 import AssetPopUp from './components/asset'
 import UpdatePopUp from './components/update'
 import ContainerPopup from './components/container';
+import SpecSelectPopup from './components/SpecSelectPopup';
 
 
 class App extends Component{
@@ -48,8 +49,12 @@ class App extends Component{
 
       openSpec: false,
       openContainer: false,
+      openSpecSelect: false,    // For popup to select start node to app spec to 
+      selectedSpec: {},
+      selectedSpecTo: [],
 
       selectedNodeID: "",
+      
     }
 
     // numImage keep track of current number of image in model
@@ -94,6 +99,10 @@ class App extends Component{
     this.openSpecPopup = this.openSpecPopup.bind(this);
     this.closeSpecPopup = this.closeSpecPopup.bind(this);
     this.addSpec = this.addSpec.bind(this);
+
+    this.openSpecSelectPopup = this.openSpecSelectPopup.bind(this);
+    this.closeSpecSelectPopup = this.closeSpecSelectPopup.bind(this);
+    this.addSpecSelected = this.addSpecSelected.bind(this);
     
   }
 
@@ -940,6 +949,42 @@ class App extends Component{
       console.log("Close Interactive Popup");
   }
 
+  // This is passed to the sidebarr which is called when a spec is clicked on, the spec is the selected spec
+  openSpecSelectPopup(spec){
+    this.setState({
+      openSpecSelect: true,
+      selectedSpec: spec,
+      selectedSpecTo: spec.specTo
+    })
+  }
+  
+  // Close the popup to select start node to apply the selected spec to, called in t he SoecSelectPopup.js
+  closeSpecSelectPopup(){
+    this.setState({
+      openSpecSelect: false,
+      selectedSpec: {},
+      selectedSpecTo: []
+    });
+  }
+
+  // Add selected nodes to the spec
+  addSpecSelected(spec, nodes){
+
+    var specs = this.state.specs;
+    specs.forEach((s) => {
+      if(s.uid == spec.uid){
+        s.specTo = nodes;
+      }
+    });
+
+    this.setState({
+      specs: specs
+    });
+
+    console.log(specs);
+
+  }
+
   render(){
     return (
       <div className="App">
@@ -1011,6 +1056,8 @@ class App extends Component{
             openUpdatePopup={this.openUpdatePopup}
             updateMode={this.state.updateMode}
             handleUpdate={this.handleUpdate}
+
+            openSpecSelectPopup={this.openSpecSelectPopup}
             ></Canvas>
         </div>
 
@@ -1042,7 +1089,17 @@ class App extends Component{
           />
         </div>
         
+        <div>
+          <SpecSelectPopup
+          openSpecSelect= {this.state.openSpecSelect}
+          startNode={this.state.startNode}
+          selectedSpec={this.state.selectedSpec}
+          selectedSpecTo={this.state.selectedSpecTo}
+          closeSpecSelectPopup={this.closeSpecSelectPopup}
+          addSpecSelected={this.addSpecSelected}
           
+          />
+        </div>
 
       </div>
     );
