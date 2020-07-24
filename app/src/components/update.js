@@ -19,6 +19,8 @@ class UpdatePopUp extends Component{
             time_func: 1,
 
             endname: "default name",
+
+            showMessage: false,
         }
         
         this.onChange = this.onChange.bind(this);
@@ -45,6 +47,10 @@ class UpdatePopUp extends Component{
         this.props.closeUpdatePopup();
     }
 
+  onButtonClickHandler = () => {
+   this.setState({showMessage: true});
+  };
+
     render(){
 
         let content;
@@ -63,17 +69,13 @@ class UpdatePopUp extends Component{
                         <p>Node Name: {endNode.name}</p>
 
                         <div class="container">
-                            <button className="button" onClick={this.submitInteraction}>
+                            <button className="button" onClick={this.onButtonClickHandler}>
                                 Update Node
                             </button>
                         </div>
 
-                        <div class="container">
-                            <button className="button" onClick={this.submitInteraction}>
-                                Add Container
-                            </button>
-                        </div>
-                        {/*
+                       {this.state.showMessage &&  
+                        <div>
                         <label className="label">Name:
                             <input 
                                 type="text" 
@@ -81,7 +83,16 @@ class UpdatePopUp extends Component{
                                 placeholder="Enter node name"
                                 name="endname"
                                 onChange={this.onChange} />
-                        </label>*/}
+                        </label>
+                        </div>}
+
+
+                        <div class="container">
+                            <button className="button" onClick={this.submitInteraction}>
+                                Add Container
+                            </button>
+                        </div>
+
                         </div>
         }else if(type == "start" && startNode != undefined){
             console.log('start');
@@ -94,18 +105,14 @@ class UpdatePopUp extends Component{
                         <p>Limit: {startNode.limit}</p>
 
                         <div class="container">
-                            <button type="button" class="button btn-secondary" onClick={this.submitInteraction}>
+                            <button className="button" onClick={this.onButtonClickHandler}>
                                 Update Node
                             </button>
                         </div>
 
-                        <div class="container">
-                            <button className="button" onClick={this.submitInteraction}>
-                                Add Container
-                            </button>
-                        </div>
-
-                       {/*} <label className="label">Name:
+                       {this.state.showMessage &&  
+                        <div>
+                        <label className="label">Name:
                             <input 
                                 type="text" 
                                 name="startname"
@@ -159,7 +166,15 @@ class UpdatePopUp extends Component{
                                 
                                 onChange={this.onChange}
                                  />
-                        </label>*/}
+                        </label>
+                        </div>}
+
+                        <div class="container">
+                            <button className="button" onClick={this.submitInteraction}>
+                                Add Container
+                            </button>
+                        </div>
+                        
                         </div>
         }else if(type == "station" && s != undefined){
             
@@ -178,18 +193,13 @@ class UpdatePopUp extends Component{
                         <p>Time Function: {s.time_func}</p>
 
                         <div class="container">
-                            <button className="button" onClick={this.submitInteraction}>
+                            <button className="button" onClick={this.onButtonClickHandler}>
                                 Update Node
                             </button>
                         </div>
 
-                        <div class="container">
-                            <button className="button" onClick={this.submitInteraction}>
-                                Add Contaier
-                            </button>
-                        </div>
-
-                        {/*<label className="label">Name:
+                        {this.state.showMessage && 
+                        <div><label className="label">Name:
                             <input 
                                 type="text" 
                                 name="stationname"
@@ -216,7 +226,14 @@ class UpdatePopUp extends Component{
                                 name="time_func" 
                                 onChange={this.onChange}
                                  />
-                        </label>*/}
+                        </label></div>}
+
+                        <div class="container">
+                            <button className="button" onClick={this.submitInteraction}>
+                                Add Contaier
+                            </button>
+                        </div>
+
                         </div>
         }
 
