@@ -80,7 +80,7 @@ class UpdatePopUp extends Component{
                             <input 
                                 type="text" 
                                 className="form-control"
-                                placeholder="Enter node name"
+                                placeholder={endNode.name}
                                 name="endname"
                                 onChange={this.onChange} />
                         </label>
@@ -116,7 +116,7 @@ class UpdatePopUp extends Component{
                             <input 
                                 type="text" 
                                 name="startname"
-                                placeholder="Enter node name"
+                                placeholder={startNode.name}
                                 className="form-control"
                                 onChange={this.onChange}
                                  />
@@ -125,7 +125,7 @@ class UpdatePopUp extends Component{
                             <input 
                                 type="text" 
                                 className="form-control"
-                                placeholder="Enter generation function"
+                                placeholder={startNode.dist}
                                 name="dist" 
                                 onChange={this.onChange}
                                  />
@@ -134,7 +134,7 @@ class UpdatePopUp extends Component{
                             <input 
                                 type="text" 
                                 className="form-control"
-                                placeholder="Enter generation function"
+                                placeholder={startNode.loc}
                                 name="loc" 
                                 onChange={this.onChange}
                                  />
@@ -143,7 +143,7 @@ class UpdatePopUp extends Component{
                             <input 
                                 type="text" 
                                 className="form-control"
-                                placeholder="Enter generation function"
+                                placeholder={startNode.scale}
                                 name="scale" 
                                 onChange={this.onChange}
                                  />
@@ -152,7 +152,7 @@ class UpdatePopUp extends Component{
                             <input 
                                 type="text" 
                                 className="form-control"
-                                placeholder="Enter entity name"
+                                placeholder={startNode.entity_name}
                                 name="entity_name" 
                                 onChange={this.onChange}
                                  />
@@ -160,7 +160,7 @@ class UpdatePopUp extends Component{
                         <label className="label">Limit:
                             <input 
                                 type="text" 
-                                placeholder="Enter enter limit"
+                                placeholder={startNode.limit}
                                 className="form-control"
                                 name="limit" 
                                 
@@ -174,7 +174,7 @@ class UpdatePopUp extends Component{
                                 Add Container
                             </button>
                         </div>
-                        
+
                         </div>
         }else if(type == "station" && s != undefined){
             
@@ -203,7 +203,7 @@ class UpdatePopUp extends Component{
                             <input 
                                 type="text" 
                                 name="stationname"
-                                placeholder="Enter node name"
+                                placeholder={s.name}
                                 className="form-control"
                                 
                                 onChange={this.onChange}
@@ -212,7 +212,7 @@ class UpdatePopUp extends Component{
                         <label className="label">Capacity:
                             <input 
                                 type="text" 
-                                placeholder="Enter node capacity"
+                                placeholder={s.capacity}
                                 className="form-control"
                                 name="capacity" 
                                 onChange={this.onChange}
@@ -221,7 +221,7 @@ class UpdatePopUp extends Component{
                         <label className="label">Time Function:
                             <input 
                                 type="text" 
-                                placeholder="Enter time function"
+                                placeholder={s.time_func}
                                 className="form-control"
                                 name="time_func" 
                                 onChange={this.onChange}
