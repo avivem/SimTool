@@ -1003,7 +1003,6 @@ class App extends Component{
             incrNumLoadedImage={this.incrNumLoadedImage}
             numImageToLoad={this.state.numImageToLoad}
             numLoadedImage={this.state.numLoadedImage}
-      //      numImage = {this.state.numImage} 
             handleBackendLoadNodes={this.handleBackendLoadNodes}
             
             openContainerPopup={this.openContainerPopup}
@@ -1011,6 +1010,7 @@ class App extends Component{
 
             openUpdatePopup={this.openUpdatePopup}
             updateMode={this.state.updateMode}
+            handleUpdate={this.handleUpdate}
             ></Canvas>
         </div>
 

@@ -97,6 +97,8 @@ class Canvas extends Component{
             open: true
         });
         console.log("Open Popup");
+        this.props.handleUpdate();
+
     }
       
     /** Close popup */
@@ -285,6 +287,7 @@ class Canvas extends Component{
     componentDidUpdate(prevProps, prevState){
 
         var layer = this.state.canvasLayer;
+        console.log(this.props.updateMode);
 
         // Adding/Loading node
         if(this.props.addedStart || this.props.addedStation || this.props.addedEnd || this.props.loadMode){
@@ -454,7 +457,7 @@ class Canvas extends Component{
                                     unit: target.unit,
                                     rate: target.rate,
                                     targetId: target.uid,
-                                    type: header
+                                    type: target.name
                                 })
                                 this.openPopup();
                             }else{
@@ -462,7 +465,7 @@ class Canvas extends Component{
                                     unit: target.unit,
                                     rate: target.rate,
                                     targetId: target.uid,
-                                    type: header
+                                    type: target.name
                                 })
                                 this.openPopup();
                             }

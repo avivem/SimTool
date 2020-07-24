@@ -61,6 +61,19 @@ class UpdatePopUp extends Component{
 
             content =   <div class="container">
                         <p>Node Name: {endNode.name}</p>
+
+                        <div class="container">
+                            <button className="button" onClick={this.submitInteraction}>
+                                Update Node
+                            </button>
+                        </div>
+
+                        <div class="container">
+                            <button className="button" onClick={this.submitInteraction}>
+                                Add Container
+                            </button>
+                        </div>
+                        {/*
                         <label className="label">Name:
                             <input 
                                 type="text" 
@@ -68,7 +81,8 @@ class UpdatePopUp extends Component{
                                 placeholder="Enter node name"
                                 name="endname"
                                 onChange={this.onChange} />
-                        </label></div>
+                        </label>*/}
+                        </div>
         }else if(type == "start" && startNode != undefined){
             console.log('start');
             content =   <div class="container">
@@ -79,7 +93,19 @@ class UpdatePopUp extends Component{
                         <p>Generation Function scale: {startNode.scale}</p>
                         <p>Limit: {startNode.limit}</p>
 
-                        <label className="label">Name:
+                        <div class="container">
+                            <button type="button" class="button btn-secondary" onClick={this.submitInteraction}>
+                                Update Node
+                            </button>
+                        </div>
+
+                        <div class="container">
+                            <button className="button" onClick={this.submitInteraction}>
+                                Add Container
+                            </button>
+                        </div>
+
+                       {/*} <label className="label">Name:
                             <input 
                                 type="text" 
                                 name="startname"
@@ -133,7 +159,8 @@ class UpdatePopUp extends Component{
                                 
                                 onChange={this.onChange}
                                  />
-                        </label></div>
+                        </label>*/}
+                        </div>
         }else if(type == "station" && s != undefined){
             
             // do a for each to grab correct basic node
@@ -150,7 +177,19 @@ class UpdatePopUp extends Component{
                         <p>Capacity: {s.capacity}</p>
                         <p>Time Function: {s.time_func}</p>
 
-                        <label className="label">Name:
+                        <div class="container">
+                            <button className="button" onClick={this.submitInteraction}>
+                                Update Node
+                            </button>
+                        </div>
+
+                        <div class="container">
+                            <button className="button" onClick={this.submitInteraction}>
+                                Add Contaier
+                            </button>
+                        </div>
+
+                        {/*<label className="label">Name:
                             <input 
                                 type="text" 
                                 name="stationname"
@@ -177,7 +216,8 @@ class UpdatePopUp extends Component{
                                 name="time_func" 
                                 onChange={this.onChange}
                                  />
-                        </label></div>
+                        </label>*/}
+                        </div>
         }
 
 
@@ -186,7 +226,7 @@ class UpdatePopUp extends Component{
 
                {content}
 
-                <div>
+                <div class="container">
                     {this.state.showErrorMessage ? <p>Max can't be smaller than the mean</p> : <div></div>}
                     <button className="button" onClick={this.submitInteraction}>
                         Apply
