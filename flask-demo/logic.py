@@ -388,17 +388,25 @@ class BasicComponent(Node):
     def reset(self):
         self.count = 0
 
-    def summary_resource(self, resource):
-        {
-            
+    def summary_resource(self, before:bool,resource):
+        if before:
+            resources = self.entity_resources_before
+        else:
+            resources = self.entity_resources_after
+        
+        res = resources["resource"]
+        return {
+            "resource" : resource,
+            "capacity"  :np.mean([y["capacity"] for (x,y) in res]),
+            "avg_init" : np.mean([y["init"] for (x,y) in res]),
+            "avg_level" : np.mean([y["level"] for (x,y) in res])
         }
+        
 
     def summary(self):
         return {
             "num_entities_encountered" : self.count,
-            "entity_resources_before" : {
-                
-            },
+            "entity_resources_before" : {},
             "entity_resources_after"
         }
 
@@ -441,7 +449,7 @@ class BasicContainer(object):
     def summary(self):
         return {
             "owner" : self.owner,
-            "resource" : self.resource
+            "resource" : self.resource,
             "init" : self.init,
             "capacity" : self.capacity,
             "level" : self.con.level
