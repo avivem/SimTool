@@ -54,6 +54,8 @@ class App extends Component{
       selectedSpecTo: [],
 
       selectedNodeID: "",
+
+      logics: [],
       
     }
 
@@ -104,6 +106,7 @@ class App extends Component{
     this.closeSpecSelectPopup = this.closeSpecSelectPopup.bind(this);
     this.addSpecSelected = this.addSpecSelected.bind(this);
     
+    this.submitLogic = this.submitLogic.bind(this);
   }
 
 
@@ -857,7 +860,7 @@ class App extends Component{
       uid: "container-" + this.state.count,
       selectedNode: selectedNode,
       name: name,
-      resource,
+      resource: resource,
       init: init,
       capacity: capacity
     });
@@ -985,6 +988,34 @@ class App extends Component{
 
   }
 
+  // cond - el==, el<=, el<, el>=, el>
+  // condAmount/actionAmount - should be a number
+  // resource - should be a resource from an assign container
+  // action - ADD or SUB
+  // passPath/failPath - UID of node of path to go
+  // selectedNodeID - UID of the selected node 
+  submitLogic(cond, condAmount, resource, action, actionAmount, passPath, passName, failPath, failName, selectedNodeID){
+    var lst = this.state.logics;
+    lst.push({
+      uid: "logic-" + this.state.count,
+      applyTo: selectedNodeID,
+      resource: resource,
+      cond: cond,
+      condAmount: condAmount,
+      action: action,
+      actionAmount: actionAmount,
+      passPath: passPath,
+      passName: passName,
+      failPath: failPath,
+      failName: failName,
+    });
+
+    this.setState((state) => ({
+      count: state.count + 1,
+      logics: lst
+    }))
+  }
+
   render(){
     return (
       <div className="App">
@@ -1077,7 +1108,12 @@ class App extends Component{
           selectedNodeID={this.state.selectedNodeID}
           startNode={this.state.startNode}
           stationNode={this.state.stationNode} 
-          endNode={this.state.endNode}/>
+          endNode={this.state.endNode}
+          
+          arrows={this.state.arrows}
+          containers={this.state.containers}
+          submitLogic={this.submitLogic}
+          logics={this.state.logics}/>
         </div>
         
         <div>

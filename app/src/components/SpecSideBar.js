@@ -50,10 +50,7 @@ class SpecSideBar extends Component{
         var yLoc = 120;
         this.props.specs.forEach((e) =>{
             var spec = layer.findOne('#' + e.uid);
-            console.log("Position" + yLoc)
             if(spec == undefined){
-                console.log("TIME ")
-                console.log("Add tabb")
                 var label = new Konva.Text({
                     x: xLoc,
                     y: yLoc,
@@ -100,7 +97,7 @@ class SpecSideBar extends Component{
         });
 
         layer.batchDraw();
-        console.log(this.props.specs)
+        
     }
     
 
