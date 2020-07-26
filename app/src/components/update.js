@@ -209,7 +209,7 @@ class UpdatePopUp extends Component{
 
               
                         <LogicComponent
-                        submitLogic={this.props.submitLogic}
+                         submitLogic={this.props.submitLogic}
                          selectedNodeID={this.props.selectedNodeID}
                          containers={this.props.containers}
                          arrows={this.props.arrows}
@@ -280,24 +280,15 @@ class UpdatePopUp extends Component{
                             </button>
                         </div>
 
-                        <div class="logic">
-                            <button className="button" onClick={this.showLogic}>
-                                {this.state.logicButtonText}
-                            </button>
-                        </div>
-                        {this.state.showLogic ? 
                         <LogicComponent
-                        logicButtonText={this.state.logicButtonText}
                          submitLogic={this.props.submitLogic}
                          selectedNodeID={this.props.selectedNodeID}
-                         showLogic={this.showLogic}
                          containers={this.props.containers}
                          arrows={this.props.arrows}
                          startNode={this.props.startNode}
                          stationNode={this.props.stationNode} 
                          endNode={this.props.endNode}
-                         logics={this.props.logics} />  
-                         : <div></div>}
+                         logics={this.props.logics} /> 
                         {logic}
 
                         </div>

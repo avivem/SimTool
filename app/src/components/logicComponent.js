@@ -159,12 +159,12 @@ class LogicComponent extends Component{
         var failPath = this.state.failPath;
         var failName = this.state.failName;
 
-
+        
 
         if(cond != "" && !isNaN(condAmount) && resource != "" && action != "" && !isNaN(actionAmount) &&
             passPath != "" && failPath != ""){
-
-            if(this.state.logicButtonText == "Add Logic"){
+            
+                if(this.state.logicButtonText == "Add Logic"){
                 this.props.submitLogic("new", cond, condAmount, resource,
                     action, actionAmount, passPath, passName, failPath, failName, this.props.selectedNodeID);
         
@@ -174,8 +174,9 @@ class LogicComponent extends Component{
                     action, actionAmount, passPath, passName, failPath, failName, this.props.selectedNodeID);
         
             }
-
+    
             this.showLogic();
+            
                 
         }
         else{
@@ -234,54 +235,18 @@ class LogicComponent extends Component{
             }
         });
 
-        // Find the logic that already existed for this logic
-        var previousLogic = {};
-        var logicExisted = false;
-        var previousResource = [{ value: "", label: "" }]
-        var previousCond = [{ value: "", label: "" }]
-        var previousAction = [{ value: "", label: "" }]
-        var previousPass = [{ value: "", label: "" }]
-        var previousFail = [{ value: "", label: "" }]
-        
-        if(this.state.logicButtonText == "Edit Logic"){
-            this.props.logics.forEach((l) => {
-                if(l.applyTo == this.props.selectedNodeID){
-                    previousLogic = l;
-                
-                    previousResource = [{value : l.resource, label: l.resource }]
-                    previousAction = [{value : l.action, label: l.action }]
-                    previousPass = [{value: l.passPath, label: l.passName}]
-                    previousFail = [{value: l.failPath, label: l.failName}]
-                    
-                    var condLabel = "";
-                    switch(l.cond){
-                        case "el==":
-                            condLabel = "=";
-                            break;
-                        case "el<=":
-                            condLabel = "<=";
-                            break;
-                        case "el<":
-                            condLabel = "<";
-                            break;
-                        case "el>=":
-                            condLabel = ">=";
-                            break;
-                        case "el>":
-                            condLabel = ">";
-                            break;
-                    }
-                    previousCond = [{value : l.cond, label: condLabel }]
-                }
-            });
+        const customStyle = {
+            valueContainer: () => ({
+                width: 100
+            })
         }
-
         
         let logicContent = 
             <div>
                 <label>Resource:
                     <Select
-                    defaultValue={previousResource}
+                    styles={customStyle}
+                    defaultValue={this.state.previousResource}
                     options={resource}
                     name="resource"
                     onChange={this.handleCond}
@@ -298,7 +263,8 @@ class LogicComponent extends Component{
                     </label>
                     <label>Condition:
                         <Select
-                        defaultValue={previousCond}
+                        styles={customStyle}
+                        defaultValue={this.state.previousCond}
                         options={cond}
                         name="cond"
                         onChange={this.handleCond}
@@ -316,7 +282,8 @@ class LogicComponent extends Component{
                     </label>
                     <label>Action Taken:
                         <Select
-                        defaultValue={previousAction}
+                        styles={customStyle}
+                        defaultValue={this.state.previousAction}
                         options={action}
                         name="action"
                         onChange={this.handleAction}
@@ -326,7 +293,8 @@ class LogicComponent extends Component{
                 <div>
                     <label>Pass Path:
                         <Select
-                        defaultValue={previousPass}
+                        styles={customStyle}
+                        defaultValue={this.state.previousPass}
                         options={path}
                         name="passPath"
                         onChange={this.handlePass}
@@ -334,7 +302,8 @@ class LogicComponent extends Component{
                     </label>
                     <label>Fail Pass:
                         <Select
-                        defaultValue={previousFail}
+                        styles={customStyle}
+                        defaultValue={this.state.previousFail}
                         options={path}
                         name="failPath"
                         onChange={this.handleFail}
