@@ -17,24 +17,20 @@ poor_gen = {
 }
 rich = StartingPoint(env=env, name="Rich Start", entity_name="Richee", generation=rich_gen, limit=300, uid='st')
 poor = StartingPoint(env=env, name="Poor Start", entity_name="Pooree", generation=poor_gen, limit=2000, uid='st')
-stsplit = {
-    'policy' : 'ALPHA_SEQ'
-}
 
-rich.set_node_logic_policy(stsplit)
-poor.set_node_logic_policy(stsplit)
+rich.create_logic("ALPHA_SEQ")
+poor.create_logic("ALPHA_SEQ")
 
 line1 = BasicComponent(env=env, name="Convention Line 1", capacity=50, time_func=1000, uid='line1')
 sec1 = BasicComponent(env=env, name="Security 1", capacity=10, time_func=100, uid='sec1')
 line2 = BasicComponent(env=env, name="Convention Line 2", capacity=50, time_func=1000, uid='line2')
 sec2 = BasicComponent(env=env, name="Security 2", capacity=10, time_func=100, uid='sec2')
-tbpw = BasicComponent(env, name="Ticket Booth Payment Window", capacity=2, time_func=10, uid='tbpw')
-tbtw = BasicComponent(env, name="Ticket Booth Ticket Window", capacity=2, time_func=10, uid='tbtw')
+tb = BasicComponent(env, name="Ticket Booth", capacity=2, time_func=10, uid='tb')
 end1 = EndingPoint(env=env, name="Convention", uid='end1')
 end2 = EndingPoint(env=env, name="Didn't attend", uid='end2')
 
 #Define spec for entity wallet
-wallet_spec_rich = {
+rich_wallet_dict = {
     "name"     : "Wallet",
     "resource" : "Dollar",
     "init"     : {
@@ -45,8 +41,10 @@ wallet_spec_rich = {
     "capacity" : 200,
     "uid"      : "container-wallet-rich"
 }
+rich_wallet_blueprint = BasicContainerBlueprint(**rich_wallet_dict)
+rich.add_blueprint(rich_wallet_blueprint)
 
-wallet_spec_poor = {
+poor_wallet_dict = {
     'name'     : 'Wallet',
     'resource' : 'Dollar',
     'init'     : {
@@ -57,10 +55,11 @@ wallet_spec_poor = {
     'capacity' : 100,
     'uid'      : 'container-wallet-poor'
 }
-#Add wallet to entities
-rich.add_container_spec(wallet_spec_rich)
-poor.add_container_spec(wallet_spec_poor)
-tickets_spec = {
+
+poor_wallet_blueprint = BasicContainerBlueprint(**poor_wallet_dict)
+poor.add_blueprint(poor_wallet_blueprint)
+
+tickets_dict = {
     'name'     : 'Tickets',
     'resource' : 'Ticket',
     'init'     : {
@@ -69,53 +68,47 @@ tickets_spec = {
     'capacity' : 1,
     'uid'      :  'container-tickets'
 }
-rich.add_container_spec(tickets_spec)
-poor.add_container_spec(tickets_spec)
+
+tickets_blueprint = BasicContainerBlueprint(**tickets_dict)
+rich.add_blueprint(tickets_blueprint)
+poor.add_blueprint(tickets_blueprint)
 
 rich.set_directed_to(line1)
 rich.set_directed_to(line2)
 poor.set_directed_to(line1)
 poor.set_directed_to(line2)
 line1.set_directed_to(sec1)
-sec1.set_directed_to(tbpw)
+sec1.set_directed_to(tb)
 line2.set_directed_to(sec2)
-sec2.set_directed_to(tbpw)
-tbpw.set_directed_to(tbtw)
-tbpw.set_directed_to(end2)
-tbtw.set_directed_to(end1)
+sec2.set_directed_to(tb)
+tb.set_directed_to(end2)
+tb.set_directed_to(end1)
 
 #Create containers
-rev = BasicContainer(env,"Revenue",tbpw,"Dollar",{'init':0},uid='rev')
-tbpw.add_container(rev)
-tickets = BasicContainer(env,"Tickets", tbtw, "Ticket",{'init':"inf"},uid='tickets')
-tbtw.add_container(tickets)
-
-tbpwsplit = {
-    'policy': "BOOL",
-    'cond': "el>=",
-    'cond_amount': 18,
-    'act' : 'SUB',
-    'act_amount' : 18,
-    'entity_container_name' : 'Wallet',
-    'resource' : 'Dollar',
-    'pass' : [tbtw],
-    'fail' : [end2]
+revenue_dict = {
+    "name" : "Revenue",
+    "resource" : "Dollar",
+    "init" : {"init" : 0},
+    "uid" : "rev"
 }
-tbpw.set_node_logic_policy(tbpwsplit)
 
-tbtwsplit = {
-    'policy': "BOOL",
-    'cond': "el==",
-    'cond_amount': 0,
-    'act' : 'ADD',
-    'act_amount' : 1,
-    'entity_container_name' : 'Tickets',
-    'resource' : 'Ticket',
-    'pass' : [end1],
-    'fail' : [end2] #Should not trigger.
-}
-tbtw.set_node_logic_policy(tbtwsplit)
+revenue_blueprint = BasicContainerBlueprint(**revenue_dict)
+tb.add_container(revenue_blueprint)
 
+ticket_storage_blueprint = BasicContainerBlueprint(**{
+    "name" : "Ticket Storage",
+    "resource" : "Ticket",
+    "init" : {"init" : "inf"},
+    "uid" : "ticket_storage"
+})
+tb.add_container(ticket_storage_blueprint)
+
+tb.create_logic("BOOL")
+condition_group = tb.logic.create_condition_group("Condition Group 1",pass_paths=[end1], fail_paths=[end2])
+condition_group.add_condition("Have enough to buy Ticket", "Wallet", "Revenue", "e>=n", 18)
+action_group = condition_group.create_action_group("Trade Money for Ticket")
+action_group.add_action("Take money from Attendee", "Wallet", "Revenue", "TAKE", 18)
+action_group.add_action("Give Attendee Ticket", "Tickets", "Ticket Storage", "GIVE", 1)
 
 env.process(rich.run())
 env.process(poor.run())

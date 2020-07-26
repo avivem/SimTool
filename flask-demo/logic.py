@@ -19,18 +19,6 @@ import collections
     new_stdout = io.StringIO()
     sys.stdout = new_stdout """
 
-logic = {
-    'policy' : "RAND",
-    'cond' : None,
-    'cond_amount' : None,   
-    'act' : None,
-    'act_amount' : None,
-    'entity_container_name' : None,
-    'resource' : None,
-    'pass' : [],
-    'fail' : []
-}
-
 #Basic building block of a system. It knows where an entity should go next.
 class Node(object):
     def __init__(self, env, name, uid = None):
@@ -40,7 +28,7 @@ class Node(object):
             self.uid = uid
         self.env = env
         self.name = name
-        self.logic= logic
+        self.logic= Logic("RAND")
         #Achieve an ordered set using a dict and .keys
         self.directed_to = {}
 
@@ -83,13 +71,17 @@ class Node(object):
         pp = pprint.PrettyPrinter(indent=4)
         pp.pprint(self.__dict__)
 
-    def create_logic(self):
-        self.logic = Logic()
+    def create_logic(self, split_policy):
+        self.logic = Logic(split_policy)
 
 
 class Logic(object):
-    def __init__(self):
+    ResultTuple = collections.namedtuple('Result', ['action_groups','paths'])
+    def __init__(self, split_policy, pass_paths = [], fail_paths = []):
         self.condition_groups = {}
+        self.split_policy = split_policy
+        self.pass_paths = pass_paths
+        self.fail_paths = fail_paths
 
     def noconds(self):
         return len(self.condition_groups) == 0
@@ -100,24 +92,15 @@ class Logic(object):
             self.actions = {}
         
         class Action(object):
-            op_map = [
-                "GIVE",
-                "TAKE",
-                "MULTGIVE",
-                "MULTTAKE",
-                "ADD",
-                "SUB",
-                "MULT"
-            ]
             def __init__(self, name, encon_name, nodecon_name, op, val):
                 self.name = name
-                self.encon_name = name
+                self.encon_name = encon_name
                 self.nodecon_name = nodecon_name
                 self.op = op
                 self.val = val
         
-        def add_action(self, action):
-            self.actions[action.name] = action
+        def add_action(self, name, encon_name, nodecon_name, op, val):
+            self.actions[name] = self.Action(name, encon_name, nodecon_name, op, val)
 
     class ConditionGroup(object):
         def __init__(self, name, pass_paths, fail_paths):
@@ -145,22 +128,26 @@ class Logic(object):
 
             def eval(self, entity, node):
                 op = self.op_map[self.op]
-                encon = entity.containers[self.encon_name]
-                nodecon = node.containers[self.nodecon_name]
+                try:
+                    encon = entity.containers[self.encon_name]
+                    nodecon = node.containers[self.nodecon_name]
+                except KeyError:
+                    return False
                 if not self.names:
-                    return op(encon.con.level,nodecon.con.level)
+                    return op(encon.con.level,self.val)
                 else:
                     return op(encon.name, nodecon.name)
 
-        def add_condition(self, cond):
-            self.conditions[cond.name] = cond
+        def add_condition(self, name, encon_name, nodecon_name, op, val, names=False):
+            self.conditions[name] = self.Condition(name, encon_name, nodecon_name, op, val, names)
 
         def create_action_group(self, name):
             self.action_group = Logic.ActionGroup(name)
+            return self.action_group
 
         def eval(self, entity, node):
             results = []
-            for name,cond in self.conditions:
+            for name,cond in self.conditions.items():
                 results.append(cond.eval(entity, node))
             
             if self.AND:
@@ -173,18 +160,21 @@ class Logic(object):
     
     def create_condition_group(self, name, pass_paths, fail_paths):
         self.condition_groups[name] = Logic.ConditionGroup(name, pass_paths, fail_paths)
-
+        return self.condition_groups[name]
     def eval(self, entity, node):
-        actions = []
+        action_groups = []
         pass_paths = set()
         fail_paths = set()
-        ResultTuple = collections.namedtuple('Result', ['actions','pass_paths','fail_paths'])
-        for cond_group in self.condition_groups:
+        for name,cond_group in self.condition_groups.items():
             if cond_group.eval(entity, node):
                 pass_paths.update(cond_group.pass_paths)
+                action_groups.append(cond_group.action_group)
+            else:
                 fail_paths.update(cond_group.fail_paths)
-                actions.append(cond_group.action_group)
-        return ResultTuple(actions=actions, pass_paths=pass_paths, fail_paths=fail_paths)
+        if len(pass_paths) > 0:
+            return self.ResultTuple(action_groups=action_groups, paths=pass_paths)
+        else:
+            return self.ResultTuple(action_groups=action_groups, paths=fail_paths)
     
                 
 
@@ -197,6 +187,14 @@ line, etc.
 
 """
 class BasicFlowEntity(object):
+    op_map = {
+        "GIVE" : "Given",
+        "TAKE" : "Taken",
+        "ADD" : "Added",
+        "SUB" : "Subtracted",
+        "MULT" : "Multiplied"
+    }
+    
     def __init__(self, env:simpy.Environment,name:str, start,currentLoc:Node, resource_behaviors:dict={}):
         self.env = env
         self.start = start
@@ -214,11 +212,37 @@ class BasicFlowEntity(object):
     def add_container(self, container):
         self.containers[container.name] = container
 
-    def act(self, passed):
-
+    def act(self, action_groups):
         if self.currentLoc.logic.noconds():
             return None
-        res = self.currentLoc.logic['resource']
+        else:
+            for ag in action_groups:
+                for name, ac in ag.actions.items():
+                    try:
+                        encon = self.containers[ac.encon_name]
+                        nodecon = self.currentLoc.containers[ac.nodecon_name]
+                    except KeyError:
+                        print("")
+                        print("KEY ERROR BLARG")
+                        print("")
+                        continue
+
+                    if ac.op == "GIVE":
+                        yield encon.con.put(ac.val)
+                        yield nodecon.con.get(ac.val)
+                    elif ac.op == "TAKE":
+                        yield encon.con.get(ac.val)
+                        yield nodecon.con.put(ac.val)
+                    elif ac.op == "ADD":
+                        yield encon.con.put(ac.val)
+                    elif ac.op == "SUB":
+                        yield encon.con.get(ac.val)
+                    elif ac.op == "MULT":
+                        yield encon.con.put(encon.con.level*ac.val)
+                    #Print log message here.
+
+
+        """ res = self.currentLoc.logic['resource']
         conname = self.currentLoc.logic['entity_container_name']
         act_amount = self.currentLoc.logic['act_amount']
         #if not res in self.containers or not conname in self.containers[res]:
@@ -235,7 +259,7 @@ class BasicFlowEntity(object):
             encon = self.containers[res][conname]
             print(f'[{self.env.now}]::\t{self.currentLoc} is adding {act_amount} of {res} to {self}\'s {encon}. Old bal: {encon.con.level}. New bal: {encon.con.level + act_amount}')
             yield encon.con.put(act_amount)
-            yield self.currentLoc.container.con.get(act_amount)
+            yield self.currentLoc.container.con.get(act_amount) """
 
     #Down the road, add interact methods to components to allow for resource consumption.
     def run(self):
@@ -289,9 +313,9 @@ class StartingPoint(Node):
     def next_dir(self):
         path_list = sorted(self.directed_to.keys(), key=lambda x: x.name)
         if len(self.directed_to) > 1:
-            if self.logic['policy'] == "RAND":
+            if self.logic.split_policy == "RAND":
                 next_ind = random.randint(0,len(self.directed_to)-1)
-            elif self.logic['policy'] == "ALPHA_SEQ":
+            elif self.logic.split_policy == "ALPHA_SEQ":
                 next_ind = self.count % len(path_list)
                 #No need for increasing count in starting since already do so.
                 #self.count += 1
@@ -322,7 +346,7 @@ class StartingPoint(Node):
             self.entities.append(entity)
             if len(self.blueprints) > 0:
 
-                for name, blueprint in self.blueprints:
+                for name, blueprint in self.blueprints.items():
                     con = blueprint.build(self.env, entity)
                     entity.add_container(con)
 
@@ -350,7 +374,7 @@ class BasicComponent(Node):
     def __repr__(self):
         return f"{self.name}"
 
-    def add_container(self, blueprint, uid=None):
+    def add_container(self, blueprint):
         self.containers[blueprint.name] = blueprint.build(self.env, self)
 
     def get_con(self, name):
@@ -359,80 +383,29 @@ class BasicComponent(Node):
     def next_dir(self, entity):
         path_list = sorted(self.directed_to.keys(), key=lambda x: x.name)
         if len(self.directed_to) > 1:
-            if self.logic['policy'] == "RAND":
+            if self.logic.split_policy == "RAND":
                 next_ind = random.randint(0,len(self.directed_to)-1)
-            elif self.logic['policy'] == "ALPHA_SEQ":
+            elif self.logic.split_policy == "ALPHA_SEQ":
                 next_ind = self.count % len(path_list)
                 self.count += 1
-            elif self.logic['policy'] == "BOOL":
-                res = self.logic['resource']
-                conname = self.logic['entity_container_name']
-                passlist = [x for x in self.directed_to if x in self.logic['pass']]
-                faillist = [x for x in self.directed_to if x in self.logic['fail']]
+            elif self.logic.split_policy == "BOOL":
+                """ passlist = [x for x in self.directed_to if x in self.logic['pass']]
+                faillist = [x for x in self.directed_to if x in self.logic['fail']] """
 
                 #pprint.pprint(f"self: {self}, entity: {entity} faillist: {faillist}, passlist: {passlist}, directed_to: {self.directed_to}",sys.stderr)
                 #Check if the container exists in entity, if not fail immediately:
                 #if not res in entity.containers or not conname in entity.containers[res]:
                 #    next_ind = random.randint(0,len(faillist)-1)
                 #    return faillist[next_ind]
-                if False:
-                    print("test")
-                else:
-                    encon = entity.containers[res][conname].con
-                    passed = False
-                    
-                    #When this works, use infix operators to reduce the copied code.
-                    #https://stackoverflow.com/questions/932328/python-defining-my-own-operators
 
-                    #Check condition based on a container
-                    if self.logic['cond'] == "el>" and encon.level > self.logic['cond_amount']:
-                        passed = True
-                    elif self.logic['cond'] == "el>=" and encon.level >= self.logic['cond_amount']:
-                        passed = True
-                    elif self.logic['cond'] == "el<" and encon.level < self.logic['cond_amount']:
-                        passed = True
-                    elif self.logic['cond'] == "el<=" and encon.level <= self.logic['cond_amount']:
-                        passed = True
-                    elif self.logic['cond'] == "el==" and encon.level == self.logic['cond_amount']:
-                        passed = True
-
-                    #Check condition based on a name
-
-                    if self.logic['cond'] == "en>" and entity.name > self.logic['cond_amount']:
-                        passed = True
-                    if self.logic['cond'] == "en>=" and entity.name >= self.logic['cond_amount']:
-                        passed = True
-                    elif self.logic['cond'] == "en<" and entity.name < self.logic['cond_amount']:
-                        passed = True
-                    elif self.logic['cond'] == "en<=" and entity.name <= self.logic['cond_amount']:
-                        passed = True   
-                    elif self.logic['cond'] == "en==" and entity.name == self.logic['cond_amount']:
-                        passed = True
-
-                """ print(f"",file=sys.stderr)
-                print(f"{entity}",file=sys.stderr)
-                print(f"{entity.containers['Dollar']['Wallet'].con.level}",file=sys.stderr)
-                print(f"passlist: {passlist}",file=sys.stderr)
-                print(f"faillist: {faillist}",file=sys.stderr)
-                pprint.pprint(self.directed_to, sys.stderr)
-                print(f"Passed or failed?: {passed}",file=sys.stderr) """
-                
-                
-                if passed:
-                    next_ind = random.randint(0,len(passlist)-1)
-                    print(f'[{self.env.now}]::\t{entity} Going to {passlist[next_ind]}')
-                    return (passlist[next_ind], True)
-                else:
-
-                    try:
-                        next_ind = random.randint(0,len(faillist)-1)
-                        print(f'[{self.env.now}]::\t{entity} Going to {faillist[next_ind]}')
-                    except:
-                        raise ValueError(f"self: {self}, faillist: {faillist}, passlist: {passlist}, directed_to: {self.directed_to}, node logic: {self.logic}")
-                    return (faillist[next_ind], False)
+                (action_groups, paths) = self.logic.eval(entity, self)
+                pathlist = [x for x in self.directed_to if x in paths]
+                next_ind = random.randint(0, len(pathlist)-1)
+                print(f'[{self.env.now}]::\t{entity} Going to {pathlist[next_ind]}')
+                passed = len(action_groups) > 0
+                return (pathlist[next_ind], action_groups)          
         else:
             next_ind = 0
-        
         try:
             return (path_list[next_ind], True)
         except:
@@ -490,7 +463,7 @@ class BasicContainer(object):
         self.con = simpy.Container(env, float(capacity), float(init))
 
     def __repr__(self):
-        return f"{self.name}"
+        return f"{self.name} + {self.con.level}"
 
     def update(self, args):
         for k,v in args.items():

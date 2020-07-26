@@ -23,7 +23,7 @@ class DataStore():
 	save = {
 		"nodes" : {},
 		"containers" : {},
-		"container_specs" : {},
+		"container_blueprints" : {},
 		"dirto" : {},
 		"logic" : {},
 		"last_run" : None
@@ -32,7 +32,7 @@ class DataStore():
 	basics = {}
 	ends = {}
 	containers = {}
-	container_specs = {}
+	container_blueprints = {}
 	env = simpy.Environment()
 data = DataStore()
 
@@ -64,13 +64,13 @@ def store():
 @app.route('/api/container_spec/', methods=['GET','POST'])
 def container_spec():
 	if request.method == "GET":
-		return data.container_specs[request.json['resource']][request.json['uid']]
+		return data.container_blueprints[request.json['resource']][request.json['uid']]
 	else:	
-		if not request.json['resource'] in data.container_specs:
-			data.container_specs[request.json['resource']] = {}
+		if not request.json['resource'] in data.container_blueprints:
+			data.container_blueprints[request.json['resource']] = {}
 	
 		inputs = dict(request.json)
-		data.container_specs[request.json['resource']][request.json['uid']] = inputs
+		data.container_blueprints[request.json['resource']][request.json['uid']] = inputs
 		return jsonify(inputs)
 
 #Handles adding a new container to a node. TODO: add functionality to remove containers / update.
@@ -96,7 +96,7 @@ def container():
 def node_container_spec():
 	if request.method == "PUT":
 		node = data.nodes[request.json['node']]
-		spec = data.container_specs[request.json['resource']][request.json['uid']]
+		spec = data.container_blueprints[request.json['resource']][request.json['uid']]
 		node.add_container_spec(spec)
 		return f"Container Specification {spec} added to {node}"
 
