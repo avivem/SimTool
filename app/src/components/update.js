@@ -26,6 +26,7 @@ class UpdatePopUp extends Component{
             showMessageUP: false,
             showMessageCont: false,
             
+            
 
         }
         
@@ -65,6 +66,16 @@ class UpdatePopUp extends Component{
         
     };
 
+    onButtonContainer = () => {
+        if(this.state.showMessageCont== false){
+            this.setState({showMessageCont: true});
+        }else{
+            this.setState({showMessageCont: false});
+        }
+        
+    };
+
+    
     
 
     render(){
@@ -245,6 +256,50 @@ class UpdatePopUp extends Component{
                                 Add Container
                             </button>
                         </div>
+
+                        {/*when container button clicked, show html*/}
+                        {this.state.showMessageCont &&  
+                            <div className="input-group">                    
+                                <label className="label">Name:</label>
+                                <input 
+                                    type="text" 
+                                    className="form-control"
+                                    name="containerName" 
+                                    style={{width: '150px'}}
+                                    onChange={this.onChange} />
+                            
+                                <label className="label">Resource:</label>
+                                <input 
+                                    type="text" 
+                                    className="form-control"
+                                    name="containerResource" 
+                                    style={{width: '150px'}}
+                                    onChange={this.onChange} />
+                                <label className="label">initial Value:</label>
+                                <input 
+                                    type="text" 
+                                    className="form-control"
+                                    name="initial" 
+                                    style={{width: '150px'}}
+                                    onChange={this.onChange} />
+                                <label className="label">Capacity:</label>
+                                <input 
+                                    type="text" 
+                                    className="form-control"
+                                    name="capacity" 
+                                    style={{width: '150px'}}
+                                    onChange={this.onChange} />
+                            </div>
+                        }
+
+                        <div class="logic">
+                            <button className="button" onClick={this.showLogic} >
+                                Add Logic
+                            </button>
+                        </div>
+
+                    {/*when logic button clicked, show html*/}
+                   
                         <LogicComponent
                          submitLogic={this.props.submitLogic}
                          selectedNodeID={this.props.selectedNodeID}
@@ -254,7 +309,6 @@ class UpdatePopUp extends Component{
                          stationNode={this.props.stationNode} 
                          endNode={this.props.endNode}
                          logics={this.props.logics} /> 
-
                         {logic}
                     </div>
 
@@ -323,6 +377,50 @@ class UpdatePopUp extends Component{
                             </button>
                         </div>
 
+                        {/*when contianer button clicked, show html*/}
+                        {this.state.showMessageCont &&  
+                            <div className="input-group">                    
+                                <label className="label">Name:</label>
+                                <input 
+                                    type="text" 
+                                    className="form-control"
+                                    name="containerName" 
+                                    style={{width: '150px'}}
+                                    onChange={this.onChange} />
+                            
+                                <label className="label">Resource:</label>
+                                <input 
+                                    type="text" 
+                                    className="form-control"
+                                    name="containerResource" 
+                                    style={{width: '150px'}}
+                                    onChange={this.onChange} />
+                                <label className="label">initial Value:</label>
+                                <input 
+                                    type="text" 
+                                    className="form-control"
+                                    name="initial" 
+                                    style={{width: '150px'}}
+                                    onChange={this.onChange} />
+                                <label className="label">Capacity:</label>
+                                <input 
+                                    type="text" 
+                                    className="form-control"
+                                    name="capacity" 
+                                    style={{width: '150px'}}
+                                    onChange={this.onChange} />
+                            </div>
+                        }
+
+                        <div class="container logic">
+                            <button className="button" onClick={this.showLogic}>
+                                Add Logic
+                            </button>
+                        </div>
+
+                    {/*when logic button clicked, show html*/}
+                        
+
                         <LogicComponent
                          submitLogic={this.props.submitLogic}
                          selectedNodeID={this.props.selectedNodeID}
@@ -330,6 +428,7 @@ class UpdatePopUp extends Component{
                          arrows={this.props.arrows}
                          startNode={this.props.startNode}
                          stationNode={this.props.stationNode} 
+
                          endNode={this.props.endNode}
                          logics={this.props.logics} /> 
                         {logic}
