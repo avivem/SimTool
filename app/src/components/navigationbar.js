@@ -70,7 +70,6 @@ class Navigation extends Component{
       this.handleLoad = this.handleLoad.bind(this);
 
       this.handleContainer= this.handleContainer.bind(this);
-      this.handleUpdate= this.handleUpdate.bind(this);
       this.openSpecPopup = this.openSpecPopup.bind(this);
     }
 
@@ -358,29 +357,6 @@ class Navigation extends Component{
       this.props.openSpecPopup()
     }
 
-    // Turn on update mode
-    handleUpdate(){
-      
-      if(this.props.updateMode){
-        this.setState({
-          updateButtonColor: "#2cbebe",
-          actionButtonColor: "#2cbebe",
-          arrowButtonColor: "#2cbebe",
-          removeButtonColor: "#ff0000"
-        });
-      }
-      else{
-        this.setState({
-          updateButtonColor: "#1e8080", 
-          actionButtonColor: "#2cbebe",
-          arrowButtonColor: "#2cbebe",
-          removeButtonColor: "#ff0000"
-        });
-      }
-      
-      this.props.handleUpdate();
-    }
-
     render(){
         let content;
         // console.log(this.state)
@@ -484,15 +460,6 @@ class Navigation extends Component{
                         </label></div>
         }
 
-      // var log = '';
-      // for(var x in this.state.log){
-      //   log = log.concat('<p>', JSON.stringify(this.state.log[x]),'</p>','<br>');
-      // }
-      // console.log(log);
-
-      // this.state.log = log;
-      // console.log(this.state.log);
-
       return(
         <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark navbar-expand ">
          
@@ -505,14 +472,12 @@ class Navigation extends Component{
               <li class="nav-item">
                 <button className="button" style={{backgroundColor:this.state.arrowButtonColor}} onClick={this.addArrowMode}>→</button>
               </li>
-              <li class="nav-item">
+             {/* <li class="nav-item">
                 <button className="button" style={{backgroundColor:this.state.actionButtonColor}} onClick={this.handleContainer}>Contain</button>
               </li>
+              */}
               <li class="nav-item">
                 <button className="button" style={{backgroundColor: "#2cbebe"}} onClick={this.openSpecPopup}>Spec</button>
-              </li>
-              <li class="nav-item">
-                <button className="button" style={{backgroundColor:this.state.updateButtonColor}} onClick={this.handleUpdate}>Update</button>
               </li>
               <li class="nav-item">
                 <button className="button" style={{backgroundColor:this.state.removeButtonColor}} onClick={this.handleRemoveMode}>x</button>

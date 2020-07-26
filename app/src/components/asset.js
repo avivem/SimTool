@@ -64,7 +64,16 @@ class AssestPopUp extends Component{
 
     closeSpecPopup(){
         this.setState({
-            showErrorMessage: false
+            specName: "",
+            resourceName: "",
+            lowerAmount: 0,
+            upperAmount: 0,
+            maxAmount: 0,
+            scale: 0,
+            loc: 0,
+            constantValue: 0,
+            distribution: "Normal",
+            showErrorMessage: false,
         });
         this.props.closeSpecPopup();
     }

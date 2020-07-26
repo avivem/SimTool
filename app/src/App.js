@@ -7,7 +7,7 @@ import Canvas from './components/canvas'
 import AssetPopUp from './components/asset'
 import UpdatePopUp from './components/update'
 import ContainerPopup from './components/container';
-import SpecSideBar from './components/sidebar';
+import SpecSelectPopup from './components/SpecSelectPopup';
 
 
 class App extends Component{
@@ -42,15 +42,21 @@ class App extends Component{
       numLoadedImage: 0,
       numImageToLoad: 0,
       containerMode: false,
-      updateMode: false,
+      updateMode: true,
       
       containers: [],
       specs: [],
 
       openSpec: false,
       openContainer: false,
+      openSpecSelect: false,    // For popup to select start node to app spec to 
+      selectedSpec: {},
+      selectedSpecTo: [],
 
       selectedNodeID: "",
+
+      logics: [],
+      
     }
 
     // numImage keep track of current number of image in model
@@ -95,7 +101,12 @@ class App extends Component{
     this.openSpecPopup = this.openSpecPopup.bind(this);
     this.closeSpecPopup = this.closeSpecPopup.bind(this);
     this.addSpec = this.addSpec.bind(this);
+
+    this.openSpecSelectPopup = this.openSpecSelectPopup.bind(this);
+    this.closeSpecSelectPopup = this.closeSpecSelectPopup.bind(this);
+    this.addSpecSelected = this.addSpecSelected.bind(this);
     
+    this.submitLogic = this.submitLogic.bind(this);
   }
 
 
@@ -849,7 +860,7 @@ class App extends Component{
       uid: "container-" + this.state.count,
       selectedNode: selectedNode,
       name: name,
-      resource,
+      resource: resource,
       init: init,
       capacity: capacity
     });
@@ -906,7 +917,7 @@ class App extends Component{
   handleUpdate(){
     if(this.state.updateMode){
       this.setState({
-        updateMode: false,
+        updateMode: true,
         containerMode: false,
         createArrowMode: false,
         removeMode: false,
@@ -941,14 +952,95 @@ class App extends Component{
       console.log("Close Interactive Popup");
   }
 
+  // This is passed to the sidebarr which is called when a spec is clicked on, the spec is the selected spec
+  openSpecSelectPopup(spec){
+    this.setState({
+      openSpecSelect: true,
+      selectedSpec: spec,
+      selectedSpecTo: spec.specTo
+    })
+  }
+  
+  // Close the popup to select start node to apply the selected spec to, called in t he SoecSelectPopup.js
+  closeSpecSelectPopup(){
+    this.setState({
+      openSpecSelect: false,
+      selectedSpec: {},
+      selectedSpecTo: []
+    });
+  }
+
+  // Add selected nodes to the spec
+  addSpecSelected(spec, nodes){
+
+    var specs = this.state.specs;
+    specs.forEach((s) => {
+      if(s.uid == spec.uid){
+        s.specTo = nodes;
+      }
+    });
+
+    this.setState({
+      specs: specs
+    });
+
+    console.log(specs);
+
+  }
+
+  // status - new/edit, if new then add new logic, if edit then edit an existing logic
+  // cond - el==, el<=, el<, el>=, el>
+  // condAmount/actionAmount - should be a number
+  // resource - should be a resource from an assign container
+  // action - ADD or SUB
+  // passPath/failPath - UID of node of path to go
+  // selectedNodeID - UID of the selected node 
+  submitLogic(status, cond, condAmount, resource, action, actionAmount, passPath, passName, failPath, failName, selectedNodeID){
+    var lst = this.state.logics;
+    if(status == "new"){
+      lst.push({
+        uid: "logic-" + this.state.count,
+        applyTo: selectedNodeID,
+        resource: resource,
+        cond: cond,
+        condAmount: condAmount,
+        action: action,
+        actionAmount: actionAmount,
+        passPath: passPath,
+        passName: passName,
+        failPath: failPath,
+        failName: failName,
+      });
+    }
+    else{
+      lst.forEach((l) => {
+        if(selectedNodeID == l.applyTo){
+          l.resource= resource;
+          l.cond= cond;
+          l.condAmount= condAmount;
+          l.action= action;
+          l.actionAmount= actionAmount;
+          l.passPath= passPath;
+          l.passName= passName;
+          l.failPath= failPath;
+          l.failName= failName;
+        }
+      })
+    }
+
+
+    this.setState((state) => ({
+      count: state.count + 1,
+      logics: lst
+    }))
+
+    console.log(lst);
+  }
+
   render(){
     return (
       <div className="App">
-        <div>
-          <SpecSideBar 
-          specs={this.state.specs}
-          />
-        </div>
+        
 
         <div className="head">
           <Navigation 
@@ -974,6 +1066,8 @@ class App extends Component{
         
         <div>
           <Canvas 
+            specs={this.state.specs}
+
             startNode={this.state.startNode} 
             stationNode={this.state.stationNode} 
             endNode={this.state.endNode}
@@ -1006,7 +1100,6 @@ class App extends Component{
             incrNumLoadedImage={this.incrNumLoadedImage}
             numImageToLoad={this.state.numImageToLoad}
             numLoadedImage={this.state.numLoadedImage}
-      //      numImage = {this.state.numImage} 
             handleBackendLoadNodes={this.handleBackendLoadNodes}
             
             openContainerPopup={this.openContainerPopup}
@@ -1014,6 +1107,9 @@ class App extends Component{
 
             openUpdatePopup={this.openUpdatePopup}
             updateMode={this.state.updateMode}
+            handleUpdate={this.handleUpdate}
+
+            openSpecSelectPopup={this.openSpecSelectPopup}
             ></Canvas>
         </div>
 
@@ -1033,7 +1129,12 @@ class App extends Component{
           selectedNodeID={this.state.selectedNodeID}
           startNode={this.state.startNode}
           stationNode={this.state.stationNode} 
-          endNode={this.state.endNode}/>
+          endNode={this.state.endNode}
+          
+          arrows={this.state.arrows}
+          containers={this.state.containers}
+          submitLogic={this.submitLogic}
+          logics={this.state.logics}/>
         </div>
         
         <div>
@@ -1045,7 +1146,18 @@ class App extends Component{
           />
         </div>
         
+        <div>
+          <SpecSelectPopup
+          openSpecSelect= {this.state.openSpecSelect}
+          startNode={this.state.startNode}
+          stationNode={this.state.stationNode}
+          selectedSpec={this.state.selectedSpec}
+          selectedSpecTo={this.state.selectedSpecTo}
+          closeSpecSelectPopup={this.closeSpecSelectPopup}
+          addSpecSelected={this.addSpecSelected}
           
+          />
+        </div>
 
       </div>
     );

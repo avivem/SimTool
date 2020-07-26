@@ -7,10 +7,15 @@ import EndImage from "../image/end.png";
 // import Test from "./start.png"
 
 import Konva from 'konva';
-import Popup from "reactjs-popup";
+import Sidebar from "react-sidebar";
+
 
 import './css/popup.css';
+import './css/sidebar.css';
+import SpecSideBar from './SpecSideBar';
 
+
+const mql = window.matchMedia(`(min-width: 800px)`);
 
 
 class Canvas extends Component{
@@ -18,9 +23,11 @@ class Canvas extends Component{
         super(props);
 
         this.state = {
+            sidebarDocked: mql.matches,
+            sidebarOpen: true,
+
             stage: "",
-            layer: "",
-            open: false,
+            canvasLayer: "",
             targetId: "",
             type: "",
             name: "",
@@ -43,7 +50,9 @@ class Canvas extends Component{
             endname: "default name",
         }
 
-        this.openPopup = this.openPopup.bind(this);
+        this.mediaQueryChanged = this.mediaQueryChanged.bind(this);
+        this.onSetSidebarOpen = this.onSetSidebarOpen.bind(this);
+
         this.closePopup = this.closePopup.bind(this);
 
         this.handleChangeUnit = this.handleChangeUnit.bind(this)
@@ -59,17 +68,25 @@ class Canvas extends Component{
         this.onChange = this.onChange.bind(this);
     }
 
+    componentWillMount() {
+        mql.addListener(this.mediaQueryChanged);
+    }
+
+    componentWillUnmount() {
+        mql.removeListener(this.mediaQueryChanged);
+    }
+
+    onSetSidebarOpen(open) {
+        this.setState({ sidebarOpen: open });
+    }
+
+    mediaQueryChanged() {
+        this.setState({ sidebarDocked: mql.matches, sidebarOpen: false });
+    }
+
     // Change state variables
     onChange(e){
       this.setState({ [e.target.name]: e.target.value })
-    }
-
-    /** Open popup */
-    openPopup(){
-        this.setState({
-            open: true
-        });
-        console.log("Open Popup");
     }
       
     /** Close popup */
@@ -131,7 +148,7 @@ class Canvas extends Component{
 
 
         // Change the label of the selected node
-        var layer = this.state.layer;
+        var layer = this.state.canvasLayer;
         var label = layer.findOne("#" + "name-" + this.state.targetId);
 
         switch(this.state.type){
@@ -152,7 +169,7 @@ class Canvas extends Component{
 
         }
 
-        this.state.layer.batchDraw();
+        this.state.canvasLayer.batchDraw();
 
     }
 
@@ -163,24 +180,27 @@ class Canvas extends Component{
         var height = window.innerHeight;
 
         var stage = new Konva.Stage({
-            container: 'container',
+            container: 'canvas-container',
             width: width,
             height: height,
             draggable: true
         });
-        var layer = new Konva.Layer();
-        stage.add(layer);
+        var canvasLayer = new Konva.Layer();
+        
+        stage.add(canvasLayer);
+        
 
         this.setState({
             stage: stage,
-            layer: layer
+            canvasLayer: canvasLayer,
+            
         });
     }
 
     // Determine the To and From node, once determine pass it to a 
     // function in App.js to add the arrow to the list
     findToAndFrom(target){
-        var layer = this.state.layer;
+        var layer = this.state.canvasLayer;
         if(this.state.currDir == "from"){
             this.setState({
                 from: target.uid,
@@ -232,7 +252,7 @@ class Canvas extends Component{
 
     // Change arrow as the node are dragged.
     update(){
-        var layer = this.state.layer;
+        var layer = this.state.canvasLayer;
 
         this.props.arrows.forEach((connect) =>{
             // Get the node
@@ -254,7 +274,7 @@ class Canvas extends Component{
 
     componentDidUpdate(prevProps, prevState){
 
-        var layer = this.state.layer;
+        var layer = this.state.canvasLayer;
 
         // Adding/Loading node
         if(this.props.addedStart || this.props.addedStation || this.props.addedEnd || this.props.loadMode){
@@ -385,10 +405,6 @@ class Canvas extends Component{
                             // Open interactive popup
                             this.props.openContainerPopup(target.uid);
                         }
-                        else if(this.props.updateMode){
-                            // Open interactive popup
-                            this.props.openUpdatePopup(target.uid);
-                        }
                         else if(this.props.removeMode){
                             // remove arrows
                             this.props.arrows.forEach(arrow => {
@@ -418,23 +434,23 @@ class Canvas extends Component{
                                     type: header,
                                     name: target.name,
                                 })
-                                this.openPopup();
+                                this.props.openUpdatePopup(target.uid);
                             }else if(target.type == 'BASIC'){
                                 this.setState({
                                     unit: target.unit,
                                     rate: target.rate,
                                     targetId: target.uid,
-                                    type: header
+                                    type: target.name
                                 })
-                                this.openPopup();
+                                this.props.openUpdatePopup(target.uid);
                             }else{
                                 this.setState({
                                     unit: target.unit,
                                     rate: target.rate,
                                     targetId: target.uid,
-                                    type: header
+                                    type: target.name
                                 })
-                                this.openPopup();
+                                this.props.openUpdatePopup(target.uid);
                             }
 
                         }
@@ -516,10 +532,6 @@ class Canvas extends Component{
                                 // Open interactive popup
                                 t.props.openContainerPopup(target.uid);
                             }
-                            else if(this.props.updateMode){
-                                // Open interactive popup
-                                this.props.openUpdatePopup(target.uid);
-                            }
                             else if(t.props.removeMode){
                                 // remove arrows
                                 t.props.arrows.forEach(arrow => {
@@ -545,7 +557,7 @@ class Canvas extends Component{
                                     targetId: target.uid,
                                     type: header
                                 })
-                                t.openPopup();
+                                this.props.openUpdatePopup(target.uid);
                             }        
                         });
                         layer.batchDraw();
@@ -635,17 +647,47 @@ class Canvas extends Component{
             layer.draw();
             this.props.handleClearMode();
         }
+
+
     }
 
     render(){
+        /*var sidebar = [<p>.</p>,<p>.</p>,<p>.</p>]
+        this.props.specs.forEach((e) => {
+            sidebar.push(<p className="tab">Name: {e.name} <br/> Resource: {e.resourceName}</p>)
+        });
+*/
+        var sidebar = <SpecSideBar
+                        specs={this.props.specs}
+                        canvas={this.state.layer}
+                        openSpecSelectPopup={this.props.openSpecSelectPopup} />
+
+        var content = <div className="content">
+                        <p>.</p>
+                        <p>.</p>
+                        <p>.</p>
+                        <div id="canvas-container"></div>
+                    </div>
+
+
+        const sidebarStyles = {
+            sidebar: {
+                backgroundColor: '#707070',
+                width: '200px'
+            }
+        }
 
         return(
-            <div>
-                <p>.</p>
-                <p>.</p>
-                <p>.</p>
-                <div id="container"></div>
-            </div>
+            <Sidebar
+            styles={sidebarStyles}
+            open={this.state.sidebarOpen}
+            docked={this.state.sidebarDocked}
+            onSetOpen={this.onSetSidebarOpen}
+            sidebar={sidebar}
+            children={content}
+            />
+                
+             
     );}
 }
 

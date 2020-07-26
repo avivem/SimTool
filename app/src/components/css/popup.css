@@ -9,9 +9,8 @@
   font-size: 18px;
   margin: 20px 5px;
   border-radius: 20%;
-  height: 50px;
-  width: 70px;
   background-color: blue;
+  min-width:60px;
 }
 
 .textbox{
