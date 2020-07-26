@@ -287,7 +287,6 @@ class Canvas extends Component{
     componentDidUpdate(prevProps, prevState){
 
         var layer = this.state.canvasLayer;
-        console.log(this.props.updateMode);
 
         // Adding/Loading node
         if(this.props.addedStart || this.props.addedStation || this.props.addedEnd || this.props.loadMode){

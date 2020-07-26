@@ -1129,6 +1129,7 @@ class App extends Component{
           <SpecSelectPopup
           openSpecSelect= {this.state.openSpecSelect}
           startNode={this.state.startNode}
+          stationNode={this.state.stationNode}
           selectedSpec={this.state.selectedSpec}
           selectedSpecTo={this.state.selectedSpecTo}
           closeSpecSelectPopup={this.closeSpecSelectPopup}
