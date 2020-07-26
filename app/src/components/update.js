@@ -292,12 +292,6 @@ class UpdatePopUp extends Component{
                             </div>
                         }
 
-                        <div class="logic">
-                            <button className="button" onClick={this.showLogic} >
-                                Add Logic
-                            </button>
-                        </div>
-
                     {/*when logic button clicked, show html*/}
                    
                         <LogicComponent
@@ -411,12 +405,6 @@ class UpdatePopUp extends Component{
                                     onChange={this.onChange} />
                             </div>
                         }
-
-                        <div class="container logic">
-                            <button className="button" onClick={this.showLogic}>
-                                Add Logic
-                            </button>
-                        </div>
 
                     {/*when logic button clicked, show html*/}
                         
