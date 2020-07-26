@@ -23,10 +23,10 @@ class UpdatePopUp extends Component{
 
             endname: "default name",
 
-            showMessage: false,
-
+            showMessageUP: false,
+            showMessageCont: false,
             
-            showLogic: false
+            
 
         }
         
@@ -35,7 +35,6 @@ class UpdatePopUp extends Component{
 
         this.closeUpdatePopup = this.closeUpdatePopup.bind(this);
     
-        this.showLogic = this.showLogic.bind(this);
         
     }
 
@@ -43,7 +42,6 @@ class UpdatePopUp extends Component{
         // console.log(e.target)
         this.setState({ [e.target.name]: e.target.value })
     }
-
     
 
      // Handle submit data of the interaction
@@ -59,20 +57,25 @@ class UpdatePopUp extends Component{
         this.props.closeUpdatePopup();
     }
 
-    onButtonClickHandler = () => {
-    this.setState({showMessage: true});
+    onButtonUpdate = () => {
+        if(this.state.showMessageUP == false){
+            this.setState({showMessageUP: true});
+        }else{
+            this.setState({showMessageUP: false});
+        }
+        
     };
 
-    // First click will open the logic content
-    // Second click will close logic content and reset all field
-    showLogic(){
-        if(this.state.showLogic){
-            this.setState({ showLogic: false });
+    onButtonContainer = () => {
+        if(this.state.showMessageCont== false){
+            this.setState({showMessageCont: true});
+        }else{
+            this.setState({showMessageCont: false});
         }
-        else{
-            this.setState({showLogic: true});
-        }
-    }
+        
+    };
+
+    
     
 
     render(){
@@ -104,41 +107,77 @@ class UpdatePopUp extends Component{
         var s = this.props.stationNode;
 
 
-        // determine content in popup
         if(type == "end" && endNode != undefined){
 
             content =   <div class="container">
+                        <h2>Settings</h2>
                         <p>Node Name: {endNode.name}</p>
 
                         <div class="container">
-                            <button className="button" onClick={this.onButtonClickHandler}>
+                            <button className="button" onClick={this.onButtonUpdate}>
                                 Update Node
                             </button>
                         </div>
 
-                       {this.state.showMessage &&  
+                        {/*when update button clicked, show html*/}
+                       {this.state.showMessageUP &&  
                         <div>
-                        <label className="label">Name:
-                            <input 
-                                type="text" 
-                                className="form-control"
-                                placeholder={endNode.name}
-                                name="endname"
-                                onChange={this.onChange} />
-                        </label>
+                            <label className="label">Name:
+                                <input 
+                                    type="text" 
+                                    className="form-control"
+                                    placeholder={endNode.name}
+                                    name="endname"
+                                    onChange={this.onChange} />
+                            </label>
                         </div>}
 
 
                         <div class="container">
-                            <button className="button" onClick={this.submitInteraction}>
+                            <button className="button" onClick={this.onButtonContainer}>
                                 Add Container
                             </button>
                         </div>
 
+                     {/*when container button clicked, show html*/}
+                        {this.state.showMessageCont &&  
+                            <div className="input-group">                    
+                                <label className="label">Name:</label>
+                                <input 
+                                    type="text" 
+                                    className="form-control"
+                                    name="containerName" 
+                                    style={{width: '150px'}}
+                                    onChange={this.onChange} />
+                            
+                                <label className="label">Resource:</label>
+                                <input 
+                                    type="text" 
+                                    className="form-control"
+                                    name="containerResource" 
+                                    style={{width: '150px'}}
+                                    onChange={this.onChange} />
+                                <label className="label">initial Value:</label>
+                                <input 
+                                    type="text" 
+                                    className="form-control"
+                                    name="initial" 
+                                    style={{width: '150px'}}
+                                    onChange={this.onChange} />
+                                <label className="label">Capacity:</label>
+                                <input 
+                                    type="text" 
+                                    className="form-control"
+                                    name="capacity" 
+                                    style={{width: '150px'}}
+                                    onChange={this.onChange} />
+                            </div>
+                        }
+
                         </div>
         }else if(type == "start" && startNode != undefined){
-            console.log('start');
             content =   <div class="container">
+                        <h2>Settings</h2>
                         <p>Node Name: {startNode.name}</p>
                         <p>Entity Name: {startNode.entity_name}</p>
                         <p>Generation Function dist: {startNode.dist}</p>
@@ -147,96 +186,135 @@ class UpdatePopUp extends Component{
                         <p>Limit: {startNode.limit}</p>
 
                         <div class="container">
-                            <button className="button" onClick={this.onButtonClickHandler}>
+                            <button className="button" onClick={this.onButtonUpdate}>
                                 Update Node
                             </button>
                         </div>
 
-                       {this.state.showMessage &&  
-                        <div>
-                        <label className="label">Name:
-                            <input 
-                                type="text" 
-                                name="startname"
-                                placeholder={startNode.name}
-                                className="form-control"
-                                onChange={this.onChange}
-                                 />
-                        </label>
-                        <label className="label">Gen Function dist:
-                            <input 
-                                type="text" 
-                                className="form-control"
-                                placeholder={startNode.dist}
-                                name="dist" 
-                                onChange={this.onChange}
-                                 />
-                        </label>
-                        <label className="label">Gen Function loc:
-                            <input 
-                                type="text" 
-                                className="form-control"
-                                placeholder={startNode.loc}
-                                name="loc" 
-                                onChange={this.onChange}
-                                 />
-                        </label>
-                        <label className="label">Gen Function scale:
-                            <input 
-                                type="text" 
-                                className="form-control"
-                                placeholder={startNode.scale}
-                                name="scale" 
-                                onChange={this.onChange}
-                                 />
-                        </label>
-                        <label className="label">Entity Name:
-                            <input 
-                                type="text" 
-                                className="form-control"
-                                placeholder={startNode.entity_name}
-                                name="entity_name" 
-                                onChange={this.onChange}
-                                 />
-                        </label>
-                        <label className="label">Limit:
-                            <input 
-                                type="text" 
-                                placeholder={startNode.limit}
-                                className="form-control"
-                                name="limit" 
-                                
-                                onChange={this.onChange}
-                                 />
-                        </label>
-                        </div>}
+                       {/*when update button clicked, show html*/}
+                       {this.state.showMessageUP &&  
+                            <div>
+                                <label className="label">Name:
+                                    <input 
+                                        type="text" 
+                                        name="startname"
+                                        placeholder={startNode.name}
+                                        className="form-control"
+                                        onChange={this.onChange}
+                                         />
+                                </label>
+                                <label className="label">Gen Function dist:
+                                    <input 
+                                        type="text" 
+                                        className="form-control"
+                                        placeholder={startNode.dist}
+                                        name="dist" 
+                                        onChange={this.onChange}
+                                         />
+                                </label>
+                                <label className="label">Gen Function loc:
+                                    <input 
+                                        type="text" 
+                                        className="form-control"
+                                        placeholder={startNode.loc}
+                                        name="loc" 
+                                        onChange={this.onChange}
+                                         />
+                                </label>
+                                <label className="label">Gen Function scale:
+                                    <input 
+                                        type="text" 
+                                        className="form-control"
+                                        placeholder={startNode.scale}
+                                        name="scale" 
+                                        onChange={this.onChange}
+                                         />
+                                </label>
+                                <label className="label">Entity Name:
+                                    <input 
+                                        type="text" 
+                                        className="form-control"
+                                        placeholder={startNode.entity_name}
+                                        name="entity_name" 
+                                        onChange={this.onChange}
+                                         />
+                                </label>
+                                <label className="label">Limit:
+                                    <input 
+                                        type="text" 
+                                        placeholder={startNode.limit}
+                                        className="form-control"
+                                        name="limit" 
+                                        
+                                        onChange={this.onChange}
+                                         />
+                                </label>
+                            </div>}
 
                         <div class="container">
-                            <button className="button" onClick={this.submitInteraction}>
+                            <button className="button" onClick={this.onButtonContainer}>
                                 Add Container
                             </button>
                         </div>
+
+                        {/*when container button clicked, show html*/}
+                        {this.state.showMessageCont &&  
+                            <div className="input-group">                    
+                                <label className="label">Name:</label>
+                                <input 
+                                    type="text" 
+                                    className="form-control"
+                                    name="containerName" 
+                                    style={{width: '150px'}}
+                                    onChange={this.onChange} />
+                            
+                                <label className="label">Resource:</label>
+                                <input 
+                                    type="text" 
+                                    className="form-control"
+                                    name="containerResource" 
+                                    style={{width: '150px'}}
+                                    onChange={this.onChange} />
+                                <label className="label">initial Value:</label>
+                                <input 
+                                    type="text" 
+                                    className="form-control"
+                                    name="initial" 
+                                    style={{width: '150px'}}
+                                    onChange={this.onChange} />
+                                <label className="label">Capacity:</label>
+                                <input 
+                                    type="text" 
+                                    className="form-control"
+                                    name="capacity" 
+                                    style={{width: '150px'}}
+                                    onChange={this.onChange} />
+                            </div>
+                        }
 
                         <div class="logic">
                             <button className="button" onClick={this.showLogic} >
                                 Add Logic
                             </button>
                         </div>
-                        {this.state.showLogic ? 
+
+                    {/*when logic button clicked, show html*/}
+                   
                         <LogicComponent
                          submitLogic={this.props.submitLogic}
                          selectedNodeID={this.props.selectedNodeID}
-                         showLogic={this.showLogic}
                          containers={this.props.containers}
                          arrows={this.props.arrows}
                          startNode={this.props.startNode}
                          stationNode={this.props.stationNode} 
-                         endNode={this.props.endNode} /> 
-                         : <div></div>}
+                         endNode={this.props.endNode}
+                         logics={this.props.logics} /> 
                         {logic}
+                    </div>
 
 
-                        </div>
+
+                      
         }else if(type == "station" && s != undefined){
             
             // do a for each to grab correct basic node
@@ -249,71 +327,113 @@ class UpdatePopUp extends Component{
             }
 
             content =   <div class="container">
+                        <h2>Settings</h2>
                         <p>Node Name: {s.name}</p>
                         <p>Capacity: {s.capacity}</p>
                         <p>Time Function: {s.time_func}</p>
 
                         <div class="container">
-                            <button className="button" onClick={this.onButtonClickHandler}>
+                            <button className="button" onClick={this.onButtonUpdate}>
                                 Update Node
                             </button>
                         </div>
 
-                        {this.state.showMessage && 
-                        <div><label className="label">Name:
-                            <input 
-                                type="text" 
-                                name="stationname"
-                                placeholder={s.name}
-                                className="form-control"
-                                
-                                onChange={this.onChange}
-                            />
-                        </label>
-                        <label className="label">Capacity:
-                            <input 
-                                type="text" 
-                                placeholder={s.capacity}
-                                className="form-control"
-                                name="capacity" 
-                                onChange={this.onChange}
-                                 />
-                        </label>
-                        <label className="label">Time Function:
-                            <input 
-                                type="text" 
-                                placeholder={s.time_func}
-                                className="form-control"
-                                name="time_func" 
-                                onChange={this.onChange}
-                                 />
-                        </label></div>}
+                        {/*when update button clicked, show html*/}
+                        {this.state.showMessageUP && 
+                        <div>
+                            <label className="label">Name:
+                                <input 
+                                    type="text" 
+                                    name="stationname"
+                                    placeholder={s.name}
+                                    className="form-control"
+                                    
+                                    onChange={this.onChange}
+                                />
+                            </label>
+                            <label className="label">Capacity:
+                                <input 
+                                    type="text" 
+                                    placeholder={s.capacity}
+                                    className="form-control"
+                                    name="capacity" 
+                                    onChange={this.onChange}
+                                     />
+                            </label>
+                            <label className="label">Time Function:
+                                <input 
+                                    type="text" 
+                                    placeholder={s.time_func}
+                                    className="form-control"
+                                    name="time_func" 
+                                    onChange={this.onChange}
+                                     />
+                            </label>
+                        </div>}
 
                         <div class="container">
-                            <button className="button" onClick={this.submitInteraction}>
+                            <button className="button" onClick={this.onButtonContainer}>
                                 Add Contaier
                             </button>
                         </div>
 
-                        <div class="logic">
+                        {/*when contianer button clicked, show html*/}
+                        {this.state.showMessageCont &&  
+                            <div className="input-group">                    
+                                <label className="label">Name:</label>
+                                <input 
+                                    type="text" 
+                                    className="form-control"
+                                    name="containerName" 
+                                    style={{width: '150px'}}
+                                    onChange={this.onChange} />
+                            
+                                <label className="label">Resource:</label>
+                                <input 
+                                    type="text" 
+                                    className="form-control"
+                                    name="containerResource" 
+                                    style={{width: '150px'}}
+                                    onChange={this.onChange} />
+                                <label className="label">initial Value:</label>
+                                <input 
+                                    type="text" 
+                                    className="form-control"
+                                    name="initial" 
+                                    style={{width: '150px'}}
+                                    onChange={this.onChange} />
+                                <label className="label">Capacity:</label>
+                                <input 
+                                    type="text" 
+                                    className="form-control"
+                                    name="capacity" 
+                                    style={{width: '150px'}}
+                                    onChange={this.onChange} />
+                            </div>
+                        }
+
+                        <div class="container logic">
                             <button className="button" onClick={this.showLogic}>
                                 Add Logic
                             </button>
                         </div>
-                        {this.state.showLogic ? 
+
+                    {/*when logic button clicked, show html*/}
+                        
+
                         <LogicComponent
                          submitLogic={this.props.submitLogic}
                          selectedNodeID={this.props.selectedNodeID}
-                         showLogic={this.showLogic}
                          containers={this.props.containers}
                          arrows={this.props.arrows}
                          startNode={this.props.startNode}
                          stationNode={this.props.stationNode} 
-                         endNode={this.props.endNode} />  
-                         : <div></div>}
+
+                         endNode={this.props.endNode}
+                         logics={this.props.logics} /> 
                         {logic}
 
-                        </div>
+                    </div>
         }
 
 

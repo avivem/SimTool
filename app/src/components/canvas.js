@@ -28,7 +28,6 @@ class Canvas extends Component{
 
             stage: "",
             canvasLayer: "",
-            open: false,
             targetId: "",
             type: "",
             name: "",
@@ -54,7 +53,6 @@ class Canvas extends Component{
         this.mediaQueryChanged = this.mediaQueryChanged.bind(this);
         this.onSetSidebarOpen = this.onSetSidebarOpen.bind(this);
 
-        this.openPopup = this.openPopup.bind(this);
         this.closePopup = this.closePopup.bind(this);
 
         this.handleChangeUnit = this.handleChangeUnit.bind(this)
@@ -89,16 +87,6 @@ class Canvas extends Component{
     // Change state variables
     onChange(e){
       this.setState({ [e.target.name]: e.target.value })
-    }
-
-    /** Open popup */
-    openPopup(){
-        this.setState({
-            open: true
-        });
-        console.log("Open Popup");
-        this.props.handleUpdate();
-
     }
       
     /** Close popup */
@@ -417,10 +405,6 @@ class Canvas extends Component{
                             // Open interactive popup
                             this.props.openContainerPopup(target.uid);
                         }
-                        else if(this.props.updateMode){
-                            // Open interactive popup
-                            this.props.openUpdatePopup(target.uid);
-                        }
                         else if(this.props.removeMode){
                             // remove arrows
                             this.props.arrows.forEach(arrow => {
@@ -450,7 +434,7 @@ class Canvas extends Component{
                                     type: header,
                                     name: target.name,
                                 })
-                                this.openPopup();
+                                this.props.openUpdatePopup(target.uid);
                             }else if(target.type == 'BASIC'){
                                 this.setState({
                                     unit: target.unit,
@@ -458,7 +442,7 @@ class Canvas extends Component{
                                     targetId: target.uid,
                                     type: target.name
                                 })
-                                this.openPopup();
+                                this.props.openUpdatePopup(target.uid);
                             }else{
                                 this.setState({
                                     unit: target.unit,
@@ -466,7 +450,7 @@ class Canvas extends Component{
                                     targetId: target.uid,
                                     type: target.name
                                 })
-                                this.openPopup();
+                                this.props.openUpdatePopup(target.uid);
                             }
 
                         }
@@ -548,10 +532,6 @@ class Canvas extends Component{
                                 // Open interactive popup
                                 t.props.openContainerPopup(target.uid);
                             }
-                            else if(this.props.updateMode){
-                                // Open interactive popup
-                                this.props.openUpdatePopup(target.uid);
-                            }
                             else if(t.props.removeMode){
                                 // remove arrows
                                 t.props.arrows.forEach(arrow => {
@@ -577,7 +557,7 @@ class Canvas extends Component{
                                     targetId: target.uid,
                                     type: header
                                 })
-                                t.openPopup();
+                                this.props.openUpdatePopup(target.uid);
                             }        
                         });
                         layer.batchDraw();
