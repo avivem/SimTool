@@ -4,7 +4,6 @@ import Select from 'react-select';
 import LogicComponent from './logicComponent';
 
 
-
 class UpdatePopUp extends Component{
     constructor(props){
         super(props);
@@ -25,17 +24,14 @@ class UpdatePopUp extends Component{
 
             showMessageUP: false,
             showMessageCont: false,
-            
-            
 
         }
         
         this.onChange = this.onChange.bind(this);
-        this.submitInteraction = this.submitInteraction.bind(this);
+        this.applyChanges = this.applyChanges.bind(this);
 
         this.closeUpdatePopup = this.closeUpdatePopup.bind(this);
     
-        
     }
 
     onChange(e){
@@ -45,7 +41,7 @@ class UpdatePopUp extends Component{
     
 
      // Handle submit data of the interaction
-     submitInteraction(){
+     applyChanges(){
         var change;
         this.props.handleChangeNode(change);
     }
@@ -75,8 +71,6 @@ class UpdatePopUp extends Component{
         
     };
 
-    
-    
 
     render(){
 
@@ -130,6 +124,12 @@ class UpdatePopUp extends Component{
                                     name="endname"
                                     onChange={this.onChange} />
                             </label>
+                            <div class="container">
+                                
+                                <button className="button" onClick={this.applyChanges}>
+                                    Apply
+                                </button>
+                            </div>
                         </div>}
 
 
@@ -249,6 +249,11 @@ class UpdatePopUp extends Component{
                                         onChange={this.onChange}
                                          />
                                 </label>
+                                <div class="container">
+                                    <button className="button" onClick={this.applyChanges}>
+                                        Apply
+                                    </button>
+                                </div>
                             </div>}
 
                         <div class="container">
@@ -363,6 +368,12 @@ class UpdatePopUp extends Component{
                                     onChange={this.onChange}
                                      />
                             </label>
+                            <div class="container">
+                                
+                                <button className="button" onClick={this.applyChanges}>
+                                    Apply
+                                </button>
+                            </div>
                         </div>}
 
                         <div class="container">
@@ -424,7 +435,6 @@ class UpdatePopUp extends Component{
                     </div>
         }
 
-
         return (
             <Popup open={this.props.openUpdate} 
             closeOnDocumentClick 
@@ -432,13 +442,6 @@ class UpdatePopUp extends Component{
             contentStyle={{height: 500, overflow: "auto"}} >
 
                {content}
-
-                <div class="container">
-                    {this.state.showErrorMessage ? <p>Max can't be smaller than the mean</p> : <div></div>}
-                    <button className="button" onClick={this.submitInteraction}>
-                        Apply
-                    </button>
-                </div>
             </Popup>
         );
     }
