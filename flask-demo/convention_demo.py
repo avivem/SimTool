@@ -18,8 +18,8 @@ poor_gen = {
 rich = StartingPoint(env=env, name="Rich Start", entity_name="Richee", generation=rich_gen, limit=300, uid='st')
 poor = StartingPoint(env=env, name="Poor Start", entity_name="Pooree", generation=poor_gen, limit=2000, uid='st')
 
-rich.create_logic("ALPHA_SEQ")
-poor.create_logic("ALPHA_SEQ")
+rich.create_logic("RAND")
+poor.create_logic("RAND")
 
 line1 = BasicComponent(env=env, name="Convention Line 1", capacity=50, time_func=1000, uid='line1')
 sec1 = BasicComponent(env=env, name="Security 1", capacity=10, time_func=100, uid='sec1')

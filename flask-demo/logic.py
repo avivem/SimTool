@@ -101,6 +101,9 @@ class Logic(object):
         
         def add_action(self, name, encon_name, nodecon_name, op, val):
             self.actions[name] = self.Action(name, encon_name, nodecon_name, op, val)
+        
+        def remove_action(self, name):
+            del self.actions[name]
 
     class ConditionGroup(object):
         def __init__(self, name, pass_paths, fail_paths):
@@ -109,6 +112,7 @@ class Logic(object):
             self.fail_paths = set(fail_paths)
             self.AND = True
             self.conditions = {}
+            self.action_group = None
         class Condition(object):
             op_map = {
                 "e>=n" : operator.ge,
@@ -140,10 +144,19 @@ class Logic(object):
 
         def add_condition(self, name, encon_name, nodecon_name, op, val, names=False):
             self.conditions[name] = self.Condition(name, encon_name, nodecon_name, op, val, names)
+            return None
+
+        def remove_condition(self,name):
+            del self.conditions[name]
+            return None
 
         def create_action_group(self, name):
             self.action_group = Logic.ActionGroup(name)
             return self.action_group
+        
+        def delete_action_group(self,name):
+            del self.action_group
+            return None
 
         def eval(self, entity, node):
             results = []
@@ -161,6 +174,11 @@ class Logic(object):
     def create_condition_group(self, name, pass_paths, fail_paths):
         self.condition_groups[name] = Logic.ConditionGroup(name, pass_paths, fail_paths)
         return self.condition_groups[name]
+    
+    def delete_condition_group(self,name):
+        del self.condition_groups[name]
+        return None
+
     def eval(self, entity, node):
         action_groups = []
         pass_paths = set()
@@ -221,9 +239,10 @@ class BasicFlowEntity(object):
                     try:
                         encon = self.containers[ac.encon_name]
                         nodecon = self.currentLoc.containers[ac.nodecon_name]
-                    except KeyError:
+                    except KeyError as e:
                         print("")
                         print("KEY ERROR BLARG")
+                        print(e)
                         print("")
                         continue
 
@@ -399,7 +418,10 @@ class BasicComponent(Node):
                 #    return faillist[next_ind]
 
                 (action_groups, paths) = self.logic.eval(entity, self)
+                #pprint.pprint(self.directed_to, sys.stderr)
+                #pprint.pprint(paths, sys.stderr)
                 pathlist = [x for x in self.directed_to if x in paths]
+                #pprint.pprint(pathlist, sys.stderr)
                 next_ind = random.randint(0, len(pathlist)-1)
                 print(f'[{self.env.now}]::\t{entity} Going to {pathlist[next_ind]}')
                 passed = len(action_groups) > 0
