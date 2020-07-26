@@ -42,7 +42,7 @@ class App extends Component{
       numLoadedImage: 0,
       numImageToLoad: 0,
       containerMode: false,
-      updateMode: false,
+      updateMode: true,
       
       containers: [],
       specs: [],
@@ -54,6 +54,8 @@ class App extends Component{
       selectedSpecTo: [],
 
       selectedNodeID: "",
+
+      logics: [],
       
     }
 
@@ -104,6 +106,7 @@ class App extends Component{
     this.closeSpecSelectPopup = this.closeSpecSelectPopup.bind(this);
     this.addSpecSelected = this.addSpecSelected.bind(this);
     
+    this.submitLogic = this.submitLogic.bind(this);
   }
 
 
@@ -857,7 +860,7 @@ class App extends Component{
       uid: "container-" + this.state.count,
       selectedNode: selectedNode,
       name: name,
-      resource,
+      resource: resource,
       init: init,
       capacity: capacity
     });
@@ -914,7 +917,7 @@ class App extends Component{
   handleUpdate(){
     if(this.state.updateMode){
       this.setState({
-        updateMode: false,
+        updateMode: true,
         containerMode: false,
         createArrowMode: false,
         removeMode: false,
@@ -983,6 +986,55 @@ class App extends Component{
 
     console.log(specs);
 
+  }
+
+  // status - new/edit, if new then add new logic, if edit then edit an existing logic
+  // cond - el==, el<=, el<, el>=, el>
+  // condAmount/actionAmount - should be a number
+  // resource - should be a resource from an assign container
+  // action - ADD or SUB
+  // passPath/failPath - UID of node of path to go
+  // selectedNodeID - UID of the selected node 
+  submitLogic(status, cond, condAmount, resource, action, actionAmount, passPath, passName, failPath, failName, selectedNodeID){
+    var lst = this.state.logics;
+    if(status == "new"){
+      lst.push({
+        uid: "logic-" + this.state.count,
+        applyTo: selectedNodeID,
+        resource: resource,
+        cond: cond,
+        condAmount: condAmount,
+        action: action,
+        actionAmount: actionAmount,
+        passPath: passPath,
+        passName: passName,
+        failPath: failPath,
+        failName: failName,
+      });
+    }
+    else{
+      lst.forEach((l) => {
+        if(selectedNodeID == l.applyTo){
+          l.resource= resource;
+          l.cond= cond;
+          l.condAmount= condAmount;
+          l.action= action;
+          l.actionAmount= actionAmount;
+          l.passPath= passPath;
+          l.passName= passName;
+          l.failPath= failPath;
+          l.failName= failName;
+        }
+      })
+    }
+
+
+    this.setState((state) => ({
+      count: state.count + 1,
+      logics: lst
+    }))
+
+    console.log(lst);
   }
 
   render(){
@@ -1077,7 +1129,12 @@ class App extends Component{
           selectedNodeID={this.state.selectedNodeID}
           startNode={this.state.startNode}
           stationNode={this.state.stationNode} 
-          endNode={this.state.endNode}/>
+          endNode={this.state.endNode}
+          
+          arrows={this.state.arrows}
+          containers={this.state.containers}
+          submitLogic={this.submitLogic}
+          logics={this.state.logics}/>
         </div>
         
         <div>
@@ -1093,6 +1150,7 @@ class App extends Component{
           <SpecSelectPopup
           openSpecSelect= {this.state.openSpecSelect}
           startNode={this.state.startNode}
+          stationNode={this.state.stationNode}
           selectedSpec={this.state.selectedSpec}
           selectedSpecTo={this.state.selectedSpecTo}
           closeSpecSelectPopup={this.closeSpecSelectPopup}

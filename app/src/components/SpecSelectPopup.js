@@ -36,17 +36,23 @@ class SpecSelectPopup extends Component{
     }
 
     render(){
+        // Collect the possible option for this container, which is now also called a blueprint
         var options = [];
         this.props.startNode.forEach((node) => {
             options.push({ value: node.uid, label: node.name })
 
         });
 
+        this.props.stationNode.forEach((node)=> {
+            options.push({ value: node.uid, label: node.name })
+        })
+
         var spec = this.props.selectedSpec;
 
         var defaultSelect = [];
         var defaultSelectedName = "";
         
+        // Find node already applied to and make a list to show
         this.props.selectedSpecTo.forEach((uid) => {
             var name = "";
             this.props.startNode.forEach((n) => {
@@ -54,6 +60,13 @@ class SpecSelectPopup extends Component{
                     name = n.name
                 }
             });
+            if(name == ""){
+                this.props.stationNode.forEach((n) => {
+                    if(n.uid == uid){
+                        name = n.name
+                    }
+                }); 
+            }
             defaultSelectedName = defaultSelectedName == "" ? name : defaultSelectedName + ", " + name;
             defaultSelect.push({ value: uid, label: name })
         });
