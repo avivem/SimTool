@@ -26,7 +26,7 @@ class UpdatePopUp extends Component{
             showMessage: false,
 
             
-            showLogic: false
+            
 
         }
         
@@ -35,7 +35,6 @@ class UpdatePopUp extends Component{
 
         this.closeUpdatePopup = this.closeUpdatePopup.bind(this);
     
-        this.showLogic = this.showLogic.bind(this);
         
     }
 
@@ -63,16 +62,7 @@ class UpdatePopUp extends Component{
     this.setState({showMessage: true});
     };
 
-    // First click will open the logic content
-    // Second click will close logic content and reset all field
-    showLogic(){
-        if(this.state.showLogic){
-            this.setState({ showLogic: false });
-        }
-        else{
-            this.setState({showLogic: true});
-        }
-    }
+    
     
 
     render(){
@@ -217,22 +207,17 @@ class UpdatePopUp extends Component{
                             </button>
                         </div>
 
-                        <div class="logic">
-                            <button className="button" onClick={this.showLogic} >
-                                Add Logic
-                            </button>
-                        </div>
-                        {this.state.showLogic ? 
+              
                         <LogicComponent
-                         submitLogic={this.props.submitLogic}
+                        submitLogic={this.props.submitLogic}
                          selectedNodeID={this.props.selectedNodeID}
-                         showLogic={this.showLogic}
                          containers={this.props.containers}
                          arrows={this.props.arrows}
                          startNode={this.props.startNode}
                          stationNode={this.props.stationNode} 
-                         endNode={this.props.endNode} /> 
-                         : <div></div>}
+                         endNode={this.props.endNode}
+                         logics={this.props.logics} /> 
+                   
                         {logic}
 
 
@@ -297,11 +282,12 @@ class UpdatePopUp extends Component{
 
                         <div class="logic">
                             <button className="button" onClick={this.showLogic}>
-                                Add Logic
+                                {this.state.logicButtonText}
                             </button>
                         </div>
                         {this.state.showLogic ? 
                         <LogicComponent
+                        logicButtonText={this.state.logicButtonText}
                          submitLogic={this.props.submitLogic}
                          selectedNodeID={this.props.selectedNodeID}
                          showLogic={this.showLogic}
@@ -309,7 +295,8 @@ class UpdatePopUp extends Component{
                          arrows={this.props.arrows}
                          startNode={this.props.startNode}
                          stationNode={this.props.stationNode} 
-                         endNode={this.props.endNode} />  
+                         endNode={this.props.endNode}
+                         logics={this.props.logics} />  
                          : <div></div>}
                         {logic}
 
