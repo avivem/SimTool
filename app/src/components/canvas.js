@@ -58,7 +58,6 @@ class Canvas extends Component{
         this.handleChangeUnit = this.handleChangeUnit.bind(this)
         this.handleChangeRate = this.handleChangeRate.bind(this)
         
-        this.handleChangeNode = this.handleChangeNode.bind(this);
         this.onChange = this.onChange.bind(this);
 
         this.findToAndFrom = this.findToAndFrom.bind(this);
@@ -132,45 +131,6 @@ class Canvas extends Component{
             default:
                 break;
         }
-    }
-
-    /**Handle changing the unit/rate for a node when the Apply button in the popup is clicked */
-    handleChangeNode(){
-        this.setState({
-            open: false
-        });
-
-        console.log("Close Popup");
-
-
-        //this.props.handleChangeNode(this.state.targetId, this.state.unit, this.state.rate, r);
-        this.props.handleChangeNode(this.state);
-
-
-        // Change the label of the selected node
-        var layer = this.state.canvasLayer;
-        var label = layer.findOne("#" + "name-" + this.state.targetId);
-
-        switch(this.state.type){
-            case "Start Node":
-                label.text(this.state.startname);
-                break;
-
-            case "Station Node":
-                label.text(this.state.stationname);
-                break;
-
-            case "End Node":
-                label.text(this.state.endname);
-                break;
-
-            default:
-                console.log("Error: Can't find node label to change name")
-
-        }
-
-        this.state.canvasLayer.batchDraw();
-
     }
 
     componentDidMount(){
@@ -652,11 +612,6 @@ class Canvas extends Component{
     }
 
     render(){
-        /*var sidebar = [<p>.</p>,<p>.</p>,<p>.</p>]
-        this.props.specs.forEach((e) => {
-            sidebar.push(<p className="tab">Name: {e.name} <br/> Resource: {e.resourceName}</p>)
-        });
-*/
         var sidebar = <SpecSideBar
                         specs={this.props.specs}
                         canvas={this.state.layer}

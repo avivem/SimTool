@@ -110,7 +110,6 @@ class App extends Component{
   }
 
 
-
   /* Add node, determine what node to add by checking nodeType
   nodeType can be start, station, or end */
   addNode(nodeType, data){
@@ -191,10 +190,9 @@ class App extends Component{
   Change the unit or rate of the node, the r is used to convert the rate to second,
   so r can be 1, 60, 60 * 60, or 60 * 60 * 24 
   */
-  handleChangeNode(change){
-    console.log(this.state.startNode);
-
-     switch(change.type){
+  handleChangeNode(change,type){
+    console.log(change);
+     switch(type){
        case "Start Node":
          // need to change startNode array
          this.state.startNode[0].name = change.startname;
@@ -794,29 +792,7 @@ class App extends Component{
           uid: "container" + this.state.count
         })
       };
-
-      // const assigncontainerspec = {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     // Change the name value to this.state.name to refer to user input
-      //     node: selectedNodeID,
-      //     resource: resource,
-      //     uid: "container" + this.state.count
-      //   })
-      // };
-
-      // /**fetch to api tos set container*/
-      // fetch('http://127.0.0.1:5000/api/container_spec/', assigncontainerspec).then(res => res.json()).then(gotUser => {
-      //     console.log(gotUser);
-
-      // }).catch(function() {
-      //     console.log("Error on add Contaier");
-      // });
-  
     }
-
-
 
     /**fetch to api tos set container*/
     fetch('http://127.0.0.1:5000/api/container_spec/', addcontainerspec).then(res => res.json()).then(gotUser => {
@@ -825,8 +801,6 @@ class App extends Component{
     }).catch(function() {
         console.log("Error on add Contaier");
     });
-
-
 
     this.setState((state) => ({
       containers: lst,
@@ -1130,7 +1104,7 @@ class App extends Component{
           startNode={this.state.startNode}
           stationNode={this.state.stationNode} 
           endNode={this.state.endNode}
-          
+          handleChangeNode={this.handleChangeNode}
           arrows={this.state.arrows}
           containers={this.state.containers}
           submitLogic={this.submitLogic}

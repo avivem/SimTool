@@ -41,9 +41,8 @@ class UpdatePopUp extends Component{
     
 
      // Handle submit data of the interaction
-     applyChanges(){
-        var change;
-        this.props.handleChangeNode(change);
+     applyChanges(type){
+        this.props.handleChangeNode(this.state,type);
     }
 
     closeUpdatePopup(){
@@ -125,8 +124,7 @@ class UpdatePopUp extends Component{
                                     onChange={this.onChange} />
                             </label>
                             <div class="container">
-                                
-                                <button className="button" onClick={this.applyChanges}>
+                                <button className="button" onClick={this.applyChanges("End Node")}>
                                     Apply
                                 </button>
                             </div>
@@ -250,7 +248,7 @@ class UpdatePopUp extends Component{
                                          />
                                 </label>
                                 <div class="container">
-                                    <button className="button" onClick={this.applyChanges}>
+                                    <button className="button" onClick={this.applyChanges("Start Node")}>
                                         Apply
                                     </button>
                                 </div>
@@ -370,7 +368,7 @@ class UpdatePopUp extends Component{
                             </label>
                             <div class="container">
                                 
-                                <button className="button" onClick={this.applyChanges}>
+                                <button className="button" onClick={this.applyChanges("Station Node")}>
                                     Apply
                                 </button>
                             </div>
@@ -442,6 +440,7 @@ class UpdatePopUp extends Component{
             contentStyle={{height: 500, overflow: "auto"}} >
 
                {content}
+
             </Popup>
         );
     }

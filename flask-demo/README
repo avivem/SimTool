@@ -13,7 +13,7 @@ Set up local environment
 2. Activate the Environment
 
 	on mac
-	. .venv/bin/activate
+	. venv/bin/activate
 
 	on windows
 	> .venv\Scripts\activate
