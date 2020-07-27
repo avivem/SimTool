@@ -970,6 +970,7 @@ class App extends Component{
 
     // multiple nodes
     for(var i in nodes){
+      var assignSpec = {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
