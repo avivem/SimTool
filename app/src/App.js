@@ -107,6 +107,10 @@ class App extends Component{
     this.addSpecSelected = this.addSpecSelected.bind(this);
     
     this.submitLogic = this.submitLogic.bind(this);
+    this.createLogic = this.createLogic.bind(this);
+    this.createConditionGroup = this.createConditionGroup.bind(this);
+    this.createCondition = this.createCondition.bind(this);
+    this.createAction = this.createAction.bind(this)
   }
 
 
@@ -1037,6 +1041,96 @@ class App extends Component{
     console.log(lst);
   }
 
+
+  // Create the logic for selected node
+  createLogic(selectedNodeID){
+    var lst = this.state.logics;
+    lst.push({
+      uid: "logic-" + this.state.count,
+      applyTo: selectedNodeID,
+      conditionsActionsGroup: []
+    })
+
+    this.setState((state) => ({
+      logics: lst,
+      count: state.count + 1 
+    }));
+  }
+
+  // Add the condition group which will include the conditions and actions
+  // passOath/failPath  - array of nodes UID
+  // passName/failName - array of string of nodes Name 
+  // Ex: where passName[1] would be name for node at passNode[1]
+  createConditionGroup(selectedNodeID, groupName, passPath, passName, failPath, failName){
+    var lst = this.state.logics;
+    lst.forEach((l) => {
+      if(l.applyTo == selectedNodeID){
+        l.conditionsActionsGroup.push({
+          name: groupName,
+          conditions: [],
+          actions: [],
+          passPath: passPath,
+          passName: passName,
+          failPath: failPath,
+          failName: failName
+        });
+      }
+    });
+
+    this.setState({
+      logics: lst
+    });
+  }
+
+  // Add a condition to the group with the groupName
+  createCondition(selectedNodeID, groupName, name, entityName, nodeName, check, val){
+    var lst = this.state.logics;
+    lst.forEach((l) => {
+      if(l.applyTo == selectedNodeID){
+        l.conditionsActionsGroup.forEach((group) => {
+          if(group.name == groupName){
+            // Add new condition to group
+            group.conditions.push({
+              name: name,
+              encon_name: entityName,
+              nodecon_name: nodeName,
+              check: check,
+              val: val
+            });
+          }
+        });
+      }
+    });
+
+    this.setState({
+      logics: lst
+    });
+  }
+
+  // Add a condition to the group with the groupName 
+  createAction(selectedNodeID, groupName, name, entityName, nodeName, op, val){
+    var lst = this.state.logics;
+    lst.forEach((l) => {
+      if(l.applyTo == selectedNodeID){
+        l.conditionsActionsGroup.forEach((group) => {
+          if(group.name == groupName){
+            // Add new condition to group
+            group.actions.push({
+              name: name,
+              encon_name: entityName,
+              nodecon_name: nodeName,
+              op: op,
+              val: val
+            });
+          }
+        });
+      }
+    });
+    this.setState({
+      logics: lst
+    });
+  }
+
   render(){
     return (
       <div className="App">
@@ -1134,7 +1228,13 @@ class App extends Component{
           arrows={this.state.arrows}
           containers={this.state.containers}
           submitLogic={this.submitLogic}
-          logics={this.state.logics}/>
+          logics={this.state.logics}
+          specs={this.state.specs}
+          createLogic={this.createLogic}
+          createConditionGroup={this.createConditionGroup}
+          createCondition={this.createCondition}
+          createAction={this.createAction}
+          />
         </div>
         
         <div>

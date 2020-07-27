@@ -71,26 +71,44 @@ class UpdatePopUp extends Component{
         
     };
 
-
     render(){
 
         // find type
         var type= this.props.selectedNodeID.substr(0, this.props.selectedNodeID.indexOf('-')); 
 
-        let logic = <div></div>;
+        let logic = [];
         this.props.logics.forEach((l) => {
             if(l.applyTo == this.props.selectedNodeID){
-                logic = 
-                    <div>
-                        <h3>Node Logic</h3>
-                        <p>Resource: {l.resource}</p>
-                        <p>Condition: {l.cond}</p>
-                        <p>Condition Amount: {l.condAmount}</p>
-                        <p>Action: {l.action}</p>
-                        <p>Action Amount: {l.actionAmount}</p>
-                        <p>Pass Path: {l.passName}</p>
-                        <p>Fail Path: {l.failName}</p>
-                    </div>
+                l.conditionsActionsGroup.forEach((g) => {
+                    var lstCondition = []
+                    g.conditions.forEach((c) => {
+                        lstCondition.push(<p>{c.name}</p>);
+                    });
+                    var lstAction = []
+                    g.conditions.forEach((a) => {
+                        lstAction.push(<p>{a.name}</p>);
+                    });
+                    var lstPass = []
+                    g.conditions.forEach((p) => {
+                        lstAction.push(<p>{p}</p>);
+                    });
+                    var lstFail = []
+                    g.conditions.forEach((f) => {
+                        lstAction.push(<p>{f}</p>);
+                    });
+                    logic.push(<div>
+                        <h3>Group Name: {g.name}</h3>
+                        <h5>List of Condition</h5>
+                        {lstCondition}
+                        <h5>List of Action</h5>
+                        {lstAction}
+                        <h5>List of Pass Path</h5>
+                        {lstPass}
+                        <h5>List of Fail Path</h5>
+                        {lstFail}
+                    </div>);
+                });
+        
             }
         })
 
@@ -307,7 +325,12 @@ class UpdatePopUp extends Component{
                          startNode={this.props.startNode}
                          stationNode={this.props.stationNode} 
                          endNode={this.props.endNode}
-                         logics={this.props.logics} /> 
+                         logics={this.props.logics}
+                         specs={this.props.specs}
+                         createLogic={this.props.createLogic}
+                         createConditionGroup={this.props.createConditionGroup}
+                         createCondition={this.props.createCondition}
+                         createAction={this.props.createAction} /> 
                         {logic}
                     </div>
 
@@ -427,9 +450,13 @@ class UpdatePopUp extends Component{
                          arrows={this.props.arrows}
                          startNode={this.props.startNode}
                          stationNode={this.props.stationNode} 
-
                          endNode={this.props.endNode}
-                         logics={this.props.logics} /> 
+                         logics={this.props.logics}
+                         specs={this.props.specs}
+                         createLogic={this.props.createLogic}
+                         createConditionGroup={this.props.createConditionGroup}
+                         createCondition={this.props.createCondition}
+                         createAction={this.props.createAction} /> 
                         {logic}
 
                     </div>
