@@ -968,24 +968,28 @@ class App extends Component{
       specs: specs
     });
 
-    var assignSpec = {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          // Change the name value to this.state.name to refer to user input
-          node: nodes[0],
-          resource: spec.resourceName,
-          uid: spec.uid
-        })
-    };
+    // multiple nodes
+    for(var i in nodes){
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            // Change the name value to this.state.name to refer to user input
+            node: nodes[i],
+            resource: spec.resourceName,
+            uid: spec.uid
+          })
+      };
 
-    /**fetch to api tos set container*/
-    fetch('http://127.0.0.1:5000/api/node/container_spec/', assignSpec).then(res => res.json()).then(gotUser => {
-        console.log(gotUser);
+      /**fetch to api tos set container*/
+      fetch('http://127.0.0.1:5000/api/node/container_spec/', assignSpec).then(res => res.json()).then(gotUser => {
+          console.log(gotUser);
 
-    }).catch(function() {
-        console.log("Error on add spec");
-    });
+      }).catch(function() {
+          console.log("Error on add spec");
+      });
+    }
+
+
   }
   
   editSpec(selectedSpec, specName, dist, resource, loc, scale, max, constantVal){
