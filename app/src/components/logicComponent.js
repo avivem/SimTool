@@ -35,10 +35,6 @@ class LogicComponent extends Component{
             actionName: "",
             actionVal: 0
 
-
-
-
-          
         };
 
 
