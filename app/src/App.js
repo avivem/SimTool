@@ -6,6 +6,7 @@ import Navigation from './components/navigationbar'
 import Canvas from './components/canvas'
 import AssetPopUp from './components/asset'
 import UpdatePopUp from './components/update'
+import ContainerPopup from './components/container';
 import SpecSelectPopup from './components/SpecSelectPopup';
 
 
@@ -34,16 +35,20 @@ class App extends Component{
       savedEnd: [],
       savedArrows: [],
       savedNumImage: 0,
+      savedContainer: [],
       loadMode: false,
       loadModeMakeArrow: false,
       numImage: 0,
       numLoadedImage: 0,
       numImageToLoad: 0,
+      containerMode: false,
       updateMode: true,
       
+      containers: [],
       specs: [],
 
       openSpec: false,
+      openContainer: false,
       openSpecSelect: false,    // For popup to select start node to app spec to 
       selectedSpec: {},
       selectedSpecTo: [],
@@ -82,6 +87,11 @@ class App extends Component{
     this.incrNumImage = this.incrNumImage.bind(this);
     this.incrNumLoadedImage = this.incrNumLoadedImage.bind(this);
     this.handleBackendLoadNodes = this.handleBackendLoadNodes.bind(this);
+
+    this.openContainerPopup = this.openContainerPopup.bind(this);
+    this.closeContainerPopup = this.closeContainerPopup.bind(this);
+    this.handleContainer = this.handleContainer.bind(this);
+    this.submitContainer = this.submitContainer.bind(this);
 
     this.handleUpdate = this.handleUpdate.bind(this);
 
@@ -325,6 +335,7 @@ class App extends Component{
       this.setState({
         createArrowMode: false,
         removeMode: false,
+        containerMode: false,
         updateMode: false
       });
     }
@@ -332,6 +343,7 @@ class App extends Component{
       this.setState({
         createArrowMode: true,
         removeMode: false,
+        containerMode: false,
         updateMode: false
       });
     }   
@@ -363,6 +375,7 @@ class App extends Component{
       this.setState({
         removeMode: false,
         createArrowMode: false,
+        containerMode: false,
         updateMode: false
       });
     }
@@ -370,6 +383,7 @@ class App extends Component{
       this.setState({
         removeMode: true,
         createArrowMode: false,
+        containerMode: false,
         updateMode: false
       });
       console.log("Handle Remove");
@@ -451,6 +465,7 @@ class App extends Component{
     this.setState({
       createArrowMode: false, 
       removeMode: false,
+      containerMode: false,
       updateMode: false
     });
   }
@@ -699,6 +714,28 @@ class App extends Component{
     }
   }
 
+  //Handle container for the node
+  handleContainer(){
+    if(this.state.containerMode){
+      this.setState({
+        containerMode: false,
+        updateMode: false,
+        createArrowMode: false,
+        removeMode: false,
+      });
+      console.log("Container mode off");
+    }
+    else{
+      this.setState({
+        containerMode: true,
+        updateMode: false,
+        createArrowMode: false,
+        removeMode: false,
+      });
+      console.log("Container mode on");
+    }
+  }
+
   // Add interaction/resource to list
   addSpec(specName, dist, resource, loc, scale, max, constantVal){
     var lst = this.state.specs;
@@ -785,6 +822,66 @@ class App extends Component{
   }
 
   // Open interaction popup
+  openContainerPopup(n){
+    this.setState({
+        openContainer: true,
+        selectedNodeID: n
+    });
+    console.log("Open container Popup");
+  }
+
+  // close interaction popup
+  closeContainerPopup(){
+      this.setState({
+          openContainer: false
+      });
+      console.log("Close container Popup");
+  }
+
+  submitContainer(selectedNode, name, resource, init, capacity){
+    var lst = this.state.containers;
+    lst.push({
+      uid: "spec-" + this.state.count,
+      selectedNode: selectedNode,
+      name: name,
+      resource: resource,
+      init: init,
+      capacity: capacity
+    });
+
+    const addcontainer = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        // Change the name value to this.state.name to refer to user input
+        name: name,
+        resource: resource,
+        init : {
+          init: init
+        },
+        capacity: capacity,
+        uid: "spec-" + this.state.count
+      })
+    };
+
+    /**fetch to api tos set container*/
+    fetch('http://127.0.0.1:5000/api/container_spec/', addcontainer).then(res => res.json()).then(gotUser => {
+        console.log(gotUser);
+
+    }).catch(function() {
+        console.log("Error on add Contaier");
+    });
+
+    this.setState((state) => ({
+      count: state.count + 1 
+    }));
+
+    console.log("Added container");
+    console.log(lst);
+
+  }
+
+  // Open interaction popup
   openSpecPopup(){
     this.setState({
         openSpec: true,
@@ -805,6 +902,7 @@ class App extends Component{
     if(this.state.updateMode){
       this.setState({
         updateMode: true,
+        containerMode: false,
         createArrowMode: false,
         removeMode: false,
       });
@@ -813,6 +911,7 @@ class App extends Component{
     else{
       this.setState({
         updateMode: true,
+        containerMode: false,
         createArrowMode: false,
         removeMode: false,
       });
@@ -869,6 +968,24 @@ class App extends Component{
       specs: specs
     });
 
+    var assignSpec = {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          // Change the name value to this.state.name to refer to user input
+          node: nodes[0],
+          resource: spec.resourceName,
+          uid: spec.uid
+        })
+    };
+
+    /**fetch to api tos set container*/
+    fetch('http://127.0.0.1:5000/api/node/container_spec/', assignSpec).then(res => res.json()).then(gotUser => {
+        console.log(gotUser);
+
+    }).catch(function() {
+        console.log("Error on add spec");
+    });
   }
   
   editSpec(selectedSpec, specName, dist, resource, loc, scale, max, constantVal){
@@ -893,6 +1010,8 @@ class App extends Component{
     this.setState({
       specs: specs
     });
+
+    // fetch to edit spec
 
   }
 
@@ -1078,7 +1197,9 @@ class App extends Component{
             handleImageUpload={this.handleImageUpload}
             handleSave={this.handleSave}
             handleLoad={this.handleLoad}
+            containerMode={this.state.containerMode}
             updateMode={this.state.updateMode}
+            handleContainer={this.handleContainer} 
             handleUpdate={this.handleUpdate}
             openSpecPopup={this.openSpecPopup}/>
             
@@ -1122,6 +1243,9 @@ class App extends Component{
             numImageToLoad={this.state.numImageToLoad}
             numLoadedImage={this.state.numLoadedImage}
             handleBackendLoadNodes={this.handleBackendLoadNodes}
+            
+            openContainerPopup={this.openContainerPopup}
+            containerMode={this.state.containerMode}
 
             openUpdatePopup={this.openUpdatePopup}
             updateMode={this.state.updateMode}
@@ -1151,6 +1275,7 @@ class App extends Component{
           handleChangeNode={this.handleChangeNode}
           
           arrows={this.state.arrows}
+          containers={this.state.containers}
           submitLogic={this.submitLogic}
           logics={this.state.logics}
           specs={this.state.specs}
@@ -1163,6 +1288,14 @@ class App extends Component{
           />
         </div>
         
+        <div>
+          <ContainerPopup
+          selectedNodeID={this.state.selectedNodeID}
+          openContainer= {this.state.openContainer}
+          closeContainerPopup={this.closeContainerPopup}
+          submitContainer={this.submitContainer}
+          />
+        </div>
         
         <div>
           <SpecSelectPopup

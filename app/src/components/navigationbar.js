@@ -474,7 +474,7 @@ class Navigation extends Component{
               </li>
               */}
               <li class="nav-item">
-                <button className="button" style={{backgroundColor: "#2cbebe"}} onClick={this.openSpecPopup}>Spec</button>
+                <button className="button" style={{backgroundColor: "#2cbebe"}} onClick={this.openSpecPopup}>Blueprint</button>
               </li>
               <li class="nav-item">
                 <button className="button" style={{backgroundColor:this.state.removeButtonColor}} onClick={this.handleRemoveMode}>x</button>

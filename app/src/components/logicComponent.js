@@ -667,7 +667,7 @@ class LogicComponent extends Component{
                 {/* Only show the add logic button if node don't already have a logic */}
                 {this.state.showLogic ? <div></div>
                 :
-                <div class="logic">
+                <div class="container logic">
                     <button className="button" onClick={this.showAddLogic} >
                         Add Logic
                     </button>

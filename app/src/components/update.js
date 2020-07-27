@@ -117,9 +117,11 @@ class UpdatePopUp extends Component{
                     onChange={this.handleSpec}
                     />
                 </label>
-                <button className="button" onClick={this.addNodeToSpec}>
-                    Apply Blueprint
-                </button>
+                <div class="container">
+                    <button className="button" onClick={this.addNodeToSpec}>
+                        Apply Blueprint
+                    </button>
+                </div>
             </div>
 
         // find type
@@ -171,7 +173,7 @@ class UpdatePopUp extends Component{
         if(type == "end" && endNode != undefined){
 
             content =   <div class="container">
-                        <h2>Settings</h2>
+                        <h2>Settings for {endNode.name}</h2>
                         <p>Node Name: {endNode.name}</p>
 
                         <div class="container">
@@ -238,7 +240,7 @@ class UpdatePopUp extends Component{
                         </div>
         }else if(type == "start" && startNode != undefined){
             content =   <div class="container">
-                        <h2>Settings</h2>
+                        <h2>Settings for {startNode.name}</h2>
                         <p>Node Name: {startNode.name}</p>
                         <p>Entity Name: {startNode.entity_name}</p>
                         <p>Generation Function dist: {startNode.dist}</p>
@@ -387,7 +389,7 @@ class UpdatePopUp extends Component{
             }
 
             content =   <div class="container">
-                            <h2>Settings</h2>
+                            <h2>Settings for {s.name}</h2>
                             <table>
                                 <tr>
                                     <td><p>Node Name: {s.name}</p></td>
@@ -508,6 +510,10 @@ class UpdatePopUp extends Component{
                {content}
 
             {/*apply changes here*/}
+
+            <div class="container">
+                <button className="button" onClick={this.handleSubmitImage}>Submit Changes</button>
+            </div>
 
             </Popup>
         );
