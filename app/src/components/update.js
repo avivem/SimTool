@@ -25,12 +25,17 @@ class UpdatePopUp extends Component{
             showMessageUP: false,
             showMessageCont: false,
 
+            selectedBlueprint: "",
+
         }
         
         this.onChange = this.onChange.bind(this);
         this.applyChanges = this.applyChanges.bind(this);
 
         this.closeUpdatePopup = this.closeUpdatePopup.bind(this);
+
+        this.handleSpec = this.handleSpec.bind(this);
+        this.addNodeToSpec = this.addNodeToSpec.bind(this);
     
     }
 
@@ -70,7 +75,52 @@ class UpdatePopUp extends Component{
         
     };
 
+    // Should save a spec uid
+    handleSpec(e){
+        this.setState({ selectedBlueprint: e.value });
+    }
+
+    addNodeToSpec(){
+        this.props.addNodeToSpec(this.state.selectedBlueprint, this.props.selectedNodeID);
+    }
+
     render(){
+
+        const customStyle = {
+            valueContainer: () => ({
+                width: 100
+            })
+        }
+        
+
+        var specOptions = [];
+        this.props.specs.forEach((spec) => {
+            specOptions.push({ value: spec.uid, label: spec.name })
+
+        });
+
+        var specDefault = "";
+        this.props.specs.forEach((spec) => {
+            if(spec.specTo.includes(this.props.selectedNodeID)){
+                specDefault = spec.name
+            }
+        });
+
+        var addBlueprint = 
+            <div class="container">
+                <p>Applied Blueprint: {specDefault}</p>
+                <label>Blueprint: 
+                    <Select
+                    styles={customStyle}
+                    options={specOptions}
+                    name="selectedBlueprint"
+                    onChange={this.handleSpec}
+                    />
+                </label>
+                <button className="button" onClick={this.addNodeToSpec}>
+                    Apply Blueprint
+                </button>
+            </div>
 
         // find type
         var type= this.props.selectedNodeID.substr(0, this.props.selectedNodeID.indexOf('-')); 
@@ -195,6 +245,9 @@ class UpdatePopUp extends Component{
                         <p>Generation Function loc: {startNode.loc}</p>
                         <p>Generation Function scale: {startNode.scale}</p>
                         <p>Limit: {startNode.limit}</p>
+
+                        {/* Add a blueprint to the node */}
+                        {addBlueprint}
 
                         <div class="container">
                             <button className="button" onClick={this.onButtonUpdate}>
@@ -345,6 +398,9 @@ class UpdatePopUp extends Component{
                                 </tr>
                             </table>
 
+                             {/* Add a blueprint to the node */}
+                            {addBlueprint}
+
                             <div class="container">
                                 <button className="button" onClick={this.onButtonUpdate}>
                                     Update Node
@@ -447,7 +503,7 @@ class UpdatePopUp extends Component{
             <Popup open={this.props.openUpdate} 
             closeOnDocumentClick 
             onClose={this.closeUpdatePopup}
-            contentStyle={{height: 500, overflow: "auto"}} >
+            contentStyle={{height: 400, overflow: "auto"}} >
 
                {content}
 

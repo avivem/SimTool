@@ -105,12 +105,14 @@ class App extends Component{
     this.openSpecSelectPopup = this.openSpecSelectPopup.bind(this);
     this.closeSpecSelectPopup = this.closeSpecSelectPopup.bind(this);
     this.addSpecSelected = this.addSpecSelected.bind(this);
+    this.editSpec = this.editSpec.bind(this);
+    this.addNodeToSpec = this.addNodeToSpec.bind(this);
     
     this.submitLogic = this.submitLogic.bind(this);
     this.createLogic = this.createLogic.bind(this);
     this.createConditionGroup = this.createConditionGroup.bind(this);
     this.createCondition = this.createCondition.bind(this);
-    this.createAction = this.createAction.bind(this)
+    this.createAction = this.createAction.bind(this);
   }
 
 
@@ -738,7 +740,7 @@ class App extends Component{
   addSpec(specName, dist, resource, loc, scale, max, constantVal){
     var lst = this.state.specs;
     console.log(dist);
-    
+    // specTo is an array of node UID 
     var addcontainerspec;
     if(dist == "CONSTANT"){
       lst.push({
@@ -747,6 +749,9 @@ class App extends Component{
         name: specName,
         resourceName: resource,
         distribution: dist,
+        loc: 0,
+        scale: 0,
+        maxAmount: 0,
         init: constantVal
       })
 
@@ -777,7 +782,8 @@ class App extends Component{
         distribution: dist,
         loc: loc,
         scale: scale,
-        maxAmount: max      
+        maxAmount: max,
+        init: 0 
       });
 
       addcontainerspec = {
@@ -962,8 +968,56 @@ class App extends Component{
       specs: specs
     });
 
-    console.log(specs);
+  }
+  
+  editSpec(selectedSpec, specName, dist, resource, loc, scale, max, constantVal){
+    var specs = this.state.specs;
+    
+    specs.forEach((s) => {
+      if(s.uid == selectedSpec.uid){
+          s.name = specName;
+          s.resourceName = resource;
+          s.distribution = dist;
+        if(dist == "CONSTANT"){ 
+          s.init = constantVal;
+        }
+        else{
+          s.loc = loc;
+          s.scale = scale;
+          s.maxAmount = max;  
+        }
+      }
+    });
 
+    this.setState({
+      specs: specs
+    });
+
+  }
+
+  // Add the selected nodeUID tto the selected field in the spec with the specUID
+  addNodeToSpec(specUID, nodeUID){
+    
+    var specs = this.state.specs;
+    
+    // Remove nodeUID from any of the spec since node can only have  blueprint
+    // Also add the nodeID to specTo of the spec with the matching specUID
+    specs.forEach((s) => {
+      if(s.specTo.includes(nodeUID)){
+        var newSpecTo = []
+        s.specTo.forEach((uid) => {
+          if(uid != nodeUID){
+            newSpecTo.push(uid);
+          }
+        });
+        s.specTo = newSpecTo;
+      }
+      if(s.uid == specUID){
+        s.specTo.push(nodeUID);
+      }
+    });
+
+    this.setState({specs: specs});
   }
 
   // status - new/edit, if new then add new logic, if edit then edit an existing logic
@@ -1199,6 +1253,7 @@ class App extends Component{
           stationNode={this.state.stationNode} 
           endNode={this.state.endNode}
           handleChangeNode={this.handleChangeNode}
+          
           arrows={this.state.arrows}
           containers={this.state.containers}
           submitLogic={this.submitLogic}
@@ -1208,6 +1263,8 @@ class App extends Component{
           createConditionGroup={this.createConditionGroup}
           createCondition={this.createCondition}
           createAction={this.createAction}
+          
+          addNodeToSpec={this.addNodeToSpec}
           />
         </div>
         
@@ -1229,7 +1286,7 @@ class App extends Component{
           selectedSpecTo={this.state.selectedSpecTo}
           closeSpecSelectPopup={this.closeSpecSelectPopup}
           addSpecSelected={this.addSpecSelected}
-          
+          editSpec={this.editSpec}
           />
         </div>
 

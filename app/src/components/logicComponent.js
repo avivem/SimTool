@@ -373,6 +373,7 @@ class LogicComponent extends Component{
                 resource.push({ value: container.uid, label: container.resource });
             }
         }); 
+        
 
         var cond = [{ value: "", label: "" },
                     { value: "el==", label: "=" },

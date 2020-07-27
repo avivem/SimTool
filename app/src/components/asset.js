@@ -79,7 +79,6 @@ class AssestPopUp extends Component{
     }
 
     render(){
-        console.log(this.props);
 
         let content;
         if(this.state.distribution == "CONSTANT"){
@@ -125,7 +124,7 @@ class AssestPopUp extends Component{
         return (
             <Popup open={this.props.openSpec} closeOnDocumentClick = {true} onClose={this.closeSpecPopup} >
                 <div style={{alignContent: 'center'}}>
-                    <h1>Add Entity Container Specification</h1>
+                    <h1>Add Blueprint</h1>
                 </div>
 
                 <div className="container input-group">                    
