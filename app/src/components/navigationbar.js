@@ -383,13 +383,12 @@ class Navigation extends Component{
                                  />
                         </label>
                         <label className="label">Gen Function dist:
-                            <input 
-                                type="text" 
-                                className="form-control"
-                                placeholder="Enter generation function"
-                                name="dist" 
-                                onChange={this.onChange}
-                                 />
+
+
+                          <select name="dist" className="form-control" onChange={this.onChange}>
+                            <option value="NORMAL">Normal</option>
+                            <option value="CONSTANT">Constant</option>
+                          </select>
                         </label>
                         <label className="label">Gen Function loc:
                             <input 
@@ -551,7 +550,7 @@ class Navigation extends Component{
             {/*Popup for uploading image */}
             <Popup open={this.state.openImageOption} closeOnDocumentClick = {true} onClose={this.closePopupImage}>
               <div class="container">
-              <div>
+                <h3>Add Node </h3>
 
                 {content}
 
@@ -564,7 +563,7 @@ class Navigation extends Component{
                 <button className="button" onClick={this.handleSubmitImage}>Submit</button>
                 {/*<button className="button" onClick={this.handleDefaultImage}>Default</button>*/} 
                 <button className="button" onClick={this.handleCancelImage}>Cancel</button>
-              </div>
+              
               </div>
             </Popup>
           </div>

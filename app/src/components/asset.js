@@ -85,7 +85,7 @@ class AssestPopUp extends Component{
         if(this.state.distribution == "CONSTANT"){
             this.state.distribution = "CONSTANT"
             content = 
-                <div className="input-group">        
+                <div className="container input-group">        
                     <label className="label">Value: </label> 
                     <input 
                         type="text" 
@@ -97,7 +97,7 @@ class AssestPopUp extends Component{
         }
         else{
             content =
-                <div className="input-group">        
+                <div className="container input-group">        
                     <label className="label">Scale: </label> 
                     <input 
                         type="text" 
@@ -128,7 +128,7 @@ class AssestPopUp extends Component{
                     <h1>Add Entity Container Specification</h1>
                 </div>
 
-                <div className="input-group">                    
+                <div className="container input-group">                    
                     <label className="label">Specification Name:</label>
                     <input 
                         type="text" 
@@ -159,7 +159,7 @@ class AssestPopUp extends Component{
                         name="upperAmount" 
                         onChange={this.onChange} />
         */}
-                <div className="input-group">  
+                <div className="container input-group">  
 
                     <label className="label">Distribution:&nbsp;
                         <select 

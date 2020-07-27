@@ -321,12 +321,12 @@ class LogicComponent extends Component{
 
         return(
             <div>
-                <div class="logic">
+                <div class="container logic">
                     <button className="button" onClick={this.showLogic} >
                         {this.state.logicButtonText}
                     </button>
                 </div>
-                {this.state.showLogic ? logicContent : <div></div>}
+                {this.state.showLogic ? logicContent : <div class="container"></div>}
             </div>
         )
     }

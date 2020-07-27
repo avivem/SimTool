@@ -40,8 +40,8 @@ class UpdatePopUp extends Component{
     }
     
 
-     // Handle submit data of the interaction
-     applyChanges(type){
+    // Handle submit data of the interaction
+    applyChanges(type){
         this.props.handleChangeNode(this.state,type);
     }
 
@@ -123,11 +123,6 @@ class UpdatePopUp extends Component{
                                     name="endname"
                                     onChange={this.onChange} />
                             </label>
-                            <div class="container">
-                                <button className="button" onClick={this.applyChanges("End Node")}>
-                                    Apply
-                                </button>
-                            </div>
                         </div>}
 
 
@@ -202,13 +197,10 @@ class UpdatePopUp extends Component{
                                          />
                                 </label>
                                 <label className="label">Gen Function dist:
-                                    <input 
-                                        type="text" 
-                                        className="form-control"
-                                        placeholder={startNode.dist}
-                                        name="dist" 
-                                        onChange={this.onChange}
-                                         />
+                                  <select name="dist" className="form-control" onChange={this.onChange}>
+                                    <option value="NORMAL">Normal</option>
+                                    <option value="CONSTANT">Constant</option>
+                                  </select>
                                 </label>
                                 <label className="label">Gen Function loc:
                                     <input 
@@ -247,11 +239,6 @@ class UpdatePopUp extends Component{
                                         onChange={this.onChange}
                                          />
                                 </label>
-                                <div class="container">
-                                    <button className="button" onClick={this.applyChanges("Start Node")}>
-                                        Apply
-                                    </button>
-                                </div>
                             </div>}
 
                         <div class="container">
@@ -324,114 +311,110 @@ class UpdatePopUp extends Component{
             }
 
             content =   <div class="container">
-                        <h2>Settings</h2>
-                        <p>Node Name: {s.name}</p>
-                        <p>Capacity: {s.capacity}</p>
-                        <p>Time Function: {s.time_func}</p>
+                            <h2>Settings</h2>
+                            <table>
+                                <tr>
+                                    <td><p>Node Name: {s.name}</p></td>
+                                    <td><p>Capacity: {s.capacity}</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p>Time Function: {s.time_func}</p></td>
+                                </tr>
+                            </table>
 
-                        <div class="container">
-                            <button className="button" onClick={this.onButtonUpdate}>
-                                Update Node
-                            </button>
-                        </div>
-
-                        {/*when update button clicked, show html*/}
-                        {this.state.showMessageUP && 
-                        <div>
-                            <label className="label">Name:
-                                <input 
-                                    type="text" 
-                                    name="stationname"
-                                    placeholder={s.name}
-                                    className="form-control"
-                                    
-                                    onChange={this.onChange}
-                                />
-                            </label>
-                            <label className="label">Capacity:
-                                <input 
-                                    type="text" 
-                                    placeholder={s.capacity}
-                                    className="form-control"
-                                    name="capacity" 
-                                    onChange={this.onChange}
-                                     />
-                            </label>
-                            <label className="label">Time Function:
-                                <input 
-                                    type="text" 
-                                    placeholder={s.time_func}
-                                    className="form-control"
-                                    name="time_func" 
-                                    onChange={this.onChange}
-                                     />
-                            </label>
                             <div class="container">
-                                
-                                <button className="button" onClick={this.applyChanges("Station Node")}>
-                                    Apply
+                                <button className="button" onClick={this.onButtonUpdate}>
+                                    Update Node
                                 </button>
                             </div>
-                        </div>}
 
-                        <div class="container">
-                            <button className="button" onClick={this.onButtonContainer}>
-                                Add Contaier
-                            </button>
-                        </div>
+                            {/*when update button clicked, show html*/}
+                            {this.state.showMessageUP && 
+                            <div>
+                                <label className="label">Name:
+                                    <input 
+                                        type="text" 
+                                        name="stationname"
+                                        placeholder={s.name}
+                                        className="form-control"
+                                        
+                                        onChange={this.onChange}
+                                    />
+                                </label>
+                                <label className="label">Capacity:
+                                    <input 
+                                        type="text" 
+                                        placeholder={s.capacity}
+                                        className="form-control"
+                                        name="capacity" 
+                                        onChange={this.onChange}
+                                         />
+                                </label>
+                                <label className="label">Time Function:
+                                    <input 
+                                        type="text" 
+                                        placeholder={s.time_func}
+                                        className="form-control"
+                                        name="time_func" 
+                                        onChange={this.onChange}
+                                         />
+                                </label>
+                            </div>}
 
-                        {/*when contianer button clicked, show html*/}
-                        {this.state.showMessageCont &&  
-                            <div className="input-group">                    
-                                <label className="label">Name:</label>
-                                <input 
-                                    type="text" 
-                                    className="form-control"
-                                    name="containerName" 
-                                    style={{width: '150px'}}
-                                    onChange={this.onChange} />
-                            
-                                <label className="label">Resource:</label>
-                                <input 
-                                    type="text" 
-                                    className="form-control"
-                                    name="containerResource" 
-                                    style={{width: '150px'}}
-                                    onChange={this.onChange} />
-                                <label className="label">initial Value:</label>
-                                <input 
-                                    type="text" 
-                                    className="form-control"
-                                    name="initial" 
-                                    style={{width: '150px'}}
-                                    onChange={this.onChange} />
-                                <label className="label">Capacity:</label>
-                                <input 
-                                    type="text" 
-                                    className="form-control"
-                                    name="capacity" 
-                                    style={{width: '150px'}}
-                                    onChange={this.onChange} />
+                            <div class="container">
+                                <button className="button" onClick={this.onButtonContainer}>
+                                    Add Contaier
+                                </button>
                             </div>
-                        }
 
-                    {/*when logic button clicked, show html*/}
-                        
+                            {/*when contianer button clicked, show html*/}
+                            {this.state.showMessageCont &&  
+                                <div>                    
+                                    <label className="label">Name:</label>
+                                    <input 
+                                        type="text" 
+                                        className="form-control"
+                                        name="containerName" 
+                                        style={{width: '150px'}}
+                                        onChange={this.onChange} />
+                                
+                                    <label className="label">Resource:</label>
+                                    <input 
+                                        type="text" 
+                                        className="form-control"
+                                        name="containerResource" 
+                                        style={{width: '150px'}}
+                                        onChange={this.onChange} />
+                                    <label className="label">initial Value:</label>
+                                    <input 
+                                        type="text" 
+                                        className="form-control"
+                                        name="initial" 
+                                        style={{width: '150px'}}
+                                        onChange={this.onChange} />
+                                    <label className="label">Capacity:</label>
+                                    <input 
+                                        type="text" 
+                                        className="form-control"
+                                        name="capacity" 
+                                        style={{width: '150px'}}
+                                        onChange={this.onChange} />
+                            </div>}
 
-                        <LogicComponent
-                         submitLogic={this.props.submitLogic}
-                         selectedNodeID={this.props.selectedNodeID}
-                         containers={this.props.containers}
-                         arrows={this.props.arrows}
-                         startNode={this.props.startNode}
-                         stationNode={this.props.stationNode} 
+                        {/*when logic button clicked, show html*/}
+                            <LogicComponent
+                             submitLogic={this.props.submitLogic}
+                             selectedNodeID={this.props.selectedNodeID}
+                             containers={this.props.containers}
+                             arrows={this.props.arrows}
+                             startNode={this.props.startNode}
+                             stationNode={this.props.stationNode} 
 
-                         endNode={this.props.endNode}
-                         logics={this.props.logics} /> 
-                        {logic}
-
-                    </div>
-        }
+                             endNode={this.props.endNode}
+                             logics={this.props.logics} />
+                            {logic}
+                        </div>
+                    }
 
         return (
             <Popup open={this.props.openUpdate} 
@@ -440,6 +423,8 @@ class UpdatePopUp extends Component{
             contentStyle={{height: 500, overflow: "auto"}} >
 
                {content}
+
+            {/*apply changes here*/}
 
             </Popup>
         );
