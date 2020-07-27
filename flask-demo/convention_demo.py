@@ -105,7 +105,7 @@ tb.add_container(ticket_storage_blueprint)
 
 tb.create_logic("BOOL")
 condition_group = tb.logic.create_condition_group("Condition Group 1",pass_paths=[end1], fail_paths=[end2])
-condition_group.add_condition("Have enough to buy Ticket", "Wallet", "Revenue", "e>=n", 18)
+condition_group.add_condition("Have enough to buy Ticket", "Wallet", "Revenue", "e>=v", 18)
 action_group = condition_group.create_action_group("Trade Money for Ticket")
 action_group.add_action("Take money from Attendee", "Wallet", "Revenue", "TAKE", 18)
 action_group.add_action("Give Attendee Ticket", "Tickets", "Ticket Storage", "GIVE", 1)

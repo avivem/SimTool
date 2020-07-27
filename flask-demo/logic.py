@@ -46,6 +46,7 @@ class Node(object):
         self.env = env
         self.name = name
         self.logic= Logic("RAND")
+        self.entities = set()
         #Achieve an ordered set using a dict and .keys
         self.directed_to = {}
 
@@ -134,11 +135,11 @@ class Logic(object):
             self.action_group = None
         class Condition(object):
             op_map = {
-                "e>=n" : operator.ge,
-                "e>n"  : operator.gt,
-                "e<=n" : operator.le,
-                "e<n"  : operator.lt,
-                "e==n" : operator.eq,
+                "e>=v" : operator.ge,
+                "e>v"  : operator.gt,
+                "e<=v" : operator.le,
+                "e<v"  : operator.lt,
+                "e==v" : operator.eq,
             }
             def __init__(self, name, encon_name, nodecon_name, op, val, names=False):
                 self.name = name
@@ -239,6 +240,8 @@ class BasicFlowEntity(object):
         self.currentLoc = currentLoc
         self.containers = {}
         self.resource_behaviors = resource_behaviors
+        self.travel_path = []
+        self.count = 0
         
     def __str__(self):
         return f'{self.name}'
@@ -266,63 +269,61 @@ class BasicFlowEntity(object):
                         continue
 
                     if ac.op == "GIVE":
+                        evnt_logger.info(f"\t {self.currentLoc} has given {ac.val} {encon.resource} from {nodecon} to {encon}",extra={"sim_time":self.env.now})
                         yield encon.con.put(ac.val)
                         yield nodecon.con.get(ac.val)
                     elif ac.op == "TAKE":
+                        evnt_logger.info(f"\t {self.currentLoc} has taken {ac.val} {encon.resource} from {encon} to {nodecon}",extra={"sim_time":self.env.now})
                         yield encon.con.get(ac.val)
                         yield nodecon.con.put(ac.val)
                     elif ac.op == "ADD":
+                        evnt_logger.info(f"\t {self.currentLoc} has added {ac.val} {encon.resource} to {encon}",extra={"sim_time":self.env.now})
                         yield encon.con.put(ac.val)
                     elif ac.op == "SUB":
+                        evnt_logger.info(f"\t {self.currentLoc} has added {ac.val} {encon.resource} to {encon}",extra={"sim_time":self.env.now})
                         yield encon.con.get(ac.val)
-                    elif ac.op == "MULT":
-                        yield encon.con.put(encon.con.level*ac.val)
-                    #Print log message here.
-
-
-        """ res = self.currentLoc.logic['resource']
-        conname = self.currentLoc.logic['entity_container_name']
-        act_amount = self.currentLoc.logic['act_amount']
-        #if not res in self.containers or not conname in self.containers[res]:
-        #    ##Return a log entry saying entity lacked container.
-        #    return None
-        if self.currentLoc.logic['act'] == 'SUB' and passed:
-            
-            encon = self.containers[res][conname]
-            evnt_logger.info(f'\t{self.currentLoc} is subtracting {act_amount} of {res} from {self}\'s {encon}. Old bal: {encon.con.level}. New bal: {encon.con.level - act_amount}', extra={'sim_time':self.env.now})
-            yield encon.con.get(act_amount)
-            yield self.currentLoc.container.con.put(act_amount)
-        elif self.currentLoc.logic['act'] == 'ADD' and passed:
-           
-            encon = self.containers[res][conname]
-            evnt_logger.info(f'\t{self.currentLoc} is adding {act_amount} of {res} to {self}\'s {encon}. Old bal: {encon.con.level}. New bal: {encon.con.level + act_amount}',extra={'sim_time':self.env.now})
-            yield encon.con.put(act_amount)
-            yield self.currentLoc.container.con.get(act_amount) """
+                    """ elif ac.op == "MULT":
+                        yield encon.con.put(encon.con.level*ac.val) """
+                
 
     def resources_snapshot(self):
-        return {k:v.summary() for (k,v) in self.containers}
+        return {k:v.summary() for (k,v) in self.containers.items()}
 
     #Down the road, add interact methods to components to allow for resource consumption.
     def run(self):
+        self.travel_path.append(self.start)
         while not isinstance(self.currentLoc,EndingPoint):
             
             #Wait in line until the component is available.
             with self.currentLoc.resource.request() as req:
+                self.count += 1
+                self.travel_path.append(self.currentLoc)
                 #Tell environment I'm waiting.
                 yield req
-                self.currentLoc.entity_resources_before[self] = self.resources_snapshot()
                 (evnt, (next_dir, passed)) = self.currentLoc.interact(self)
                 self.env.process(self.act(passed))
                 yield evnt
-                self.currentLoc.entity_resources_after[self] = self.resources_snapshot()
+                self.currentLoc.entities.add(self)
                 self.currentLoc = next_dir
 
         #if not self.start.name in self.currentLoc.entities:
         #    self.currentLoc.entities[self.start.name] = []
         #self.currentLoc.entities[self.start.name].append(self)
-        self.currentLoc.entities.append(self)
-        evnt_logger.info(f'\t{self} has reached endpoint {self.currentLoc}',extra={'sim_time':self.env.now})
-        #evnt_logger.info(f"{self.containers['Ticket']['Tickets'].con.level}",file=sys.stderr,extra={'sim_time':self.env.now})
+        self.currentLoc.entities.add(self)
+        self.travel_path.append(self.currentLoc)
+        evnt_logger.info(f'\t {self} has reached endpoint {self.currentLoc}.',extra={'sim_time':self.env.now})
+
+    def summary(self):
+        containers = {}
+        for name,con in self.containers.items():
+            containers[con.name] = con.summary()
+        return {
+            "name" : self.name,
+            "number of nodes visited" : self.count,
+            "containers" : containers,
+            "travelled path" : self.travel_path
+        }
+        
 
 #Node that generates flowing entities.
 class StartingPoint(Node):
@@ -333,12 +334,14 @@ class StartingPoint(Node):
         self.directed_to = None
         # Convert limit to 0-based.
         self.limit = limit -1
-        self.entities = []
         self.count = 0
         self.blueprints = {}
         self.action = env.process(self.run())
         
     def __str__(self):
+        return self.name
+
+    def __repr__(self):
         return self.name
 
     def reset(self):
@@ -369,7 +372,7 @@ class StartingPoint(Node):
         return path_list[next_ind]
 
     def run(self):
-        evnt_logger.info(f'\t{self} starting entity generation',extra={'sim_time':self.env.now})
+        evnt_logger.info(f'\t {self} starting entity generation',extra={'sim_time':self.env.now})
 
         #Optimize later using class references.
         while self.count < self.limit:
@@ -387,7 +390,7 @@ class StartingPoint(Node):
             yield self.env.timeout(tymeout)
 
             entity = BasicFlowEntity(self.env,f'{self.entity_name} {self.count}',self,self.next_dir())
-            self.entities.append(entity)
+            self.entities.add(entity)
             if len(self.blueprints) > 0:
 
                 for name, blueprint in self.blueprints.items():
@@ -395,13 +398,14 @@ class StartingPoint(Node):
                     entity.add_container(con)
 
             self.env.process(entity.run())
-            evnt_logger.info(f'\t{entity} has left {self}',extra={'sim_time':self.env.now})
+            evnt_logger.info(f'\t {entity} has left {self}',extra={'sim_time':self.env.now})
             self.count += 1
-        evnt_logger.info(f'\t{self} ending entity generation',extra={'sim_time':self.env.now})
+        evnt_logger.info(f'\t {self} ending entity generation',extra={'sim_time':self.env.now})
 
     def summary(self):
         return {
-            "num_entities_encountered" : self.count
+            "name" : self.name,
+            "number of entities created" : self.count
         }
             
             
@@ -449,15 +453,15 @@ class BasicComponent(Node):
                 #    next_ind = random.randint(0,len(faillist)-1)
                 #    return faillist[next_ind]
 
-                passed = len(action_groups) > 0
+                
                 (action_groups, paths) = self.logic.eval(entity, self)
+                passed = len(action_groups) > 0
                 #pprint.pprint(self.directed_to, sys.stderr)
                 #pprint.pprint(paths, sys.stderr)
                 pathlist = [x for x in self.directed_to if x in paths]
                 #pprint.pprint(pathlist, sys.stderr)
                 next_ind = random.randint(0, len(pathlist)-1)
-                print(f'[{self.env.now}]::\t{entity} Going to {pathlist[next_ind]}')
-                passed = len(action_groups) > 0
+                evnt_logger.info(f'\t {entity} Going to {pathlist[next_ind]}', extra = {"sim_time":self.env.now})
                 return (pathlist[next_ind], action_groups)          
         else:
             next_ind = 0
@@ -469,11 +473,22 @@ class BasicComponent(Node):
     #Returns a timeout event which represents the amount of time a component
     #needs to do it's thing.
     def interact(self, entity):
-        evnt_logger.info(f'\t{entity} is now interacting with {self}',extra={'sim_time':self.env.now})
+        evnt_logger.info(f'\t {entity} is now interacting with {self}',extra={'sim_time':self.env.now})
         return (self.env.timeout(self.time_func),self.next_dir(entity))
 
     def reset(self):
         self.count = 0
+
+    def summary(self):
+        containers = {}
+        for name, con in self.containers.items():
+            containers[con.name] = con.summary()
+        return {
+            "name" : self.name,
+            "capacity" : self.capacity,
+            "number of entity interactions" : self.count,
+            "container summaries" : containers
+        }
 
 class BasicContainerBlueprint(object):
     def __init__(self,name, resource, init = {'init' : 0}, capacity=float('inf'), uid=None):
@@ -485,28 +500,6 @@ class BasicContainerBlueprint(object):
 
     def build(self, env,owner):
         return BasicContainer(env=env, name=self.name, owner=owner, resource=self.resource, init=self.init, capacity=self.capacity, uid=self.uid)
-
-    def summary_resource(self, before:bool,resource):
-        if before:
-            resources = self.entity_resources_before
-        else:
-            resources = self.entity_resources_after
-        
-        res = resources["resource"]
-        return {
-            "resource" : resource,
-            "capacity"  :np.mean([y["capacity"] for (x,y) in res]),
-            "avg_init" : np.mean([y["init"] for (x,y) in res]),
-            "avg_level" : np.mean([y["level"] for (x,y) in res])
-        }
-        
-
-    def summary(self):
-        return {
-            "num_entities_encountered" : self.count,
-            "entity_resources_before" : {},
-            "entity_resources_after"
-        }
 
 #Wrapper for SimPy containers that allow us to differentiate between types of resources and
 #identifies the owner for a container.
@@ -537,8 +530,11 @@ class BasicContainer(object):
         self.capacity = capacity
         self.con = simpy.Container(env, float(capacity), float(init))
 
+    def __str__(self):
+        return f"<{self.name}>:({self.con.level})"
+    
     def __repr__(self):
-        return f"{self.name} + {self.con.level}"
+        return f"{self.__class__.__name__}(env=<env>,name=\"{self.name}\",owner=<{self.owner}>,resource=\"{self.resource}\",init={self.init},capacity={self.capacity},uid=\"{self.uid}\")"
 
     def update(self, args):
         for k,v in args.items():
@@ -546,6 +542,7 @@ class BasicContainer(object):
 
     def summary(self):
         return {
+            "name" : self.name,
             "owner" : self.owner,
             "resource" : self.resource,
             "init" : self.init,
@@ -558,12 +555,24 @@ class BasicContainer(object):
 class EndingPoint(Node):
     def __init__(self,env,name, uid=None):
         super().__init__(env=env,name=name, uid=uid)
-        #self.entities = {}
-        self.entities = []
     def __str__(self):
-        return self.name
+        return f"{self.name}"
     def __repr__(self):
         return f"{self.name}"
+    
+    def summary(self):
+        encountered = {}
+        for entity in self.entities:
+            if not entity.start.name in encountered:
+                encountered[entity.start.name] = 0
+            encountered[entity.start.name] += 1
+
+        return {
+            "name" : self.name,
+            "number of caught entities" : len(self.entities),
+            "number of entities by start node" : encountered,
+            "most common travel path" : collections.Counter(tuple(x.summary()['travelled path']) for x in self.entities).most_common(1)[0]
+        }
 
 def run(env,until=math.inf):
     env.run(until)
