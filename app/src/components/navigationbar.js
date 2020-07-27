@@ -383,8 +383,6 @@ class Navigation extends Component{
                                  />
                         </label>
                         <label className="label">Gen Function dist:
-
-
                           <select name="dist" className="form-control" onChange={this.onChange}>
                             <option value="NORMAL">Normal</option>
                             <option value="CONSTANT">Constant</option>
@@ -489,14 +487,14 @@ class Navigation extends Component{
                 <label className="label" style={{color:'white'}}>Run Until: </label>
               </li>
               <li class="nav-item active">    
-                <input type="text" id="runTime" className="textbox" value={this.state.runTime} onChange={this.handleChangeTime}></input>
+                <input type="text" id="runTime"  className="textbox" value={this.state.runTime} onChange={this.handleChangeTime}></input>
               </li>
               <li class="nav-item active">
                 <button className="button" style={{backgroundColor:'#4CAF50'}} onClick={this.handleRun}>Run</button>
               </li>
-              <li class="nav-item active">
+              {/*<li class="nav-item active">
                 <button className="button" style={{backgroundColor:'red'}}>Stop</button>
-              </li>
+              </li>*/}
               <li class="nav-item active">
                 <button className="button" style={{backgroundColor:'yellow', color:"black"}} onClick={this.openPopupData}>Data</button>
               </li>
