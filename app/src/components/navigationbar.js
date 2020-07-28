@@ -12,7 +12,7 @@ class Navigation extends Component{
     constructor(props){
       super(props);
       this.state = {
-        runTime: 0,
+        runTime: 1000,
         openNode: false,
         openImageOption: false,
         openData: false,
@@ -517,7 +517,7 @@ class Navigation extends Component{
           <div>
             {/*Popup for user to select node to add*/}
             <Popup open={this.state.openNode} closeOnDocumentClick = {true} onClose={this.closePopupNode}>
-               
+              <h2>Create New Node</h2>  
               <button onClick={this.addStart} className="nodeButton">
                 <img src={StartImage} alt="start" />
                 <figcaption>Start</figcaption>
