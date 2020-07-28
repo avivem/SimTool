@@ -51,7 +51,6 @@ class App extends Component{
       openContainer: false,
       openSpecSelect: false,    // For popup to select start node to app spec to 
       selectedSpec: {},
-      selectedSpecTo: [],
 
       selectedNodeID: "",
 
@@ -104,9 +103,8 @@ class App extends Component{
 
     this.openSpecSelectPopup = this.openSpecSelectPopup.bind(this);
     this.closeSpecSelectPopup = this.closeSpecSelectPopup.bind(this);
-    this.addSpecSelected = this.addSpecSelected.bind(this);
+    this.useBlueprintMakeContainer = this.useBlueprintMakeContainer.bind(this);
     this.editSpec = this.editSpec.bind(this);
-    this.addNodeToSpec = this.addNodeToSpec.bind(this);
     
     this.submitLogic = this.submitLogic.bind(this);
     this.createLogic = this.createLogic.bind(this);
@@ -758,14 +756,13 @@ class App extends Component{
 
     lst.push({
       uid: "spec-" + this.state.count,
-      specTo: [],
+  //    specTo: [],
       name: specName,
       resourceName: resource,
       distribution: dist,
       loc: loc,
       scale: scale,
-      maxAmount: max,
-      init: 0 
+      capacity: max,
     });
 
     addcontainerspec = {
@@ -795,7 +792,7 @@ class App extends Component{
     });
 
     this.setState((state) => ({
-      containers: lst,
+      specs: lst,
       count: state.count + 1,
     }));
 
@@ -824,13 +821,13 @@ class App extends Component{
   submitContainer(selectedNode, name, resource, loc, scale, dist, capacity){
     var lst = this.state.containers;
     lst.push({
-      uid: "spec-" + this.state.count,
+      uid: "container-" + this.state.count,
       selectedNode: selectedNode,
-      name: name,
-      resource: resource,
+      name: name + "-" + this.state.count,
+      resourceName: resource,
       loc: loc,
       scale: scale,
-      dist: dist,
+      distribution: dist,
       capacity: capacity
     });
 
@@ -928,7 +925,7 @@ class App extends Component{
     this.setState({
       openSpecSelect: true,
       selectedSpec: spec,
-      selectedSpecTo: spec.specTo
+     // selectedSpecTo: spec.specTo
     })
   }
   
@@ -937,13 +934,34 @@ class App extends Component{
     this.setState({
       openSpecSelect: false,
       selectedSpec: {},
-      selectedSpecTo: []
+   //   selectedSpecTo: []
     });
   }
 
-  // Add selected nodes to the spec
-  addSpecSelected(spec, nodes){
+  // Make container for the selected list of nodes
+  useBlueprintMakeContainer(spec, nodes){
+    var containers = this.state.containers;
+    var count = this.state.count;
 
+    // Create container for each of node
+    nodes.forEach((uid) => {
+      
+      containers.push({
+        uid: "container-" + count,
+        selectedNode: uid,
+        name: spec.name + "-" + count,
+        resourceName: spec.resourceName,
+        loc: spec.loc,
+        scale: spec.scale,
+        distribution: spec.distribution,
+        capacity: spec.capacity
+      });
+      count = count + 1;
+
+    });
+
+
+/*
     var specs = this.state.specs;
     specs.forEach((s) => {
       if(s.uid == spec.uid){
@@ -954,6 +972,14 @@ class App extends Component{
     this.setState({
       specs: specs
     });
+*/
+
+    this.setState({
+      containers: containers,
+      count: count
+    });
+
+    console.log(containers);
 
     // multiple nodes
     for(var i in nodes){
@@ -1002,30 +1028,7 @@ class App extends Component{
 
   }
 
-  // Add the selected nodeUID tto the selected field in the spec with the specUID
-  addNodeToSpec(specUID, nodeUID){
-    
-    var specs = this.state.specs;
-    
-    // Remove nodeUID from any of the spec since node can only have  blueprint
-    // Also add the nodeID to specTo of the spec with the matching specUID
-    specs.forEach((s) => {
-      if(s.specTo.includes(nodeUID)){
-        var newSpecTo = []
-        s.specTo.forEach((uid) => {
-          if(uid != nodeUID){
-            newSpecTo.push(uid);
-          }
-        });
-        s.specTo = newSpecTo;
-      }
-      if(s.uid == specUID){
-        s.specTo.push(nodeUID);
-      }
-    });
-
-    this.setState({specs: specs});
-  }
+  
 
   // status - new/edit, if new then add new logic, if edit then edit an existing logic
   // cond - el==, el<=, el<, el>=, el>
@@ -1273,7 +1276,8 @@ class App extends Component{
           createCondition={this.createCondition}
           createAction={this.createAction}
           
-          addNodeToSpec={this.addNodeToSpec}
+          useBlueprintMakeContainer={this.useBlueprintMakeContainer}
+
           />
         </div>
         
@@ -1292,9 +1296,8 @@ class App extends Component{
           startNode={this.state.startNode}
           stationNode={this.state.stationNode}
           selectedSpec={this.state.selectedSpec}
-          selectedSpecTo={this.state.selectedSpecTo}
           closeSpecSelectPopup={this.closeSpecSelectPopup}
-          addSpecSelected={this.addSpecSelected}
+          useBlueprintMakeContainer={this.useBlueprintMakeContainer}
           editSpec={this.editSpec}
           />
         </div>

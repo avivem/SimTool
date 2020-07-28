@@ -422,11 +422,11 @@ class LogicComponent extends Component{
             }
         });
 
-        var lstSpecs = [{ value: "", label: "" }]
-        this.props.specs.forEach((s) => {
-            if(s.specTo.includes(this.props.selectedNodeID)){
-                lstSpecs.push({value: s.uid, label: s.name});
-            }
+        var lstEntity = [{ value: "", label: "" }]
+        this.props.startNode.forEach((s) => {
+            
+            lstEntity.push({value: s.uid, label: s.entity_name});
+
         });
 
         const customStyle = {
@@ -569,7 +569,7 @@ class LogicComponent extends Component{
                 <label>Entity Name:
                     <Select
                     styles={customStyle}
-                    options={lstSpecs}
+                    options={lstEntity}
                     name="entityName"
                     onChange={this.handleEntitySelected}
                     />
@@ -626,7 +626,7 @@ class LogicComponent extends Component{
                 <label>Entity Name:
                     <Select
                     styles={customStyle}
-                    options={lstSpecs}
+                    options={lstEntity}
                     name="entityName"
                     onChange={this.handleEntitySelected}
                     />

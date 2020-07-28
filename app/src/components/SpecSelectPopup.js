@@ -58,7 +58,7 @@ class SpecSelectPopup extends Component{
     }
 
     addSelectedSpec(){
-        this.props.addSpecSelected(this.props.selectedSpec, this.state.selected);
+        this.props.useBlueprintMakeContainer(this.props.selectedSpec, this.state.selected);
         this.props.closeSpecSelectPopup();
     }
 
@@ -113,7 +113,7 @@ class SpecSelectPopup extends Component{
         })
 
         var spec = this.props.selectedSpec;
-
+/*
         var defaultSelect = [];
         var defaultSelectedName = "";
         
@@ -136,7 +136,7 @@ class SpecSelectPopup extends Component{
             defaultSelect.push({ value: uid, label: name })
         });
 
-
+*/
        
 
         var content = 
@@ -219,7 +219,6 @@ class SpecSelectPopup extends Component{
                 <div>
                     <div>
                         <h1>{spec.name}</h1>
-                        <p>Applied to: {defaultSelectedName}</p>
                         <p>Resource: {spec.resourceName}</p>
                         <p>Distribution: {spec.distribution}</p>
                         <p>Scale: {spec.scale} </p>
@@ -235,7 +234,6 @@ class SpecSelectPopup extends Component{
                     <div>
                         <h5>Apply to:</h5>
                         <Select 
-                        defaultValue={defaultSelect}
                         isMulti
                         className="multi-select"
                         classNamePrefix="select"

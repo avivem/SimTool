@@ -44,7 +44,7 @@ class UpdatePopUp extends Component{
         this.closeUpdatePopup = this.closeUpdatePopup.bind(this);
 
         this.handleSpec = this.handleSpec.bind(this);
-        this.addNodeToSpec = this.addNodeToSpec.bind(this);
+        this.useBlueprintMakeContainer = this.useBlueprintMakeContainer.bind(this);
     
     }
 
@@ -119,8 +119,15 @@ class UpdatePopUp extends Component{
         this.setState({ selectedBlueprint: e.value });
     }
 
-    addNodeToSpec(){
-        this.props.addNodeToSpec(this.state.selectedBlueprint, this.props.selectedNodeID);
+    useBlueprintMakeContainer(){
+        var spec = {};
+        this.props.specs.forEach((s) => {
+            if(s.uid == this.state.selectedBlueprint){
+                spec = s;
+            }
+        })
+        this.props.useBlueprintMakeContainer(spec, [this.props.selectedNodeID]);
+        this.onButtonContainer();
     }
 
     render(){
@@ -131,23 +138,29 @@ class UpdatePopUp extends Component{
             })
         }
         
-
+        // List of blueprint that can be applied
         var specOptions = [];
         this.props.specs.forEach((spec) => {
             specOptions.push({ value: spec.uid, label: spec.name })
 
         });
 
-        var specDefault = "None";
-        this.props.specs.forEach((spec) => {
-            if(spec.specTo.includes(this.props.selectedNodeID)){
-                specDefault = spec.name
+        // Create a string that have all of container's name applied to this node
+        var lstContainer = "";
+        this.props.containers.forEach((c) => {
+            if(c.selectedNode == this.props.selectedNodeID){
+                if(lstContainer == ""){
+                    lstContainer = c.name;
+                }
+                else{
+                    lstContainer = lstContainer + ", " + c.name;
+                }
+                
             }
         });
 
         var addBlueprint = 
             <div class="container">
-                <p>Current Applied Blueprint: {specDefault}</p>
                 <div class="row">
                     <div class="col">
                         <label>Apply New Blueprint: 
@@ -160,7 +173,7 @@ class UpdatePopUp extends Component{
                         </label>
                     </div>
                     <div class="col">
-                        <button className="button" onClick={this.addNodeToSpec}>
+                        <button className="button" onClick={this.useBlueprintMakeContainer}>
                                 Apply Blueprint
                         </button>
                     </div>
@@ -269,10 +282,35 @@ class UpdatePopUp extends Component{
 */
         let content;
 
-        var endNode = this.props.endNode[0];
-        var startNode = this.props.startNode[0];
-        var s = this.props.stationNode;
+        var endNode;
+        var startNode;
+        var s;
 
+        // Find the selected node
+        switch(type){
+            case "start":
+                this.props.startNode.forEach((n) => {
+                    if(n.uid == this.props.selectedNodeID){
+                        startNode = n;
+                    }
+                });
+                break;
+                
+            case "station":
+                this.props.stationNode.forEach((n) => {
+                    if(n.uid == this.props.selectedNodeID){
+                        s = n;
+                    }
+                });
+                break;
+            case "end":
+                this.props.endNode.forEach((n) => {
+                    if(n.uid == this.props.selectedNodeID){
+                        endNode = n;
+                    }
+                });
+                break;
+        }
 
         if(type == "end" && endNode != undefined){
 
@@ -315,6 +353,7 @@ class UpdatePopUp extends Component{
                         <p>Generation Function loc: {startNode.loc}</p>
                         <p>Generation Function scale: {startNode.scale}</p>
                         <p>Limit: {startNode.limit}</p>
+                        <p>Current Container: {lstContainer}</p>
 
                         <div class="container">
                             <button className="button" onClick={this.onButtonUpdate}>
@@ -438,6 +477,9 @@ class UpdatePopUp extends Component{
                                 <tr>
                                     <td><p>Node Name: {s.name}</p></td>
                                     <td><p>Capacity: {s.capacity}</p></td>
+                                </tr>
+                                <tr>
+                                    <td><p>Current Container: {lstContainer}</p></td>
                                 </tr>
                                 <tr>
                                     <td><p>Time Function: {s.time_func}</p></td>
