@@ -27,11 +27,18 @@ class UpdatePopUp extends Component{
 
             selectedBlueprint: "",
 
-            uid: 0
+            uid: 0,
 
+            containerName: "",
+            containerResource: "",
+            containerDist: "Normal",
+            containerLoc: 0,
+            containerScale: 0,
+            containerCapacity: 0,
         }
         
         this.onChange = this.onChange.bind(this);
+        this.changeDist = this.changeDist.bind(this);
         this.applyChanges = this.applyChanges.bind(this);
 
         this.closeUpdatePopup = this.closeUpdatePopup.bind(this);
@@ -45,6 +52,13 @@ class UpdatePopUp extends Component{
         // console.log(e.target)
         this.setState({ [e.target.name]: e.target.value })
     }
+
+    // change for distribution
+    changeDist(e){
+        this.setState({
+            containerDist: e.target.value,
+        });
+    }
     
 
     // Handle submit data of the interaction
@@ -55,13 +69,21 @@ class UpdatePopUp extends Component{
 
     // Handle submit new container
     applyContainer(type,uid){
-        // this.props.handleContainer(this.state,uid,type);
+        var name = this.state.containerName;
+        var resource = this.state.containerResource;
+        var loc = parseInt(this.state.containerLoc);
+        var scale = parseInt(this.state.containerScale);
+        var dist = this.state.containerDist;
+        var capacity = parseInt(this.state.containerCapacity);
+        this.props.  submitContainer(uid, name, resource, loc, scale, dist, capacity);
         this.onButtonContainer();
     }
 
     closeUpdatePopup(){
         this.setState({
-            showErrorMessage: false
+            showErrorMessage: false,
+            showMessageCont: false,
+            showMessageUP: false
         });
         this.props.closeUpdatePopup();
     }
@@ -77,7 +99,15 @@ class UpdatePopUp extends Component{
 
     onButtonContainer = () => {
         if(this.state.showMessageCont== false){
-            this.setState({showMessageCont: true});
+            this.setState({
+                showMessageCont: true,
+                containerName: "",
+                containerResource: "",
+                containerDist: "Normal",
+                containerLoc: 0,
+                containerScale: 0,
+                containerCapacity: 0,
+            });
         }else{
             this.setState({showMessageCont: false});
         }
@@ -136,6 +166,67 @@ class UpdatePopUp extends Component{
                     </div>
                 </div>
             </div>
+
+        // Content for adding container
+        var containerContent = 
+        <div>  
+
+            {/* Add a blueprint to the node */}
+            {addBlueprint}  
+
+            <h2>Create Container</h2>  
+            <label className="label">Name:</label>
+            <input 
+                type="text" 
+                className="form-control"
+                name="containerName" 
+                style={{width: '150px'}}
+                onChange={this.onChange} />
+        
+            <label className="label">Resource:</label>
+            <input 
+                type="text" 
+                className="form-control"
+                name="containerResource" 
+                style={{width: '150px'}}
+                onChange={this.onChange} />
+            
+            <label className="label">Distribution:&nbsp;
+                <select 
+                    className="paymentType" 
+                    name="constainerDist"
+                    onChange={this.changeDist} 
+                    value={this.state.constainerDist}>
+                    <option value="NORMAL">NORMAL</option>
+                    <option value="UNIFORM">UNIFORM</option>
+                    <option value="RANDOM INT">RANDOM INT</option>
+                </select>
+            </label>
+            <br/>
+            <label className="label">Loc: </label> 
+            <input 
+                type="text" 
+                className="form-control"
+                name="containerLoc" 
+                style={{width: '150px'}}
+                onChange={this.onChange} />
+
+            <label className="label">Scale: </label> 
+            <input 
+                type="text" 
+                className="form-control"
+                name="containerScale" 
+                style={{width: '150px'}}
+                onChange={this.onChange} />
+
+            <label className="label">Capacity: </label> 
+            <input 
+                type="text" 
+                className="form-control"
+                name="containerCapacity" 
+                style={{width: '150px'}}
+                onChange={this.onChange} />
+        </div>
 
         // find type
         var type= this.props.selectedNodeID.substr(0, this.props.selectedNodeID.indexOf('-')); 
@@ -300,44 +391,10 @@ class UpdatePopUp extends Component{
 
                         {/*when container button clicked, show html*/}
                         {this.state.showMessageCont &&  
-                            <div>  
-
-                                {/* Add a blueprint to the node */}
-                                {addBlueprint}  
-
-                                <h2>Create Container</h2>  
-                                <label className="label">Name:</label>
-                                <input 
-                                    type="text" 
-                                    className="form-control"
-                                    name="containerName" 
-                                    style={{width: '150px'}}
-                                    onChange={this.onChange} />
-                            
-                                <label className="label">Resource:</label>
-                                <input 
-                                    type="text" 
-                                    className="form-control"
-                                    name="containerResource" 
-                                    style={{width: '150px'}}
-                                    onChange={this.onChange} />
-                                <label className="label">initial Value:</label>
-                                <input 
-                                    type="text" 
-                                    className="form-control"
-                                    name="initial" 
-                                    style={{width: '150px'}}
-                                    onChange={this.onChange} />
-                                <label className="label">Capacity:</label>
-                                <input 
-                                    type="text" 
-                                    className="form-control"
-                                    name="capacity" 
-                                    style={{width: '150px'}}
-                                    onChange={this.onChange} />
-
+                            <div>
+                                {containerContent}
                                 <div class="container">
-                                    <button className="button" onClick={() => this.applyContainer("End Node",endNode.uid)}>Submit Container</button>
+                                    <button className="button" onClick={() => this.applyContainer("Start Node",startNode.uid)}>Submit Container</button>
                                 </div>
                             </div>
                         }
@@ -434,44 +491,13 @@ class UpdatePopUp extends Component{
 
                             {/*when contianer button clicked, show html*/}
                             {this.state.showMessageCont &&  
-                                <div class="container">                    
-                                     {/* Add a blueprint to the node */}
-                                    {addBlueprint}
-                                    <h2>Create Container</h2>  
-                                    <label className="label">Name:</label>
-                                    <input 
-                                        type="text" 
-                                        className="form-control"
-                                        name="containerName" 
-                                        style={{width: '150px'}}
-                                        onChange={this.onChange} />
-                                
-                                    <label className="label">Resource:</label>
-                                    <input 
-                                        type="text" 
-                                        className="form-control"
-                                        name="containerResource" 
-                                        style={{width: '150px'}}
-                                        onChange={this.onChange} />
-                                    <label className="label">initial Value:</label>
-                                    <input 
-                                        type="text" 
-                                        className="form-control"
-                                        name="initial" 
-                                        style={{width: '150px'}}
-                                        onChange={this.onChange} />
-                                    <label className="label">Capacity:</label>
-                                    <input 
-                                        type="text" 
-                                        className="form-control"
-                                        name="capacity" 
-                                        style={{width: '150px'}}
-                                        onChange={this.onChange} />
+                                <div>
+                                    {containerContent}
 
                                     <div class="container">
-                                        <button className="button" onClick={() => this.applyChanges("Station Node",s.uid)}>Submit Changes</button>
+                                        <button className="button" onClick={() => this.applyContainer("Station Node",s.uid)}>Submit Container</button>
                                     </div>
-                            </div>}
+                                </div>}
 
                         {/*when logic button clicked, show html*/}
                             <LogicComponent

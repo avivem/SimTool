@@ -820,14 +820,17 @@ class App extends Component{
       console.log("Close container Popup");
   }
 
-  submitContainer(selectedNode, name, resource, init, capacity){
+  // Add a new container
+  submitContainer(selectedNode, name, resource, loc, scale, dist, capacity){
     var lst = this.state.containers;
     lst.push({
       uid: "spec-" + this.state.count,
       selectedNode: selectedNode,
       name: name,
       resource: resource,
-      init: init,
+      loc: loc,
+      scale: scale,
+      dist: dist,
       capacity: capacity
     });
 
@@ -839,7 +842,9 @@ class App extends Component{
         name: name,
         resource: resource,
         init : {
-          init: init
+          loc: loc,
+          scale: scale,
+          dist: dist
         },
         capacity: capacity,
         uid: "spec-" + this.state.count
@@ -1255,6 +1260,8 @@ class App extends Component{
           stationNode={this.state.stationNode} 
           endNode={this.state.endNode}
           handleChangeNode={this.handleChangeNode}
+
+          submitContainer = {this.submitContainer}
           
           arrows={this.state.arrows}
           containers={this.state.containers}
