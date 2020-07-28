@@ -737,72 +737,41 @@ class App extends Component{
   }
 
   // Add interaction/resource to list
-  addSpec(specName, dist, resource, loc, scale, max, constantVal){
+  addSpec(specName, dist, resource, loc, scale, max){
     var lst = this.state.specs;
     console.log(dist);
     // specTo is an array of node UID 
     var addcontainerspec;
-    if(dist == "CONSTANT"){
-      lst.push({
-        uid: "spec-" + this.state.count,
-        specTo: [],
+
+    lst.push({
+      uid: "spec-" + this.state.count,
+      specTo: [],
+      name: specName,
+      resourceName: resource,
+      distribution: dist,
+      loc: loc,
+      scale: scale,
+      maxAmount: max,
+      init: 0 
+    });
+
+    addcontainerspec = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        // Change the name value to this.state.name to refer to user input
         name: specName,
-        resourceName: resource,
-        distribution: dist,
-        loc: 0,
-        scale: 0,
-        maxAmount: 0,
-        init: constantVal
+        resource: resource,
+        init : {
+          dist: dist,
+          loc: loc,
+          scale: scale
+        },
+        capacity: max,
+        uid: "spec-" + this.state.count
       })
-
-      addcontainerspec = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          // Change the name value to this.state.name to refer to user input
-          name: specName,
-          resource: resource,
-          init : {
-            dist: dist,
-            loc: constantVal,
-            scale: constantVal
-          },
-          capacity: max,
-          uid: "spec-" + this.state.count
-        })
-      };
-
-    }
-    else{
-      lst.push({
-        uid: "spec-" + this.state.count,
-        specTo: [],
-        name: specName,
-        resourceName: resource,
-        distribution: dist,
-        loc: loc,
-        scale: scale,
-        maxAmount: max,
-        init: 0 
-      });
-
-      addcontainerspec = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          // Change the name value to this.state.name to refer to user input
-          name: specName,
-          resource: resource,
-          init : {
-            dist: dist,
-            loc: loc,
-            scale: scale
-          },
-          capacity: max,
-          uid: "spec-" + this.state.count
-        })
-      };
-    }
+    };
+    
 
     /**fetch to api tos set container*/
     fetch('http://127.0.0.1:5000/api/container_spec/', addcontainerspec).then(res => res.json()).then(gotUser => {
@@ -993,7 +962,7 @@ class App extends Component{
 
   }
   
-  editSpec(selectedSpec, specName, dist, resource, loc, scale, max, constantVal){
+  editSpec(selectedSpec, specName, dist, resource, loc, scale, max){
     var specs = this.state.specs;
     
     specs.forEach((s) => {
@@ -1001,14 +970,9 @@ class App extends Component{
           s.name = specName;
           s.resourceName = resource;
           s.distribution = dist;
-        if(dist == "CONSTANT"){ 
-          s.init = constantVal;
-        }
-        else{
           s.loc = loc;
           s.scale = scale;
           s.maxAmount = max;  
-        }
       }
     });
 

@@ -14,7 +14,6 @@ class AssestPopUp extends Component{
             maxAmount: 0,
             scale: 0,
             loc: 0,
-            constantValue: 0,
             distribution: "Normal",
             showErrorMessage: false,
             
@@ -51,9 +50,8 @@ class AssestPopUp extends Component{
         var loc = parseInt(this.state.loc);
         var scale = parseInt(this.state.scale);
         var max = parseInt(this.state.maxAmount);
-        var constantVal = parseInt(this.state.constantValue)
-        if(max >= loc || dist == "CONSTANT"){
-            this.props.addSpec(specName, dist, resource, loc, scale, max, constantVal);
+        if(max >= loc){
+            this.props.addSpec(specName, dist, resource, loc, scale, max);
             this.closeSpecPopup();
         }
         else{
@@ -71,7 +69,6 @@ class AssestPopUp extends Component{
             maxAmount: 0,
             scale: 0,
             loc: 0,
-            constantValue: 0,
             distribution: "Normal",
             showErrorMessage: false,
         });
@@ -80,22 +77,7 @@ class AssestPopUp extends Component{
 
     render(){
 
-        let content;
-        if(this.state.distribution == "CONSTANT"){
-            this.state.distribution = "CONSTANT"
-            content = 
-                <div className="container input-group">        
-                    <label className="label">Value: </label> 
-                    <input 
-                        type="text" 
-                        className="form-control"
-                        name="constantValue" 
-                        onChange={this.onChange} />
-                </div>
-
-        }
-        else{
-            content =
+        let content =
                 <div className="container input-group">        
                     <label className="label">Scale: </label> 
                     <input 
@@ -119,7 +101,7 @@ class AssestPopUp extends Component{
                         onChange={this.onChange} />
                 </div>            
 
-        }
+        
 
         return (
             <Popup open={this.props.openSpec} closeOnDocumentClick = {true} onClose={this.closeSpecPopup} >
@@ -167,7 +149,6 @@ class AssestPopUp extends Component{
                             onChange={this.changeDist} 
                             value={this.state.distribution}>
                             <option value="NORMAL">NORMAL</option>
-                            <option value="CONSTANT">CONSTANT</option>
                             <option value="UNIFORM">UNIFORM</option>
                             <option value="RANDOM INT">RANDOM INT</option>
                         </select>
