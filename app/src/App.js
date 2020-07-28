@@ -196,8 +196,8 @@ class App extends Component{
   Change the unit or rate of the node, the r is used to convert the rate to second,
   so r can be 1, 60, 60 * 60, or 60 * 60 * 24 
   */
-  handleChangeNode(change,type){
-    console.log(change);
+  handleChangeNode(change,uid,type){
+
      switch(type){
        case "Start Node":
          // need to change startNode array
@@ -214,7 +214,7 @@ class App extends Component{
            headers: { 'Content-Type': 'application/json' },
            body: JSON.stringify({
              // node id is this.state.startNode[0].uid
-             uid: change.targetId,
+             uid: uid,
              type: 'START',
              // Change the name value to this.state.name to refer to user input
              name: change.startname,
@@ -264,7 +264,7 @@ class App extends Component{
            method: 'PUT',
            headers: { 'Content-Type': 'application/json' },
            body: JSON.stringify({
-             uid: change.targetId,
+             uid: uid,
              type: 'BASIC',
              // Change the name value to this.state.name to refer to user input
              name:change.stationame,
@@ -293,7 +293,7 @@ class App extends Component{
            method: 'PUT',
            headers: { 'Content-Type': 'application/json' },
            body: JSON.stringify({
-             uid: change.targetId,
+             uid: uid,
              type: 'END',
              // Change the name value to this.state.name to refer to user input
              name: change.endname,
@@ -734,6 +734,19 @@ class App extends Component{
       });
       console.log("Container mode on");
     }
+
+    /**fetch to api */
+    // {
+    // "name": "Wallet",
+    // "resource": "Dollar",
+    // "init": {
+    //     "dist": "NORMAL",
+    //     "loc": 25,
+    //     "scale": 5
+    // },
+    // "capacity": 200,
+    // "uid": "container-wallet-rich"
+    // } 
   }
 
   // Add interaction/resource to list

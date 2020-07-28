@@ -27,6 +27,8 @@ class UpdatePopUp extends Component{
 
             selectedBlueprint: "",
 
+            uid: 0
+
         }
         
         this.onChange = this.onChange.bind(this);
@@ -46,8 +48,15 @@ class UpdatePopUp extends Component{
     
 
     // Handle submit data of the interaction
-    applyChanges(type){
-        this.props.handleChangeNode(this.state,type);
+    applyChanges(type,uid){
+        this.props.handleChangeNode(this.state,uid,type);
+        this.onButtonContainer();
+    }
+
+    // Handle submit new container
+    applyContainer(type,uid){
+        // this.props.handleContainer(this.state,uid,type);
+        this.onButtonContainer();
     }
 
     closeUpdatePopup(){
@@ -99,7 +108,7 @@ class UpdatePopUp extends Component{
 
         });
 
-        var specDefault = "";
+        var specDefault = "None";
         this.props.specs.forEach((spec) => {
             if(spec.specTo.includes(this.props.selectedNodeID)){
                 specDefault = spec.name
@@ -108,19 +117,23 @@ class UpdatePopUp extends Component{
 
         var addBlueprint = 
             <div class="container">
-                <p>Applied Blueprint: {specDefault}</p>
-                <label>Blueprint: 
-                    <Select
-                    styles={customStyle}
-                    options={specOptions}
-                    name="selectedBlueprint"
-                    onChange={this.handleSpec}
-                    />
-                </label>
-                <div class="container">
-                    <button className="button" onClick={this.addNodeToSpec}>
-                        Apply Blueprint
-                    </button>
+                <p>Current Applied Blueprint: {specDefault}</p>
+                <div class="row">
+                    <div class="col">
+                        <label>Apply New Blueprint: 
+                            <Select
+                            styles={customStyle}
+                            options={specOptions}
+                            name="selectedBlueprint"
+                            onChange={this.handleSpec}
+                            />
+                        </label>
+                    </div>
+                    <div class="col">
+                        <button className="button" onClick={this.addNodeToSpec}>
+                                Apply Blueprint
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -172,6 +185,8 @@ class UpdatePopUp extends Component{
 
         if(type == "end" && endNode != undefined){
 
+            console.log(this.props);
+
             content =   <div class="container">
                         <h2>Settings for {endNode.name}</h2>
                         <p>Node Name: {endNode.name}</p>
@@ -193,49 +208,11 @@ class UpdatePopUp extends Component{
                                     name="endname"
                                     onChange={this.onChange} />
                             </label>
-                        </div>}
 
-
-                        <div class="container">
-                            <button className="button" onClick={this.onButtonContainer}>
-                                Add Container
-                            </button>
-                        </div>
-
-                     {/*when container button clicked, show html*/}
-                        {this.state.showMessageCont &&  
-                            <div className="input-group">                    
-                                <label className="label">Name:</label>
-                                <input 
-                                    type="text" 
-                                    className="form-control"
-                                    name="containerName" 
-                                    style={{width: '150px'}}
-                                    onChange={this.onChange} />
-                            
-                                <label className="label">Resource:</label>
-                                <input 
-                                    type="text" 
-                                    className="form-control"
-                                    name="containerResource" 
-                                    style={{width: '150px'}}
-                                    onChange={this.onChange} />
-                                <label className="label">initial Value:</label>
-                                <input 
-                                    type="text" 
-                                    className="form-control"
-                                    name="initial" 
-                                    style={{width: '150px'}}
-                                    onChange={this.onChange} />
-                                <label className="label">Capacity:</label>
-                                <input 
-                                    type="text" 
-                                    className="form-control"
-                                    name="capacity" 
-                                    style={{width: '150px'}}
-                                    onChange={this.onChange} />
+                            <div class="container">
+                                <button className="button" onClick={() => this.applyChanges("End Node",endNode.uid)}>Submit Changes</button>
                             </div>
-                        }
+                        </div>}
 
                         </div>
         }else if(type == "start" && startNode != undefined){
@@ -247,9 +224,6 @@ class UpdatePopUp extends Component{
                         <p>Generation Function loc: {startNode.loc}</p>
                         <p>Generation Function scale: {startNode.scale}</p>
                         <p>Limit: {startNode.limit}</p>
-
-                        {/* Add a blueprint to the node */}
-                        {addBlueprint}
 
                         <div class="container">
                             <button className="button" onClick={this.onButtonUpdate}>
@@ -312,6 +286,10 @@ class UpdatePopUp extends Component{
                                         onChange={this.onChange}
                                          />
                                 </label>
+
+                                <div class="container">
+                                    <button className="button" onClick={() => this.applyChanges("Start Node",startNode.uid)}>Submit Changes</button>
+                                </div>
                             </div>}
 
                         <div class="container">
@@ -322,7 +300,12 @@ class UpdatePopUp extends Component{
 
                         {/*when container button clicked, show html*/}
                         {this.state.showMessageCont &&  
-                            <div className="input-group">                    
+                            <div>  
+
+                                {/* Add a blueprint to the node */}
+                                {addBlueprint}  
+
+                                <h2>Create Container</h2>  
                                 <label className="label">Name:</label>
                                 <input 
                                     type="text" 
@@ -352,6 +335,10 @@ class UpdatePopUp extends Component{
                                     name="capacity" 
                                     style={{width: '150px'}}
                                     onChange={this.onChange} />
+
+                                <div class="container">
+                                    <button className="button" onClick={() => this.applyContainer("End Node",endNode.uid)}>Submit Container</button>
+                                </div>
                             </div>
                         }
 
@@ -400,9 +387,6 @@ class UpdatePopUp extends Component{
                                 </tr>
                             </table>
 
-                             {/* Add a blueprint to the node */}
-                            {addBlueprint}
-
                             <div class="container">
                                 <button className="button" onClick={this.onButtonUpdate}>
                                     Update Node
@@ -450,7 +434,10 @@ class UpdatePopUp extends Component{
 
                             {/*when contianer button clicked, show html*/}
                             {this.state.showMessageCont &&  
-                                <div>                    
+                                <div class="container">                    
+                                     {/* Add a blueprint to the node */}
+                                    {addBlueprint}
+                                    <h2>Create Container</h2>  
                                     <label className="label">Name:</label>
                                     <input 
                                         type="text" 
@@ -480,6 +467,10 @@ class UpdatePopUp extends Component{
                                         name="capacity" 
                                         style={{width: '150px'}}
                                         onChange={this.onChange} />
+
+                                    <div class="container">
+                                        <button className="button" onClick={() => this.applyChanges("Station Node",s.uid)}>Submit Changes</button>
+                                    </div>
                             </div>}
 
                         {/*when logic button clicked, show html*/}
@@ -511,9 +502,6 @@ class UpdatePopUp extends Component{
 
             {/*apply changes here*/}
 
-            <div class="container">
-                <button className="button" onClick={this.handleSubmitImage}>Submit Changes</button>
-            </div>
 
             </Popup>
         );
