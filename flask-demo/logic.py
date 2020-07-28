@@ -233,7 +233,7 @@ class BasicFlowEntity(object):
         "MULT" : "Multiplied"
     }
     
-    def __init__(self, env:simpy.Environment,name:str, start,currentLoc:Node, resource_behaviors:dict={}):
+    def __init__(self, env:simpy.Environment,start_time,name:str, start,currentLoc:Node, resource_behaviors:dict={}):
         self.env = env
         self.start = start
         self.name = name
@@ -241,6 +241,8 @@ class BasicFlowEntity(object):
         self.containers = {}
         self.resource_behaviors = resource_behaviors
         self.travel_path = []
+        self.start_time = start_time
+        self.end_time = None
         self.count = 0
         
     def __str__(self):
@@ -291,13 +293,13 @@ class BasicFlowEntity(object):
 
     #Down the road, add interact methods to components to allow for resource consumption.
     def run(self):
-        self.travel_path.append(self.start)
+        self.travel_path.append(str(self.start))
         while not isinstance(self.currentLoc,EndingPoint):
             
             #Wait in line until the component is available.
             with self.currentLoc.resource.request() as req:
                 self.count += 1
-                self.travel_path.append(self.currentLoc)
+                self.travel_path.append(str(self.currentLoc))
                 #Tell environment I'm waiting.
                 yield req
                 (evnt, (next_dir, passed)) = self.currentLoc.interact(self)
@@ -310,7 +312,8 @@ class BasicFlowEntity(object):
         #    self.currentLoc.entities[self.start.name] = []
         #self.currentLoc.entities[self.start.name].append(self)
         self.currentLoc.entities.add(self)
-        self.travel_path.append(self.currentLoc)
+        self.travel_path.append(str(self.currentLoc))
+        self.end_time = self.env.now
         evnt_logger.info(f'\t {self} has reached endpoint {self.currentLoc}.',extra={'sim_time':self.env.now})
 
     def summary(self):
@@ -389,7 +392,7 @@ class StartingPoint(Node):
 
             yield self.env.timeout(tymeout)
 
-            entity = BasicFlowEntity(self.env,f'{self.entity_name} {self.count}',self,self.next_dir())
+            entity = BasicFlowEntity(self.env,self.env.now,f'{self.entity_name} {self.count}',self,self.next_dir())
             self.entities.add(entity)
             if len(self.blueprints) > 0:
 
@@ -437,34 +440,34 @@ class BasicComponent(Node):
 
     def next_dir(self, entity):
         path_list = sorted(self.directed_to.keys(), key=lambda x: x.name)
-        if len(self.directed_to) > 1:
-            if self.logic.split_policy == "RAND":
-                next_ind = random.randint(0,len(self.directed_to)-1)
-            elif self.logic.split_policy == "ALPHA_SEQ":
-                next_ind = self.count % len(path_list)
-                self.count += 1
-            elif self.logic.split_policy == "BOOL":
-                """ passlist = [x for x in self.directed_to if x in self.logic['pass']]
-                faillist = [x for x in self.directed_to if x in self.logic['fail']] """
+        
+        if self.logic.split_policy == "RAND":
+            next_ind = random.randint(0,len(self.directed_to)-1)
+            self.count += 1
+        elif self.logic.split_policy == "ALPHA_SEQ":
+            next_ind = self.count % len(path_list)
+            self.count += 1
+        elif self.logic.split_policy == "BOOL":
+            """ passlist = [x for x in self.directed_to if x in self.logic['pass']]
+            faillist = [x for x in self.directed_to if x in self.logic['fail']] """
 
-                #pprint.pevnt_logger.info(f"self: {self}, entity: {entity} faillist: {faillist}, passlist: {passlist}, directed_to: {self.directed_to}",sys.stderr,extra={'sim_time':self.env.now})
-                #Check if the container exists in entity, if not fail immediately:
-                #if not res in entity.containers or not conname in entity.containers[res]:
-                #    next_ind = random.randint(0,len(faillist)-1)
-                #    return faillist[next_ind]
+            #pprint.pevnt_logger.info(f"self: {self}, entity: {entity} faillist: {faillist}, passlist: {passlist}, directed_to: {self.directed_to}",sys.stderr,extra={'sim_time':self.env.now})
+            #Check if the container exists in entity, if not fail immediately:
+            #if not res in entity.containers or not conname in entity.containers[res]:
+            #    next_ind = random.randint(0,len(faillist)-1)
+            #    return faillist[next_ind]
 
-                
-                (action_groups, paths) = self.logic.eval(entity, self)
-                passed = len(action_groups) > 0
-                #pprint.pprint(self.directed_to, sys.stderr)
-                #pprint.pprint(paths, sys.stderr)
-                pathlist = [x for x in self.directed_to if x in paths]
-                #pprint.pprint(pathlist, sys.stderr)
-                next_ind = random.randint(0, len(pathlist)-1)
-                evnt_logger.info(f'\t {entity} Going to {pathlist[next_ind]}', extra = {"sim_time":self.env.now})
-                return (pathlist[next_ind], action_groups)          
-        else:
-            next_ind = 0
+            
+            (action_groups, paths) = self.logic.eval(entity, self)
+            passed = len(action_groups) > 0
+            #pprint.pprint(self.directed_to, sys.stderr)
+            #pprint.pprint(paths, sys.stderr)
+            pathlist = [x for x in self.directed_to if x in paths]
+            #pprint.pprint(pathlist, sys.stderr)
+            next_ind = random.randint(0, len(pathlist)-1)
+            evnt_logger.info(f'\t {entity} Going to {pathlist[next_ind]}', extra = {"sim_time":self.env.now})
+            return (pathlist[next_ind], action_groups)          
+        
         try:
             return (path_list[next_ind], True)
         except:
@@ -543,7 +546,7 @@ class BasicContainer(object):
     def summary(self):
         return {
             "name" : self.name,
-            "owner" : self.owner,
+            "owner" : str(self.owner),
             "resource" : self.resource,
             "init" : self.init,
             "capacity" : self.capacity,
@@ -571,9 +574,16 @@ class EndingPoint(Node):
             "name" : self.name,
             "number of caught entities" : len(self.entities),
             "number of entities by start node" : encountered,
-            "most common travel path" : collections.Counter(tuple(x.summary()['travelled path']) for x in self.entities).most_common(1)[0]
+            "most common travel path" : collections.Counter(tuple(x.summary()['travelled path']) for x in self.entities).most_common(1)[0] if len(self.entities) > 0 else None,
+            "average entity duration." : np.mean([x.end_time-x.start_time for x in self.entities])
         }
 
 def run(env,until=math.inf):
     env.run(until)
     return strStream.getvalue()
+
+def summary(objs:dict):
+    output = {}
+    for k,v in objs.items():
+        output[k] = v.summary()
+    return output

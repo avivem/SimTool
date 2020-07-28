@@ -1,11 +1,14 @@
 from flask import Flask, render_template,json , jsonify, request, redirect, url_for, abort
 from flask_cors import CORS, cross_origin
 import simpy
-from logic import Node, StartingPoint, BasicFlowEntity, BasicComponent, EndingPoint, BasicContainer, BasicContainerBlueprint, Logic, run
+import logic
+from logic import Node, StartingPoint, BasicFlowEntity, BasicComponent, EndingPoint, BasicContainer, BasicContainerBlueprint, Logic, run as r
 import sys
 import io
 import uuid
 import pprint
+import numpy as np
+import collections
 
 
 ###If you are running locally and wish to see output in terminal, comment this out.
@@ -34,7 +37,31 @@ class DataStore():
 	ends = {}
 	containers = {}
 	container_blueprints = {}
+	last_run = None
+	start_time = 0
 	env = simpy.Environment()
+
+	def summary(self):
+		starts_s = {k:v.summary() for k,v in data.starts.items()}
+		#pprint.pprint(starts_s)
+		basics_s = {k:v.summary() for k,v in data.basics.items()}
+		#pprint.pprint(basics_s)
+		ends_s = {k:v.summary() for k,v in data.ends.items()}
+		#pprint.pprint(ends_s)
+		avgbystart = {k:np.mean([e.end_time-e.start_time for e in v.entities if e.end_time != None]) for k,v in data.starts.items()}
+		return {
+			"run_info" : {
+				"sim_start_time" : data.start_time,
+				"sim_end_time" : data.env.now,
+				"num_spawned_entities" : sum([1 for name,start in data.starts.items() for e in start.entities]),
+				"num_completed_entities" : sum([1 for name,end in data.ends.items() for e in end.entities]),
+				"avg_entity_duration_by_start" : avgbystart,
+				"most_common_path" : collections.Counter(tuple(e.summary()['travelled path']) for name,start in data.starts.items() for e in start.entities).most_common(1)[0]
+			},
+			"Starting Nodes" : starts_s,
+			"Station Nodes" : basics_s,
+			"End Nodes" : ends_s
+		}
 data = DataStore()
 
 #TODO: update Store to handle loading container info.
@@ -284,7 +311,9 @@ def run(until=20000):
 		return "Please create an ending node."
 	[data.env.process(data.nodes[x].run()) for x in data.starts]
 	print(f'Running simulation until {until}')
-	result = logic.run(env,until)
+	data.start_time = data.env.now
+	result = r(data.env,until)
+	data.last_run = result
 
 	#Fix later when we have a logger
 	data.save["last_run"] = result.split('\n')
@@ -308,7 +337,11 @@ def clean():
 	data = DataStore()
 	return "Graph has been reset"
 
-
+@app.route('/api/run/summary/')
+def get_summary():
+	if data.env.now == 0:
+		abort(400, "Cannot obtain run summary before simulation has been run.")
+	return data.summary()
 
 if __name__ == '__main_':
     app.run()
