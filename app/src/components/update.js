@@ -35,6 +35,9 @@ class UpdatePopUp extends Component{
             containerLoc: 0,
             containerScale: 0,
             containerCapacity: 0,
+
+            selectedContainer: {},
+            showContainer: false
         }
         
         this.onChange = this.onChange.bind(this);
@@ -45,6 +48,10 @@ class UpdatePopUp extends Component{
 
         this.handleSpec = this.handleSpec.bind(this);
         this.useBlueprintMakeContainer = this.useBlueprintMakeContainer.bind(this);
+
+        this.selectedContainer = this.selectedContainer.bind(this);
+        this.viewContainer = this.viewContainer.bind(this);
+        this.deleteContainer = this.deleteContainer.bind(this);
     
     }
 
@@ -84,7 +91,8 @@ class UpdatePopUp extends Component{
         this.setState({
             showErrorMessage: false,
             showMessageCont: false,
-            showMessageUP: false
+            showMessageUP: false,
+            showContainer: false,
         });
         this.props.closeUpdatePopup();
     }
@@ -131,6 +139,35 @@ class UpdatePopUp extends Component{
         this.onButtonContainer();
     }
 
+    // Store the current selected container
+    selectedContainer(e){
+        var container;
+        this.props.containers.forEach((c) => {
+            if(c.uid == e.value){
+                container = c
+            }
+        })
+        this.setState({ selectedContainer: container });
+    }
+
+    // Show selected container data
+    viewContainer(){
+        if(this.state.showContainer){
+            this.setState({ showContainer: false });
+        }
+        else{
+            this.setState({ showContainer: true });
+        }
+    }
+
+    deleteContainer(){
+        this.props.deleteContainer(this.state.selectedContainer.uid);
+        this.setState({ 
+            showContainer: false,
+            selectedContainer: {}
+        });
+    }
+
     render(){
 
         const customStyle = {
@@ -146,19 +183,40 @@ class UpdatePopUp extends Component{
 
         });
 
-        // Create a string that have all of container's name applied to this node
-        var lstContainer = "";
+        // Option of container of node to view/delete
+        var lstContainer = [];
         this.props.containers.forEach((c) => {
             if(c.selectedNode == this.props.selectedNodeID){
-                if(lstContainer == ""){
-                    lstContainer = c.name;
-                }
-                else{
-                    lstContainer = lstContainer + ", " + c.name;
-                }
-                
+                lstContainer.push({value: c.uid, label: c.name });
             }
         });
+
+        var viewDeleteContainer = 
+            <div>
+                <Select
+                styles={customStyle}
+                options={lstContainer}
+                name="selectedContainer"
+                onChange={this.selectedContainer}
+                />
+                <button className="button" onClick={this.viewContainer}>
+                    View
+                </button>
+                <button className="button" onClick={this.deleteContainer}>
+                    Delete
+                </button>
+                {this.state.showContainer &&
+                <div>
+                    <p>Container Name: {this.state.selectedContainer.name}</p>
+                    <p>Resource: {this.state.selectedContainer.resourceName}</p>
+                    <p>Loc: {this.state.selectedContainer.loc}</p>
+                    <p>Scale: {this.state.selectedContainer.scale}</p>
+                    <p>Distribution: {this.state.selectedContainer.distribution}</p>
+                    <p>Capacity: {this.state.selectedContainer.capacity}</p>
+                </div>}
+            </div>
+
+
 
         var addBlueprint = 
             <div class="container">
@@ -354,7 +412,12 @@ class UpdatePopUp extends Component{
                         <p>Generation Function loc: {startNode.loc}</p>
                         <p>Generation Function scale: {startNode.scale}</p>
                         <p>Limit: {startNode.limit}</p>
-                        <p>Current Container: {lstContainer}</p>
+
+                        <div>
+                            <label>Containers: 
+                                {viewDeleteContainer}
+                            </label>
+                        </div>
 
                         <div class="container">
                             <button className="button" onClick={this.onButtonUpdate}>

@@ -92,7 +92,8 @@ class Navigation extends Component{
     // Close popup for adding node
     closePopupNode(){
       this.setState({
-        openNode: false
+        openNode: false,
+        
       });
       console.log("Close Popup");
     }
@@ -126,7 +127,19 @@ class Navigation extends Component{
       this.setState({
         openImageOption: false,
         imageFile: null,
-        addNodeType: ""
+        addNodeType: "",
+        imageFile: null,
+        addNodeType: "",
+        startname: '',
+        stationname: '',
+        endname: '',
+        entity_name: '',
+        dist: "NORMAL",
+        loc: 0,
+        scale: 0,
+        limit: 0,
+        capacity: 0,
+        time_func: 0,
       });
       console.log("Close Popup");
     }
@@ -251,9 +264,6 @@ class Navigation extends Component{
 
     // Submit image upload and add node
     handleSubmitImage(){
-      this.setState({
-        openImageOption: false,
-      });
 
       switch(this.state.addNodeType){
         case "start":
@@ -275,6 +285,21 @@ class Navigation extends Component{
         default:
           break;
       }
+
+      this.setState({
+        openImageOption: false,
+        addNodeType: "",
+        startname: '',
+        stationname: '',
+        endname: '',
+        entity_name: '',
+        dist: "NORMAL",
+        loc: 0,
+        scale: 0,
+        limit: 0,
+        capacity: 0,
+        time_func: 0,
+      });
 
     }
 
