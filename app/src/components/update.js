@@ -246,7 +246,7 @@ class UpdatePopUp extends Component{
             {/* Add a blueprint to the node */}
             {addBlueprint}  
 
-            <h2>Create Container</h2>  
+            {/*<h2>Create Container</h2>  
             <label className="label">Name:</label>
             <input 
                 type="text" 
@@ -297,7 +297,7 @@ class UpdatePopUp extends Component{
                 className="form-control"
                 name="containerCapacity" 
                 style={{width: '150px'}}
-                onChange={this.onChange} />
+                onChange={this.onChange} />*/}
         </div>
 
         // find type

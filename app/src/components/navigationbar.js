@@ -23,6 +23,7 @@ class Navigation extends Component{
         endname: '',
         entity_name: '',
         dist: "NORMAL",
+        logic: "BOOL",
         loc: 0,
         scale: 0,
         limit: 0,
@@ -73,7 +74,6 @@ class Navigation extends Component{
     }
 
     onChange(e){
-      // console.log(e.target)
       this.setState({ [e.target.name]: e.target.value })
     }
 
@@ -425,7 +425,16 @@ class Navigation extends Component{
                                 
                                 onChange={this.onChange}
                                  />
-                        </label></div>
+                        </label>
+                        <label className="label">Logic:
+                          <select name="logic" className="form-control" onChange={this.onChange}>
+                            <option value="BOOL">BOOL</option>
+                            <option value="RAND">RAND</option>
+                            <option value="ALPHA_SEQ">ALPHA_SEQ</option>
+                          </select>
+                        </label>
+
+                        </div>
         }else{
             content =   <div class="container">
                         <label className="label">Name:
@@ -455,7 +464,15 @@ class Navigation extends Component{
                                 name="time_func" 
                                 onChange={this.onChange}
                                  />
-                        </label></div>
+                        </label>
+                        <label className="label">Logic:
+                          <select name="logic" className="form-control" onChange={this.onChange}>
+                            <option value="BOOL">BOOL</option>
+                            <option value="RAND">RAND</option>
+                            <option value="ALPHA_SEQ">ALPHA_SEQ</option>
+                          </select>
+                        </label>
+                        </div>
         }
 
       return(
