@@ -991,17 +991,14 @@ class App extends Component{
       count: count
     });
 
-    console.log(nodes[0]);
-    console.log(spec);
 
     // multiple nodes
-    for(var i in nodes){
       var assignSpec = {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             // Change the name value to this.state.name to refer to user input
-            owner: nodes[i],
+            owner: nodes,
             blueprint: spec.uid,
           })
       };
@@ -1013,7 +1010,6 @@ class App extends Component{
       }).catch(function() {
           console.log("Error on add container from spec");
       });
-    }
   }
   
   // Edit the selected spec, selectedSpec is a dict
