@@ -517,7 +517,8 @@ class UpdatePopUp extends Component{
                          createLogic={this.props.createLogic}
                          createConditionGroup={this.props.createConditionGroup}
                          createCondition={this.props.createCondition}
-                         createAction={this.props.createAction} /> 
+                         createAction={this.props.createAction}
+                         submitEditLogic={this.props.submitEditLogic} /> 
                         {logic}
                     </div>
 
@@ -619,7 +620,8 @@ class UpdatePopUp extends Component{
                             createLogic={this.props.createLogic}
                             createConditionGroup={this.props.createConditionGroup}
                             createCondition={this.props.createCondition}
-                            createAction={this.props.createAction} /> 
+                            createAction={this.props.createAction}
+                            submitEditLogic={this.props.submitEditLogic} /> 
                             {logic}
                         </div>
                     }

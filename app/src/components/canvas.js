@@ -374,6 +374,7 @@ class Canvas extends Component{
 
                             //remove node
                             this.props.handleRemove(target.uid);
+                            label.destroy();
                             node.destroy();
 
                             layer.draw();
@@ -498,6 +499,7 @@ class Canvas extends Component{
                                 //remove node
                                 t.props.handleRemove(target.uid);
                                 node.destroy();
+                                label.destroy();
     
                                 layer.draw();
                             }

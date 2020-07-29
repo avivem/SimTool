@@ -108,6 +108,7 @@ class App extends Component{
     this.createConditionGroup = this.createConditionGroup.bind(this);
     this.createCondition = this.createCondition.bind(this);
     this.createAction = this.createAction.bind(this);
+    this.submitEditLogic = this.submitEditLogic.bind(this);
   }
 
   /* Add node, determine what node to add by checking nodeType
@@ -1158,6 +1159,36 @@ class App extends Component{
     });
   }
 
+  // Change the logic of a node
+  submitEditLogic(nodeUID, logic){
+    var lst = []; 
+    if(nodeUID.includes("start")){
+      lst = this.state.startNode;
+    }
+    else if(nodeUID.includes("station")){
+      lst = this.state.stationNode;
+    }
+    else if(nodeUID.includes("end")){
+      lst = this.state.endNode;
+    }
+
+    lst.forEach((n) => {
+      if(n.uid == nodeUID){
+        n.logic = logic;
+      }
+    })
+
+    if(nodeUID.includes("start")){
+      this.setState({ startNode: lst })
+    }
+    else if(nodeUID.includes("station")){
+      this.setState({ stationNode: lst })
+    }
+    else if(nodeUID.includes("end")){
+      this.setState({ endNode: lst })
+    }
+  }
+
   render(){
     return (
       <div className="App">
@@ -1261,6 +1292,7 @@ class App extends Component{
           
           useBlueprintMakeContainer={this.useBlueprintMakeContainer}
 
+          submitEditLogic={this.submitEditLogic}
           />
         </div>
         

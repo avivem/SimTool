@@ -15,6 +15,7 @@ class LogicComponent extends Component{
             showConditionGroup: false,
             showCondition:false,
             showAction: false,
+            showEditLogic: false,
 
             lstGroup: [], // List of groups already created for the selected node
 
@@ -33,7 +34,10 @@ class LogicComponent extends Component{
             condVal: 0,
 
             actionName: "",
-            actionVal: 0
+            actionVal: 0,
+
+            logic: "",
+            defaultLogic: [{value: "BOOL", label: "Boolean"}] 
 
         };
 
@@ -42,7 +46,7 @@ class LogicComponent extends Component{
         this.showConditionGroup = this.showConditionGroup.bind(this);
         this.showCondition = this.showCondition.bind(this);
         this.showAction = this.showAction.bind(this);
-
+        this.showEditLogic = this.showEditLogic.bind(this);
 
         this.onChange = this.onChange.bind(this);
 
@@ -55,10 +59,13 @@ class LogicComponent extends Component{
         this.handleSelectedGroup = this.handleSelectedGroup.bind(this);
         this.handleEntitySelected = this.handleEntitySelected.bind(this);
         this.handleContainerSelected = this.handleContainerSelected.bind(this);
+        this.handleEditLogic = this.handleEditLogic.bind(this);
 
         this.createGroup = this.createGroup.bind(this);
         this.createCondition = this.createCondition.bind(this);
         this.createAction = this.createAction.bind(this);
+
+        this.submitEditLogic = this.submitEditLogic.bind(this);
         
     }
 
@@ -68,22 +75,6 @@ class LogicComponent extends Component{
         if(this.state.showLogic){
             this.setState({ 
                 showLogic: false,
-    /*            cond: "",
-                condAmount: "",
-                resource: "",
-                action: "",
-                actionAmount: "",
-                passPath: "",
-                passName: "",
-                failPath: "",
-                failName: "",
-                showErrorMessage: false,
-
-                previousResource: [{ value: "", label: "" }],
-                previousCond: [{ value: "", label: "" }],
-                previousAction: [{ value: "", label: "" }],
-                previousPass: [{ value: "", label: "" }],
-                previousFail: [{ value: "", label: "" }],*/
              });
         }
         else{
@@ -102,51 +93,6 @@ class LogicComponent extends Component{
             // Create the logic for this node if had not been created yet.
             this.props.createLogic(this.props.selectedNodeID)
         }
-    /*    if(logicExist){
-            this.setState({ logicButtonText: "Edit Logic" })
-            this.props.logics.forEach((l) => {
-                if(l.applyTo == this.props.selectedNodeID){
-                    var condLabel = "";
-                    switch(l.cond){
-                        case "el==":
-                            condLabel = "=";
-                            break;
-                        case "el<=":
-                            condLabel = "<=";
-                            break;
-                        case "el<":
-                            condLabel = "<";
-                            break;
-                        case "el>=":
-                            condLabel = ">=";
-                            break;
-                        case "el>":
-                            condLabel = ">";
-                            break;
-                    }
-                    this.setState({
-                        condAmount: l.condAmount,
-                        actionAmount: l.actionAmount,
-                        previousResource: [{value : l.resource, label: l.resource }],
-                        previousAction: [{value : l.action, label: l.action }],
-                        previousPass: [{value: l.passPath, label: l.passName}],
-                        previousFail: [{value: l.failPath, label: l.failName}],
-                        previousCond: [{value : l.cond, label: condLabel }],
-                        resource: l.resource,
-                        action: l.actionAmount,
-                        passPath: l.passPath,
-                        passName: l.passName,
-                        failPath: l.failPath,
-                        failName: l.failName
-                    });
-                }
-                
-            })
-        }
-        else{
-            this.setState({ logicButtonText: "Add Logic" })
-        }
-        */
     }
 
     // First click will open the 
@@ -163,6 +109,7 @@ class LogicComponent extends Component{
         }
         else{
             this.setState({
+                showEditLogic:false,
                 showConditionGroup: true,
                 showCondition: false,
                 showAction: false,
@@ -185,6 +132,7 @@ class LogicComponent extends Component{
         }
         else{
             this.setState({
+                showEditLogic:false,
                 showConditionGroup: false,
                 showCondition: true,
                 showAction: false,
@@ -218,6 +166,7 @@ class LogicComponent extends Component{
         }
         else{
             this.setState({
+                showEditLogic:false,
                 showConditionGroup: false,
                 showCondition: false,
                 showAction: true,
@@ -233,6 +182,52 @@ class LogicComponent extends Component{
                     this.setState({ lstGroup: condGroup });
                 }
             });
+        }
+    }
+
+    showEditLogic(){
+        if(this.state.showEditLogic){
+            this.setState({ showEditLogic: false});
+        }
+        else{
+            var nodes;
+            if(this.props.selectedNodeID.includes("start")){
+                nodes = this.props.startNode;
+            }
+            else if(this.props.selectedNodeID.includes("station")){
+                nodes = this.props.stationNode;
+            }
+            else if(this.props.selectedNodeID.includes("end")){
+                nodes = this.props.endNode;
+            }
+    
+            nodes.forEach((n) => {
+                if(n.uid == this.props.selectedNodeID){
+                    var a = [];
+                    switch(n.logic){
+                        case "BOOL":
+                            a = [{value: n.logic, label: "BOOL"}];
+                            break;
+    
+                        case "RAND":
+                            a = [{value: n.logic, label: "RAND"}]
+                            break;
+                        
+                        case "ALPHA_SEQ":
+                            a = [{value: n.logic, label: "ALPHA_SEQ"}]
+                            break;
+                    }
+                    this.setState({ defaultLogic:  a});
+                }
+            });
+    
+            this.setState({ 
+                showEditLogic: true,
+                showConditionGroup: false,
+                showCondition: false,
+                showAction: false 
+            });
+    
         }
     }
 
@@ -295,6 +290,10 @@ class LogicComponent extends Component{
 
     handleContainerSelected(e){
         this.setState({ containerSelected: e.value });
+    }
+
+    handleEditLogic(e){
+        this.setState({ logic: e.value });
     }
 
     submitLogic(){
@@ -361,6 +360,11 @@ class LogicComponent extends Component{
         this.showAction();
     }
 
+    // Submit Edit
+    submitEditLogic(){
+        this.props.submitEditLogic(this.props.selectedNodeID, this.state.logic);
+        
+    }
 
     render(){
         var resource = [{ value: "", label: "" }]
@@ -429,89 +433,15 @@ class LogicComponent extends Component{
 
         });
 
+        var logic = [{value: "BOOL", label: "BOOL"},
+                    {value: "RAND", label: "RAND"},
+                    {value: "ALPHA_SEQ", label: "APLHA_SEQ"}];
+
         const customStyle = {
             valueContainer: () => ({
                 width: 100
             })
         }
-        
-        let logicContent = 
-            <div>
-                <label>Resource:
-                    <Select
-                    styles={customStyle}
-                    defaultValue={this.state.previousResource}
-                    options={resource}
-                    name="resource"
-                    onChange={this.handleCond}
-                    />
-                </label>
-                <div>
-                    <label className="label">Condition Amount:
-                        <input 
-                            type="text" 
-                            name="condAmount"
-                            className="form-control"
-                            value={this.state.condAmount}
-                            onChange={this.onChange} />
-                    </label>
-                    <label>Condition:
-                        <Select
-                        styles={customStyle}
-                        defaultValue={this.state.previousCond}
-                        options={cond}
-                        name="cond"
-                        onChange={this.handleCond}
-                        />
-                    </label>
-                </div>
-                <div>
-                    <label className="label">Action Amount:
-                        <input 
-                            type="text" 
-                            name="actionAmount"
-                            className="form-control"
-                            value={this.state.actionAmount}
-                            onChange={this.onChange} />
-                    </label>
-                    <label>Action Taken:
-                        <Select
-                        styles={customStyle}
-                        defaultValue={this.state.previousAction}
-                        options={action}
-                        name="action"
-                        onChange={this.handleAction}
-                        />
-                    </label>
-                </div>
-                <div>
-                    <label>Pass Path:
-                        <Select
-                        styles={customStyle}
-                        defaultValue={this.state.previousPass}
-                        options={path}
-                        name="passPath"
-                        onChange={this.handlePass}
-                        />
-                    </label>
-                    <label>Fail Pass:
-                        <Select
-                        styles={customStyle}
-                        defaultValue={this.state.previousFail}
-                        options={path}
-                        name="failPath"
-                        onChange={this.handleFail}
-                        />
-                    </label>
-
-                    <button className="button" onClick={this.submitLogic}>
-                        Submit Logic
-                    </button>
-                    {this.state.showErrorMessage ? <p>Please answer all question and only number may be in the textfield.</p> : <div></div>}
-                </div>
-            </div>
-
-
 
         var conditionGroupContent = 
             <div>
@@ -662,6 +592,23 @@ class LogicComponent extends Component{
                 </button>
             </div>
 
+        var editLogic = 
+        <div>
+            <h3>Edit Logic</h3>
+            <label>Select Group:
+                <Select
+                defaultValue={this.state.defaultLogic}
+                styles={customStyle}
+                options={logic}
+                name="logic"
+                onChange={this.handleEditLogic}
+                />
+            </label>
+            <button className="button" onClick={this.submitEditLogic}>
+                Submit Edit
+            </button>
+        </div>
+
         return(
             <div>
                 {/* Only show the add logic button if node don't already have a logic */}
@@ -675,6 +622,9 @@ class LogicComponent extends Component{
 
                 {this.state.showLogic ? 
                 <div>
+                    <button className="button" onClick={this.showEditLogic} >
+                        Edit Logic
+                    </button>
                     <button className="button" onClick={this.showConditionGroup} >
                         Add Condition Group
                     </button>
@@ -690,6 +640,7 @@ class LogicComponent extends Component{
                 {this.state.showConditionGroup ? conditionGroupContent : <div></div>}
                 {this.state.showCondition ? conditionContent : <div></div>}
                 {this.state.showAction ? actionContent : <div></div>}
+                {this.state.showEditLogic ? editLogic : <div></div>}
             </div>
         )
     }

@@ -134,9 +134,9 @@ class AssestPopUp extends Component{
                             name="distribution"
                             onChange={this.changeDist} 
                             value={this.state.distribution}>
-                            <option value="CONSTANT">CONSTANT</option>
                             <option value="NORMAL">NORMAL</option>
                             <option value="UNIFORM">UNIFORM</option>
+                            <option value="CONSTANT">CONSTANT</option>
                             <option value="RANDOM INT">RANDOM INT</option>
                         </select>
                     </label>
