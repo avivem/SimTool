@@ -818,7 +818,7 @@ class App extends Component{
   }
 
   // Add a new container
-  submitContainer(selectedNode, name, resource, loc, scale, dist, capacity){
+  submitContainer(selectedNode, name, resource, loc, scale, dist, capacity, constantValue){
     var lst = this.state.containers;
     lst.push({
       uid: "container-" + this.state.count,
@@ -828,7 +828,8 @@ class App extends Component{
       loc: loc,
       scale: scale,
       distribution: dist,
-      capacity: capacity
+      capacity: capacity,
+      constantValue: constantValue
     });
 
     const addblue = {
