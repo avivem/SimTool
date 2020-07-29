@@ -89,10 +89,7 @@ class App extends Component{
 
     this.openContainerPopup = this.openContainerPopup.bind(this);
     this.closeContainerPopup = this.closeContainerPopup.bind(this);
-    this.handleContainer = this.handleContainer.bind(this);
     this.submitContainer = this.submitContainer.bind(this);
-
-    this.handleUpdate = this.handleUpdate.bind(this);
 
     this.openUpdatePopup = this.openUpdatePopup.bind(this);
     this.closeUpdatePopup = this.closeUpdatePopup.bind(this);
@@ -112,7 +109,6 @@ class App extends Component{
     this.createCondition = this.createCondition.bind(this);
     this.createAction = this.createAction.bind(this);
   }
-
 
   /* Add node, determine what node to add by checking nodeType
   nodeType can be start, station, or end */
@@ -622,6 +618,7 @@ class App extends Component{
   handleBackendLoadNodes(node){
     console.log("Back end load");
     if(node.uid.includes("start")){
+      
       const requestOptionsStart = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -652,7 +649,7 @@ class App extends Component{
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           owner: node.uid,
-          policy: "ALPHA_SEQ"
+          split_policy: "RAND"
         })
       };
 
@@ -712,47 +709,9 @@ class App extends Component{
     }
   }
 
-  //Handle container for the node
-  handleContainer(){
-    if(this.state.containerMode){
-      this.setState({
-        containerMode: false,
-        updateMode: false,
-        createArrowMode: false,
-        removeMode: false,
-      });
-      console.log("Container mode off");
-    }
-    else{
-      this.setState({
-        containerMode: true,
-        updateMode: false,
-        createArrowMode: false,
-        removeMode: false,
-      });
-      console.log("Container mode on");
-    }
-
-    /**fetch to api */
-    // {
-    // "name": "Wallet",
-    // "resource": "Dollar",
-    // "init": {
-    //     "dist": "NORMAL",
-    //     "loc": 25,
-    //     "scale": 5
-    // },
-    // "capacity": 200,
-    // "uid": "container-wallet-rich"
-    // } 
-  }
-
   // Add interaction/resource to list
   addSpec(specName, dist, resource, loc, scale, max){
     var lst = this.state.specs;
-    console.log(dist);
-    // specTo is an array of node UID 
-    var addcontainerspec;
 
     lst.push({
       uid: "spec-" + this.state.count,
@@ -765,7 +724,7 @@ class App extends Component{
       capacity: max,
     });
 
-    addcontainerspec = {
+    var addcontainerspec = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -784,7 +743,7 @@ class App extends Component{
     
 
     /**fetch to api tos set container*/
-    fetch('http://127.0.0.1:5000/api/container_spec/', addcontainerspec).then(res => res.json()).then(gotUser => {
+    fetch('http://127.0.0.1:5000/api/container/blueprint/', addcontainerspec).then(res => res.json()).then(gotUser => {
         console.log(gotUser);
 
     }).catch(function() {
@@ -831,7 +790,7 @@ class App extends Component{
       capacity: capacity
     });
 
-    const addcontainer = {
+    const addblue = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -839,17 +798,38 @@ class App extends Component{
         name: name,
         resource: resource,
         init : {
+          dist: dist,
           loc: loc,
-          scale: scale,
-          dist: dist
+          scale: scale
         },
         capacity: capacity,
-        uid: "spec-" + this.state.count
+        uid: selectedNode
       })
     };
 
     /**fetch to api tos set container*/
-    fetch('http://127.0.0.1:5000/api/container_spec/', addcontainer).then(res => res.json()).then(gotUser => {
+    fetch('http://127.0.0.1:5000/api/container/blueprint/', addblue).then(res => res.json()).then(gotUser => {
+        console.log(gotUser);
+
+    }).catch(function() {
+        console.log("Error on add Contaier");
+    });
+
+    console.log(selectedNode);
+    console.log(name);
+
+    const addcontainer = {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        // Change the name value to this.state.name to refer to user input
+        owner: selectedNode,
+        blueprint: name
+      })
+    };
+
+    /**fetch to api tos set container*/
+    fetch('http://127.0.0.1:5000/api/node/container/', addcontainer).then(res => res.json()).then(gotUser => {
         console.log(gotUser);
 
     }).catch(function() {
@@ -879,28 +859,6 @@ class App extends Component{
           openSpec: false
       });
       console.log("Close spec Popup");
-  }
-
-  //Handle update for the node
-  handleUpdate(){
-    if(this.state.updateMode){
-      this.setState({
-        updateMode: true,
-        containerMode: false,
-        createArrowMode: false,
-        removeMode: false,
-      });
-      console.log("Update mode off");
-    }
-    else{
-      this.setState({
-        updateMode: true,
-        containerMode: false,
-        createArrowMode: false,
-        removeMode: false,
-      });
-      console.log("Update mode on");
-    }
   }
 
   // Open interaction popup
@@ -995,14 +953,13 @@ class App extends Component{
       };
 
       /**fetch to api tos set container*/
-      fetch('http://127.0.0.1:5000/api/node/container_spec/', assignSpec).then(res => res.json()).then(gotUser => {
+      fetch('http://127.0.0.1:5000/api/node/container/blueprint/', assignSpec).then(res => res.json()).then(gotUser => {
           console.log(gotUser);
 
       }).catch(function() {
           console.log("Error on add spec");
       });
     }
-
 
   }
   
@@ -1025,7 +982,6 @@ class App extends Component{
     });
 
     // fetch to edit spec
-
   }
 
   
@@ -1069,6 +1025,25 @@ class App extends Component{
         }
       })
     }
+
+    // var assignSpec = {
+    //     method: 'PUT',
+    //     headers: { 'Content-Type': 'application/json' },
+    //     body: JSON.stringify({
+    //       // Change the name value to this.state.name to refer to user input
+    //       node: nodes[i],
+    //       resource: spec.resourceName,
+    //       uid: spec.uid
+    //     })
+    // };
+
+    // /**fetch to api tos set container*/
+    // fetch('http://127.0.0.1:5000/api/node/container/blueprint/', assignSpec).then(res => res.json()).then(gotUser => {
+    //     console.log(gotUser);
+
+    // }).catch(function() {
+    //     console.log("Error on add spec");
+    // });
 
 
     this.setState((state) => ({
@@ -1190,7 +1165,6 @@ class App extends Component{
             containerMode={this.state.containerMode}
             updateMode={this.state.updateMode}
             handleContainer={this.handleContainer} 
-            handleUpdate={this.handleUpdate}
             openSpecPopup={this.openSpecPopup}/>
             
         </div>
@@ -1239,7 +1213,6 @@ class App extends Component{
 
             openUpdatePopup={this.openUpdatePopup}
             updateMode={this.state.updateMode}
-            handleUpdate={this.handleUpdate}
 
             openSpecSelectPopup={this.openSpecSelectPopup}
             ></Canvas>
@@ -1256,7 +1229,6 @@ class App extends Component{
         <div>
           <UpdatePopUp 
           openUpdate={this.state.openUpdate}
-          handleUpdate={this.handleUpdate}
           closeUpdatePopup={this.closeUpdatePopup}
           selectedNodeID={this.state.selectedNodeID}
           startNode={this.state.startNode}

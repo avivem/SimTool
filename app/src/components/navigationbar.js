@@ -69,7 +69,6 @@ class Navigation extends Component{
       this.handleSave = this.handleSave.bind(this);
       this.handleLoad = this.handleLoad.bind(this);
 
-      this.handleContainer= this.handleContainer.bind(this);
       this.openSpecPopup = this.openSpecPopup.bind(this);
     }
 
@@ -324,29 +323,6 @@ class Navigation extends Component{
       this.props.handleLoad();
     }
 
-    // Turn on container mode
-    handleContainer(){
-
-      if(this.props.containerMode){
-        this.setState({
-          actionButtonColor: "#2cbebe",
-          updateButtonColor: "#2cbebe",
-          arrowButtonColor: "#2cbebe",
-          removeButtonColor: "#ff0000"
-        });
-      }
-      else{
-        this.setState({
-          actionButtonColor: "#1e8080", 
-          updateButtonColor: "#2cbebe",
-          arrowButtonColor: "#2cbebe",
-          removeButtonColor: "#ff0000"
-        });
-      }
-      
-      this.props.handleContainer();
-    }
-
     openSpecPopup(){
       this.setState({
         arrowButtonColor: "#2cbebe",
@@ -469,10 +445,6 @@ class Navigation extends Component{
               <li class="nav-item">
                 <button className="button" style={{backgroundColor:this.state.arrowButtonColor}} onClick={this.addArrowMode}>→</button>
               </li>
-             {/* <li class="nav-item">
-                <button className="button" style={{backgroundColor:this.state.actionButtonColor}} onClick={this.handleContainer}>Contain</button>
-              </li>
-              */}
               <li class="nav-item">
                 <button className="button" style={{backgroundColor: "#2cbebe"}} onClick={this.openSpecPopup}>Blueprint</button>
               </li>

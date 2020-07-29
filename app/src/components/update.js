@@ -60,7 +60,6 @@ class UpdatePopUp extends Component{
         });
     }
     
-
     // Handle submit data of the interaction
     applyChanges(type,uid){
         this.props.handleChangeNode(this.state,uid,type);
@@ -75,7 +74,9 @@ class UpdatePopUp extends Component{
         var scale = parseInt(this.state.containerScale);
         var dist = this.state.containerDist;
         var capacity = parseInt(this.state.containerCapacity);
-        this.props.  submitContainer(uid, name, resource, loc, scale, dist, capacity);
+        this.props.submitContainer(uid, name, resource, loc, scale, dist, capacity);
+
+
         this.onButtonContainer();
     }
 
