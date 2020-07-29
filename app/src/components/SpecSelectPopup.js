@@ -59,7 +59,8 @@ class SpecSelectPopup extends Component{
     }
 
     addSelectedSpec(){
-        this.props.useBlueprintMakeContainer(this.props.selectedSpec, this.state.selected);
+        var nodes = {lst: this.state.selected};
+        this.props.useBlueprintMakeContainer(this.props.selectedSpec, nodes);
         this.props.closeSpecSelectPopup();
     }
 

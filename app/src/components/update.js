@@ -136,8 +136,9 @@ class UpdatePopUp extends Component{
             if(s.uid == this.state.selectedBlueprint){
                 spec = s;
             }
-        })
-        this.props.useBlueprintMakeContainer(spec, [this.props.selectedNodeID]);
+        });
+        var node = {lst: [this.props.selectedNodeID]};
+        this.props.useBlueprintMakeContainer(spec, node);
         this.onButtonContainer();
     }
 

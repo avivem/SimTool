@@ -921,7 +921,7 @@ class App extends Component{
     var count = this.state.count;
 
     // Create container for each of node
-    nodes.forEach((uid) => {
+    nodes.lst.forEach((uid) => {
       
       containers.push({
         uid: "container-" + count,
@@ -957,7 +957,7 @@ class App extends Component{
       count: count
     });
 
-    console.log(nodes[0]);
+    console.log(nodes.lst[0]);
     console.log(spec);
 
     // multiple nodes
