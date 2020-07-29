@@ -361,10 +361,6 @@ class Canvas extends Component{
                             //added to the list of arrows in App.js
                             this.findToAndFrom(target);
                         }
-                        else if(this.props.containerMode){
-                            // Open interactive popup
-                            this.props.openContainerPopup(target.uid);
-                        }
                         else if(this.props.removeMode){
                             // remove arrows
                             this.props.arrows.forEach(arrow => {
@@ -487,10 +483,6 @@ class Canvas extends Component{
                                 /* Help determine the to and from node. Once determine the arrow is 
                                 added to the list of arrows in App.js */
                                 t.findToAndFrom(target);
-                            }
-                            else if(t.props.containerMode){
-                                // Open interactive popup
-                                t.props.openContainerPopup(target.uid);
                             }
                             else if(t.props.removeMode){
                                 // remove arrows

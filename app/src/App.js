@@ -41,7 +41,6 @@ class App extends Component{
       numImage: 0,
       numLoadedImage: 0,
       numImageToLoad: 0,
-      containerMode: false,
       updateMode: true,
       
       containers: [],
@@ -87,7 +86,6 @@ class App extends Component{
     this.incrNumLoadedImage = this.incrNumLoadedImage.bind(this);
     this.handleBackendLoadNodes = this.handleBackendLoadNodes.bind(this);
 
-    this.openContainerPopup = this.openContainerPopup.bind(this);
     this.closeContainerPopup = this.closeContainerPopup.bind(this);
     this.submitContainer = this.submitContainer.bind(this);
     this.deleteContainer = this.deleteContainer.bind(this);
@@ -331,7 +329,6 @@ class App extends Component{
       this.setState({
         createArrowMode: false,
         removeMode: false,
-        containerMode: false,
         updateMode: false
       });
     }
@@ -339,7 +336,6 @@ class App extends Component{
       this.setState({
         createArrowMode: true,
         removeMode: false,
-        containerMode: false,
         updateMode: false
       });
     }   
@@ -371,7 +367,6 @@ class App extends Component{
       this.setState({
         removeMode: false,
         createArrowMode: false,
-        containerMode: false,
         updateMode: false
       });
     }
@@ -379,7 +374,6 @@ class App extends Component{
       this.setState({
         removeMode: true,
         createArrowMode: false,
-        containerMode: false,
         updateMode: false
       });
       console.log("Handle Remove");
@@ -461,7 +455,6 @@ class App extends Component{
     this.setState({
       createArrowMode: false, 
       removeMode: false,
-      containerMode: false,
       updateMode: false
     });
   }
@@ -759,15 +752,6 @@ class App extends Component{
 
     console.log("Add spec")
     console.log(lst);
-  }
-
-  // Open interaction popup
-  openContainerPopup(n){
-    this.setState({
-        openContainer: true,
-        selectedNodeID: n
-    });
-    console.log("Open container Popup");
   }
 
   // close interaction popup
@@ -1194,7 +1178,6 @@ class App extends Component{
             handleImageUpload={this.handleImageUpload}
             handleSave={this.handleSave}
             handleLoad={this.handleLoad}
-            containerMode={this.state.containerMode}
             updateMode={this.state.updateMode}
             handleContainer={this.handleContainer} 
             openSpecPopup={this.openSpecPopup}/>
@@ -1238,9 +1221,6 @@ class App extends Component{
             numLoadedImage={this.state.numLoadedImage}
             handleBackendLoadNodes={this.handleBackendLoadNodes}
             
-            openContainerPopup={this.openContainerPopup}
-            containerMode={this.state.containerMode}
-
             openUpdatePopup={this.openUpdatePopup}
             updateMode={this.state.updateMode}
 
