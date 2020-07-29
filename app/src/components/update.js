@@ -35,6 +35,7 @@ class UpdatePopUp extends Component{
             containerLoc: 0,
             containerScale: 0,
             containerCapacity: 0,
+            constantValue: 0,
 
             selectedContainer: {},
             showContainer: false
@@ -81,7 +82,8 @@ class UpdatePopUp extends Component{
         var scale = parseInt(this.state.containerScale);
         var dist = this.state.containerDist;
         var capacity = parseInt(this.state.containerCapacity);
-        this.props.submitContainer(uid, name, resource, loc, scale, dist, capacity);
+        var constantValue = parseInt(this.state.constantValue);
+        this.props.submitContainer(uid, name, resource, loc, scale, dist, capacity, constantValue);
 
 
         this.onButtonContainer();
@@ -239,6 +241,46 @@ class UpdatePopUp extends Component{
                 </div>
             </div>
 
+        // Container field for when distribution is CONSTANT
+        var containerConstant = 
+            <div>
+                <label className="label">Value: </label> 
+                <input 
+                    type="text" 
+                    className="form-control"
+                    name="constantValue" 
+                    style={{width: '150px'}}
+                    onChange={this.onChange} />
+            </div>
+
+        //Container field for when distribution is not CONSTANT
+        var containerNotConstant = 
+            <div>
+                <label className="label">Loc: </label> 
+                <input 
+                    type="text" 
+                    className="form-control"
+                    name="containerLoc" 
+                    style={{width: '150px'}}
+                    onChange={this.onChange} />
+
+                <label className="label">Scale: </label> 
+                <input 
+                    type="text" 
+                    className="form-control"
+                    name="containerScale" 
+                    style={{width: '150px'}}
+                    onChange={this.onChange} />
+
+                <label className="label">Capacity: </label> 
+                <input 
+                    type="text" 
+                    className="form-control"
+                    name="containerCapacity" 
+                    style={{width: '150px'}}
+                    onChange={this.onChange} />
+            </div>
+
         // Content for adding container
         var containerContent = 
         <div>  
@@ -271,33 +313,13 @@ class UpdatePopUp extends Component{
                     value={this.state.constainerDist}>
                     <option value="NORMAL">NORMAL</option>
                     <option value="UNIFORM">UNIFORM</option>
+                    <option value="CONSTANT">CONSTANT</option>
                     <option value="RANDOM INT">RANDOM INT</option>
                 </select>
             </label>
             <br/>
-            <label className="label">Loc: </label> 
-            <input 
-                type="text" 
-                className="form-control"
-                name="containerLoc" 
-                style={{width: '150px'}}
-                onChange={this.onChange} />
-
-            <label className="label">Scale: </label> 
-            <input 
-                type="text" 
-                className="form-control"
-                name="containerScale" 
-                style={{width: '150px'}}
-                onChange={this.onChange} />
-
-            <label className="label">Capacity: </label> 
-            <input 
-                type="text" 
-                className="form-control"
-                name="containerCapacity" 
-                style={{width: '150px'}}
-                onChange={this.onChange} />*/}
+            {this.state.containerDist == "CONSTANT" ? containerConstant : containerNotConstant}
+            */}
         </div>
 
         // find type
