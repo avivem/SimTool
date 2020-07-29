@@ -707,9 +707,8 @@ class App extends Component{
   }
 
   // Add interaction/resource to list
-  addSpec(specName, dist, resource, loc, scale, max, constantValue){
+  addSpec(specName, dist, resource, loc, scale, max, constantValue,capacity,value){
     var lst = this.state.specs;
-
     lst.push({
       uid: "spec-" + this.state.count,
   //    specTo: [],
@@ -724,22 +723,57 @@ class App extends Component{
 
     var addcontainerspec;
     if(dist == "CONSTANT"){
-      addcontainerspec = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          // Change the name value to this.state.name to refer to user input
-          name: specName,
-          resource: resource,
-          init : {
-            init: constantValue
-          },
-          capacity: max,
-          uid: "spec-" + this.state.count
-        })
-      };
-    }
-    else{
+      if(capacity == 0){
+        if(value == -1){
+          console.log("ticket");
+          addcontainerspec = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              // Change the name value to this.state.name to refer to user input
+              name: specName,
+              resource: resource,
+              init : {
+                init: "inf"
+              },
+              uid: "spec-" + this.state.count
+            })
+          };
+        }else{
+          console.log("rev");
+          addcontainerspec = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              // Change the name value to this.state.name to refer to user input
+              name: specName,
+              resource: resource,
+              init : {
+                init: value
+              },
+              uid: "spec-" + this.state.count
+            })
+          };
+        }
+
+      }else{
+        console.log("attendee");
+        addcontainerspec = {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            // Change the name value to this.state.name to refer to user input
+            name: specName,
+            resource: resource,
+            init : {
+              init: max
+            },
+            capacity: constantValue,
+            uid: "spec-" + this.state.count
+          })
+        };
+      }
+    }else{
       addcontainerspec = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

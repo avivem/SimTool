@@ -18,6 +18,7 @@ class SpecSelectPopup extends Component{
             loc: 0,
             distribution: "NORMAL",
             constantValue: 0,
+            capacity: 0,
           
         };
 
@@ -150,6 +151,14 @@ class SpecSelectPopup extends Component{
                     className="form-control"
                     name="constantValue" 
                     value={this.state.constantValue}
+                    onChange={this.onChange} />
+
+                <label className="label">Optional Capacity: </label> 
+                <input 
+                    type="text" 
+                    className="form-control"
+                    name="capacity" 
+                    value={this.state.capacity}
                     onChange={this.onChange} />
             </div>
 

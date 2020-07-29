@@ -16,9 +16,8 @@ class AssestPopUp extends Component{
             loc: 0,
             distribution: "NORMAL",
             showErrorMessage: false,
-            value: 0,
-
-            constantValue: 0,
+            value: -1,
+            capacity: 0,
             
         }
         
@@ -42,7 +41,7 @@ class AssestPopUp extends Component{
     }
 
      // Handle submit data of the interaction
-     submitInteraction(){
+    submitInteraction(){
         var specName = this.state.specName;
         var resource = this.state.resourceName;
  //       var lower = parseInt(this.state.lowerAmount);
@@ -54,9 +53,12 @@ class AssestPopUp extends Component{
         var scale = parseInt(this.state.scale);
         var max = parseInt(this.state.maxAmount);
         var constantValue = parseInt(this.state.constantValue);
+        var capacity = parseInt(this.state.capacity);
+
         if(max >= loc){
-            this.props.addSpec(specName, dist, resource, loc, scale, max, constantValue);
+            this.props.addSpec(specName, dist, resource, loc, scale, max, constantValue,capacity,this.state.value);
             this.closeSpecPopup();
+            this.state.value = -1;
         }
         else{
             this.setState({showErrorMessage: true});
@@ -81,11 +83,19 @@ class AssestPopUp extends Component{
     render(){
         let contentConstant =
             <div className="container input-group">        
-                <label className="label">Value: </label> 
+                <label className="label">Optional Value: </label> 
                 <input 
                     type="text" 
                     className="form-control"
-                    name="constantValue" 
+                    name="value" 
+                    onChange={this.onChange} />
+
+                <label className="label">Optional Capacity: </label> 
+                <input 
+                    type="text" 
+                    className="form-control"
+                    name="capacity" 
+                    value={this.state.capacity}
                     onChange={this.onChange} />
             </div>
 
