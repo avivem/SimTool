@@ -18,6 +18,7 @@ class AssestPopUp extends Component{
             showErrorMessage: false,
             value: -1,
             capacity: 0,
+            constantValue: 0,
             
         }
         
@@ -59,6 +60,7 @@ class AssestPopUp extends Component{
             this.props.addSpec(specName, dist, resource, loc, scale, max, constantValue,capacity,this.state.value);
             this.closeSpecPopup();
             this.state.value = -1;
+            this.state.capacity = 0;
         }
         else{
             this.setState({showErrorMessage: true});

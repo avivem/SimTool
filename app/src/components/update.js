@@ -137,7 +137,9 @@ class UpdatePopUp extends Component{
                 spec = s;
             }
         })
-        this.props.useBlueprintMakeContainer(spec, [this.props.selectedNodeID]);
+
+        // what??
+        this.props.useBlueprintMakeContainer(spec, this.props.selectedNodeID);
         this.onButtonContainer();
     }
 

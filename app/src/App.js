@@ -768,7 +768,7 @@ class App extends Component{
             init : {
               init: max
             },
-            capacity: constantValue,
+            capacity: capacity,
             uid: "spec-" + this.state.count
           })
         };
