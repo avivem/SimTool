@@ -134,7 +134,8 @@ class App extends Component{
           loc: parseInt(data.loc),
           scale: parseInt(data.scale),
           limit: parseInt(data.limit),
-          imageURL: data.imageFile
+          imageURL: data.imageFile,
+          logic: data.logic
         });
         this.setState({startNode: node, addedStart: true});
         break;
@@ -151,7 +152,8 @@ class App extends Component{
           name:data.stationame,
           capacity: parseInt(data.capacity),
           time_func: parseInt(data.time_func),
-          imageURL: data.imageFile
+          imageURL: data.imageFile,
+          logic: data.logic
         });
         this.setState({stationNode: node, addedStation: true});
         break;
@@ -651,17 +653,16 @@ class App extends Component{
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           owner: node.uid,
-          split_policy: "RAND"
+          split_policy: node.logic
         })
       };
 
-      fetch('http://127.0.0.1:5000/api/node/logic', requestOptionsStartLogic).then(res => res.json()).then(gotUser => {
+      fetch('http://127.0.0.1:5000/api/node/logic/', requestOptionsStartLogic).then(res => res.json()).then(gotUser => {
           console.log(gotUser);
 
       }).catch(function() {
-          console.log("Error on add Start Node");
+          console.log("Error on add Start Logic");
       });
-
 
     }
     else if(node.uid.includes("station")){
@@ -817,9 +818,6 @@ class App extends Component{
         console.log("Error on add Contaier");
     });
 
-    console.log(selectedNode);
-    console.log(name);
-
     const addcontainer = {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -953,7 +951,8 @@ class App extends Component{
       count: count
     });
 
-    console.log(containers);
+    console.log(nodes[0]);
+    console.log(spec);
 
     // multiple nodes
     for(var i in nodes){
@@ -962,18 +961,17 @@ class App extends Component{
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             // Change the name value to this.state.name to refer to user input
-            node: nodes[i],
-            resource: spec.resourceName,
-            uid: spec.uid
+            owner: nodes[i],
+            blueprint: spec.uid,
           })
       };
 
       /**fetch to api tos set container*/
-      fetch('http://127.0.0.1:5000/api/node/container/blueprint/', assignSpec).then(res => res.json()).then(gotUser => {
+      fetch('http://127.0.0.1:5000/api/node/container/', assignSpec).then(res => res.json()).then(gotUser => {
           console.log(gotUser);
 
       }).catch(function() {
-          console.log("Error on add spec");
+          console.log("Error on add container from spec");
       });
     }
   }

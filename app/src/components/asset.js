@@ -14,8 +14,9 @@ class AssestPopUp extends Component{
             maxAmount: 0,
             scale: 0,
             loc: 0,
-            distribution: "Normal",
+            distribution: "NORMAL",
             showErrorMessage: false,
+            value: 0
             
         }
         
@@ -69,7 +70,7 @@ class AssestPopUp extends Component{
             maxAmount: 0,
             scale: 0,
             loc: 0,
-            distribution: "Normal",
+            distribution: "NORMAL",
             showErrorMessage: false,
         });
         this.props.closeSpecPopup();
@@ -99,9 +100,7 @@ class AssestPopUp extends Component{
                         className="form-control"
                         name="maxAmount" 
                         onChange={this.onChange} />
-                </div>            
-
-        
+                </div>           
 
         return (
             <Popup open={this.props.openSpec} closeOnDocumentClick = {true} onClose={this.closeSpecPopup} >
@@ -126,20 +125,7 @@ class AssestPopUp extends Component{
                         style={{width: '150px'}}
                         onChange={this.onChange} />
                 </div>
-    
-    {/*                <label className="label">Resource range: </label>
-                    <input 
-                        type="text" 
-                        className="form-control"
-                        name="lowerAmount" 
-                        onChange={this.onChange} />
-                    <span class="input-group-addon">-</span>
-                    <input 
-                        type="text" 
-                        className="form-control"
-                        name="upperAmount" 
-                        onChange={this.onChange} />
-        */}
+
                 <div className="container input-group">  
 
                     <label className="label">Distribution:&nbsp;
@@ -148,6 +134,7 @@ class AssestPopUp extends Component{
                             name="distribution"
                             onChange={this.changeDist} 
                             value={this.state.distribution}>
+                            <option value="CONSTANT">CONSTANT</option>
                             <option value="NORMAL">NORMAL</option>
                             <option value="UNIFORM">UNIFORM</option>
                             <option value="RANDOM INT">RANDOM INT</option>
@@ -158,8 +145,6 @@ class AssestPopUp extends Component{
 
                {content}
                 
-                    
-                 
                 <div>
                     {this.state.showErrorMessage ? <p>Max can't be smaller than the mean</p> : <div></div>}
                     <button className="button" onClick={this.submitInteraction}>
