@@ -91,6 +91,7 @@ class App extends Component{
     this.closeContainerPopup = this.closeContainerPopup.bind(this);
     this.handleContainer = this.handleContainer.bind(this);
     this.submitContainer = this.submitContainer.bind(this);
+    this.deleteContainer = this.deleteContainer.bind(this);
 
     this.handleUpdate = this.handleUpdate.bind(this);
 
@@ -105,6 +106,7 @@ class App extends Component{
     this.closeSpecSelectPopup = this.closeSpecSelectPopup.bind(this);
     this.useBlueprintMakeContainer = this.useBlueprintMakeContainer.bind(this);
     this.editSpec = this.editSpec.bind(this);
+    this.deleteSpec = this.deleteSpec.bind(this);
     
     this.submitLogic = this.submitLogic.bind(this);
     this.createLogic = this.createLogic.bind(this);
@@ -865,6 +867,20 @@ class App extends Component{
 
   }
 
+  // Delete the given container
+  deleteContainer(containerUID){
+    var containers = []
+    this.state.containers.forEach((c) => {
+      if(c.uid !== containerUID){
+        containers.push(c);
+      }
+    });
+
+    this.setState({ containers: containers });
+
+    console.log(containers);
+  }
+
   // Open interaction popup
   openSpecPopup(){
     this.setState({
@@ -1002,10 +1018,9 @@ class App extends Component{
           console.log("Error on add spec");
       });
     }
-
-
   }
   
+  // Edit the selected spec, selectedSpec is a dict
   editSpec(selectedSpec, specName, dist, resource, loc, scale, max){
     var specs = this.state.specs;
     
@@ -1026,6 +1041,22 @@ class App extends Component{
 
     // fetch to edit spec
 
+  }
+
+  // Delete the given spec
+  deleteSpec(specUID){
+    var specs = [];
+
+    // Create new list of specs 
+    this.state.specs.forEach((s) => {
+      if(s.uid !== specUID){
+        specs.push(s);
+      }
+    });
+
+    this.setState({ specs: specs });
+
+    console.log(specs);
   }
 
   
@@ -1198,8 +1229,6 @@ class App extends Component{
         
         <div>
           <Canvas 
-            specs={this.state.specs}
-
             startNode={this.state.startNode} 
             stationNode={this.state.stationNode} 
             endNode={this.state.endNode}
@@ -1241,8 +1270,10 @@ class App extends Component{
             updateMode={this.state.updateMode}
             handleUpdate={this.handleUpdate}
 
+            specs={this.state.specs}
             openSpecSelectPopup={this.openSpecSelectPopup}
-            ></Canvas>
+            deleteSpec={this.deleteSpec}
+            />
         </div>
 
         <div>
@@ -1265,6 +1296,7 @@ class App extends Component{
           handleChangeNode={this.handleChangeNode}
 
           submitContainer = {this.submitContainer}
+          deleteContainer = {this.deleteContainer}
           
           arrows={this.state.arrows}
           containers={this.state.containers}

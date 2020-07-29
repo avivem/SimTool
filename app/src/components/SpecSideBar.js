@@ -49,9 +49,11 @@ class SpecSideBar extends Component{
         var xLoc = 25;
         var yLoc = 120;
         this.props.specs.forEach((e) =>{
-            var spec = layer.findOne('#' + e.uid);
+            var spec = layer.findOne('#' + e.uid + "-rect");
             if(spec == undefined){
                 var label = new Konva.Text({
+                    id: e.uid + "-text",
+                    name: e.uid,
                     x: xLoc,
                     y: yLoc,
                     text:
@@ -65,7 +67,8 @@ class SpecSideBar extends Component{
                   });
 
                   var rect = new Konva.Rect({
-                    id: e.uid,
+                    id: e.uid + "-rect",
+                    name: e.uid,
                     x: xLoc,
                     y: yLoc,
                     stroke: '#555',
@@ -81,11 +84,51 @@ class SpecSideBar extends Component{
                     cornerRadius: 10,
                 });
 
+                var x = new Konva.Text({
+                    id: e.uid + "-x",
+                    name: e.uid,
+                    x: xLoc + 145,
+                    y: yLoc,
+                    text: "X",
+                    fontSize: 18,
+                    fontFamily: 'Calibri',
+                    fill: '#ffffff',
+                    align: 'center',
+                  });
+
+                var circle = new Konva.Circle({
+                    id: e.uid + "-circle",
+                    name: e.uid,
+                    radius: 8,
+                    x: xLoc + 149,
+                    y: yLoc + 9,
+                    fill: '#ff0000',
+                });
+
+                var cover = new Konva.Circle({
+                    id: e.uid + "-cover",
+                    radius: 8,
+                    x: xLoc + 149,
+                    y: yLoc + 9,
+                    opacity: 0
+                });
+
                 layer.add(rect, label);
-                yLoc = yLoc + label.height();
+                layer.add(circle, x, cover);
+                yLoc = yLoc + label.height() + 15;
 
                 label.on('click', () => {
                     this.props.openSpecSelectPopup(e);
+                });
+
+                cover.on('click', () => {
+                    var alphaNodes = layer.find(node => {
+                        return node.name() == e.uid;
+                       });
+                    alphaNodes.destroy();
+                    layer.batchDraw();
+
+                    this.props.deleteSpec(e.uid);
                 });
 
                 

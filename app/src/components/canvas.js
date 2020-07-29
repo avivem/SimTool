@@ -614,8 +614,8 @@ class Canvas extends Component{
     render(){
         var sidebar = <SpecSideBar
                         specs={this.props.specs}
-                        canvas={this.state.layer}
-                        openSpecSelectPopup={this.props.openSpecSelectPopup} />
+                        openSpecSelectPopup={this.props.openSpecSelectPopup}
+                        deleteSpec={this.props.deleteSpec} />
 
         var content = <div className="content">
                         <p>.</p>
