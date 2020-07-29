@@ -707,7 +707,7 @@ class App extends Component{
   }
 
   // Add interaction/resource to list
-  addSpec(specName, dist, resource, loc, scale, max){
+  addSpec(specName, dist, resource, loc, scale, max, constantValue){
     var lst = this.state.specs;
 
     lst.push({
@@ -719,25 +719,44 @@ class App extends Component{
       loc: loc,
       scale: scale,
       capacity: max,
+      constantValue: constantValue
     });
 
-    var addcontainerspec = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        // Change the name value to this.state.name to refer to user input
-        name: specName,
-        resource: resource,
-        init : {
-          dist: dist,
-          loc: loc,
-          scale: scale
-        },
-        capacity: max,
-        uid: "spec-" + this.state.count
-      })
-    };
-    
+    var addcontainerspec;
+    if(dist == "CONSTANT"){
+      addcontainerspec = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          // Change the name value to this.state.name to refer to user input
+          name: specName,
+          resource: resource,
+          init : {
+            init: constantValue
+          },
+          capacity: max,
+          uid: "spec-" + this.state.count
+        })
+      };
+    }
+    else{
+      addcontainerspec = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          // Change the name value to this.state.name to refer to user input
+          name: specName,
+          resource: resource,
+          init : {
+            dist: dist,
+            loc: loc,
+            scale: scale
+          },
+          capacity: max,
+          uid: "spec-" + this.state.count
+        })
+      };  
+    }
 
     /**fetch to api tos set container*/
     fetch('http://127.0.0.1:5000/api/container/blueprint/', addcontainerspec).then(res => res.json()).then(gotUser => {
@@ -911,7 +930,8 @@ class App extends Component{
         loc: spec.loc,
         scale: spec.scale,
         distribution: spec.distribution,
-        capacity: spec.capacity
+        capacity: spec.capacity,
+        constantValue: spec.constantValue
       });
       count = count + 1;
 
@@ -962,7 +982,7 @@ class App extends Component{
   }
   
   // Edit the selected spec, selectedSpec is a dict
-  editSpec(selectedSpec, specName, dist, resource, loc, scale, max){
+  editSpec(selectedSpec, specName, dist, resource, loc, scale, max, constantValue){
     var specs = this.state.specs;
     
     specs.forEach((s) => {
@@ -973,6 +993,7 @@ class App extends Component{
           s.loc = loc;
           s.scale = scale;
           s.maxAmount = max;  
+          s.constantValue = constantValue;
       }
     });
 

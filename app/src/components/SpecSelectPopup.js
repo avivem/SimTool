@@ -16,7 +16,8 @@ class SpecSelectPopup extends Component{
             maxAmount: 0,
             scale: 0,
             loc: 0,
-            distribution: "Normal",
+            distribution: "NORMAL",
+            constantValue: 0,
           
         };
 
@@ -78,11 +79,13 @@ class SpecSelectPopup extends Component{
                 maxAmount: spec.maxAmount,
                 scale: spec.scale,
                 loc: spec.loc,
+                constantValue: spec.constantValue
             });
 
         }
     }
 
+    // Edit the blueprint
     submitEdit(){
         var specName = this.state.specName;
         var resource = this.state.resourceName;
@@ -90,8 +93,9 @@ class SpecSelectPopup extends Component{
         var loc = parseInt(this.state.loc);
         var scale = parseInt(this.state.scale);
         var max = parseInt(this.state.maxAmount);
+        var constantValu = parseInt(this.state.constantValue);
         if(specName != "" && resource != "" && dist != ""){
-            this.props.editSpec(this.props.selectedSpec, specName, dist, resource, loc, scale, max);
+            this.props.editSpec(this.props.selectedSpec, specName, dist, resource, loc, scale, max, constantValu);
             this.showEditSpec();
         }
         else{
@@ -138,6 +142,44 @@ class SpecSelectPopup extends Component{
 
 */
        
+        let contentConstant =
+            <div className="container input-group">        
+                <label className="label">Value: </label> 
+                <input 
+                    type="text" 
+                    className="form-control"
+                    name="constantValue" 
+                    value={this.state.constantValue}
+                    onChange={this.onChange} />
+            </div>
+
+        let contentNotConstant = 
+            <div className="container input-group">        
+                <label className="label">Scale: </label> 
+                <input 
+                    type="text" 
+                    className="form-control"
+                    name="scale" 
+                    value = {this.state.scale}
+                    onChange={this.onChange} />
+                
+                <label className="label">Loc: </label> 
+                <input 
+                    type="text" 
+                    className="form-control"
+                    name="loc" 
+                    value = {this.state.loc}
+                    onChange={this.onChange} />
+
+                <label className="label">Max Resource Amount: </label> 
+                <input 
+                    type="text" 
+                    className="form-control"
+                    name="maxAmount"
+                    value = {this.state.maxAmount} 
+                    onChange={this.onChange} />
+            </div>                   
+
 
         var content = 
             <div>
@@ -174,33 +216,10 @@ class SpecSelectPopup extends Component{
                             <option value="RANDOM INT">RANDOM INT</option>
                         </select>
                     </label>
-
                </div>
-               <div className="container input-group">        
-                    <label className="label">Scale: </label> 
-                    <input 
-                        type="text" 
-                        className="form-control"
-                        name="scale" 
-                        value = {this.state.scale}
-                        onChange={this.onChange} />
-                    
-                    <label className="label">Loc: </label> 
-                    <input 
-                        type="text" 
-                        className="form-control"
-                        name="loc" 
-                        value = {this.state.loc}
-                        onChange={this.onChange} />
 
-                    <label className="label">Max Resource Amount: </label> 
-                    <input 
-                        type="text" 
-                        className="form-control"
-                        name="maxAmount"
-                        value = {this.state.maxAmount} 
-                        onChange={this.onChange} />
-                </div>                   
+               {this.state.distribution == "CONSTANT" ? contentConstant : contentNotConstant}
+
                 <div>
                     {this.state.showErrorMessage ? <p>Please enter all fields</p> : <div></div>}
                     <button className="button" onClick={this.submitEdit}>
@@ -222,9 +241,14 @@ class SpecSelectPopup extends Component{
                         <h1>{spec.name}</h1>
                         <p>Resource: {spec.resourceName}</p>
                         <p>Distribution: {spec.distribution}</p>
-                        <p>Scale: {spec.scale} </p>
-                        <p>Loc: {spec.loc} </p>
-                        <p>Max Amount: {spec.maxAmount}</p>
+                        {spec.distribution == "CONSTANT" ? 
+                        <div><p>Value: {spec.constantValue}</p></div>
+                        :
+                        <div>
+                            <p>Scale: {spec.scale} </p>
+                            <p>Loc: {spec.loc} </p>
+                            <p>Max Amount: {spec.maxAmount}</p>
+                        </div>}
                     </div>
                     <div>
                         <button className="button" onClick={this.showEditSpec}>

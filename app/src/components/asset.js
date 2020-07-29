@@ -16,7 +16,9 @@ class AssestPopUp extends Component{
             loc: 0,
             distribution: "NORMAL",
             showErrorMessage: false,
-            value: 0
+            value: 0,
+
+            constantValue: 0,
             
         }
         
@@ -51,14 +53,14 @@ class AssestPopUp extends Component{
         var loc = parseInt(this.state.loc);
         var scale = parseInt(this.state.scale);
         var max = parseInt(this.state.maxAmount);
+        var constantValue = parseInt(this.state.constantValue);
         if(max >= loc){
-            this.props.addSpec(specName, dist, resource, loc, scale, max);
+            this.props.addSpec(specName, dist, resource, loc, scale, max, constantValue);
             this.closeSpecPopup();
         }
         else{
             this.setState({showErrorMessage: true});
         }
-        console.log(dist);
     }
 
     closeSpecPopup(){
@@ -77,6 +79,15 @@ class AssestPopUp extends Component{
     }
 
     render(){
+        let contentConstant =
+            <div className="container input-group">        
+                <label className="label">Value: </label> 
+                <input 
+                    type="text" 
+                    className="form-control"
+                    name="constantValue" 
+                    onChange={this.onChange} />
+            </div>
 
         let content =
                 <div className="container input-group">        
@@ -143,7 +154,7 @@ class AssestPopUp extends Component{
 
                </div>
 
-               {content}
+               {this.state.distribution == "CONSTANT" ? contentConstant : content}
                 
                 <div>
                     {this.state.showErrorMessage ? <p>Max can't be smaller than the mean</p> : <div></div>}
