@@ -34,7 +34,9 @@ class Navigation extends Component{
         actionButtonColor: "#2cbebe",
         
         removeButtonColor: "#ff0000",
-        log: null
+        
+        log: null,
+        displayType: "Summary"
 
       }
 
@@ -71,6 +73,8 @@ class Navigation extends Component{
       this.handleLoad = this.handleLoad.bind(this);
 
       this.openSpecPopup = this.openSpecPopup.bind(this);
+
+      this.showInformation = this.showInformation.bind(this);
     }
 
     onChange(e){
@@ -109,7 +113,8 @@ class Navigation extends Component{
     // Close popup for changing data
     closePopupData(){
       this.setState({
-        openData: false
+        openData: false,
+        displayType: "Summary"
       });
       console.log("Close Popup");
     }
@@ -362,6 +367,16 @@ class Navigation extends Component{
       this.props.openSpecPopup()
     }
 
+    // Show the type of information
+    showInformation(){
+      if(this.state.displayType == "Data"){
+        this.setState({ displayType: "Summary" });
+      }
+      else{
+        this.setState({ displayType: "Data" });
+      }
+    }
+
     render(){
         let content;
         // console.log(this.state)
@@ -561,7 +576,18 @@ class Navigation extends Component{
             closeOnDocumentClick 
             onClose={this.closePopupData}
             contentStyle={{height: 400, overflow: "auto"}}>
-              <p>{this.state.log}</p>
+              {this.state.displayType == "Data" && 
+              <div>
+                <h3>Data</h3>
+                <p>{this.state.log}</p>
+              </div>}
+              {this.state.displayType == "Summary" && 
+              <div>
+                <h3>Summary</h3>
+                <p>{this.state.log}</p>
+              </div>
+              }
+              <button onClick={this.showInformation}> {this.state.displayType} </button>
               <button onClick={this.closePopupData} >Close</button>
             </Popup>
           </div>

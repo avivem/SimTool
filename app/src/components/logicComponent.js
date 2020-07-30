@@ -453,11 +453,11 @@ class LogicComponent extends Component{
         
 
         var cond = [{ value: "", label: "" },
-                    { value: "el==", label: "=" },
-                    { value: "el>=", label: ">=" },
-                    { value: "el>", label: ">" },
-                    { value: "el<=", label: "<=" },
-                    { value: "el<", label: "<" }]
+                    { value: "e==v", label: "=" },
+                    { value: "e>=v", label: ">=" },
+                    { value: "e>v", label: ">" },
+                    { value: "e<=v", label: "<=" },
+                    { value: "e<v", label: "<" }]
 
         var action = [{ value: "", label: "" },
                       { value: "ADD", label: "Add" },
@@ -505,9 +505,9 @@ class LogicComponent extends Component{
 
         var lstEntity = [{ value: "", label: "" }]
         this.props.startNode.forEach((s) => {
-            
-            lstEntity.push({value: s.uid, label: s.entity_name});
-
+            s.containers.forEach((c) => {
+                lstEntity.push({value: c, label: c});
+            })
         });
 
         var logic = [{value: "BOOL", label: "BOOL"},
@@ -667,7 +667,6 @@ class LogicComponent extends Component{
                 <label>Action Taken:
                     <Select
                     styles={customStyle}
-                    defaultValue={this.state.previousAction}
                     options={action}
                     name="action"
                     onChange={this.handleAction}
@@ -676,7 +675,7 @@ class LogicComponent extends Component{
                 <label>Container Name:
                     <Select
                     styles={customStyle}
-                    options={cond}
+                    options={lstContainer}
                     name="containerName"
                     onChange={this.handleContainerSelected}
                     />
