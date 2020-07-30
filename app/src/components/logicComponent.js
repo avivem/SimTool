@@ -266,12 +266,14 @@ class LogicComponent extends Component{
                 showAction: false,
                 showActionGroup: false
             });
+
+
     
         }
     }
 
     onChange(e){
-        // console.log(e.target)
+
         this.setState({[e.target.name]: e.target.value});
            
     }
@@ -328,7 +330,7 @@ class LogicComponent extends Component{
     }
 
     handleContainerSelected(e){
-        this.setState({ containerSelected: e.value });
+        this.setState({ containerName: e.value });
     }
 
     handleEditLogic(e){
@@ -420,9 +422,10 @@ class LogicComponent extends Component{
 
     // Create a condition
     createCondition(){
+
         this.props.createCondition(this.props.selectedNodeID, this.state.groupSelected,
             this.state.conditionName, this.state.entityName, this.state.containerName,
-            this.state.action, this.state.actionVal);
+            this.state.cond, this.state.condVal);
 
         // Make the input field for the condition to close
         this.showCondition();
@@ -430,8 +433,8 @@ class LogicComponent extends Component{
 
     createAction(){
         this.props.createAction(this.props.selectedNodeID, this.state.groupSelected,
-            this.state.conditionName, this.state.entityName, this.state.containerName,
-            this.state.action, this.state.condVal, this.state.actionGroupName);
+            this.state.actionName, this.state.entityName, this.state.containerName,
+            this.state.action, this.state.actionVal, this.state.actionGroupName);
 
         // Make the input field for the condition to close
         this.showAction();
