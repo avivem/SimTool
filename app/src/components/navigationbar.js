@@ -36,7 +36,8 @@ class Navigation extends Component{
         removeButtonColor: "#ff0000",
         
         log: null,
-        displayType: "Summary"
+        displayType: "Summary",
+        summaryContent: <div></div>,
 
       }
 
@@ -159,67 +160,72 @@ class Navigation extends Component{
 
       fetch('http://127.0.0.1:5000/api/run/summary').then(res => res.json()).then(gotUser => {
         console.log(gotUser);
+        
+        var data = gotUser;
+        var endnode = data["End Nodes"];
+        var endInfo = [<h3>End Nodes</h3>];
+        for(var key in endnode){
+          endInfo.push(<div>
+            <p>Name: {endnode.key["name"]}</p>
+            <p>Number of Entities: {endnode.key["number of caught entities"]}</p>
+          </div>)
+        }
+        
+        
+        var startnode = data["Starting Nodes"];
+        var startInfo = [<h3>Start Nodes</h3>];
+        for(var key in startnode){
+          startInfo.push(<div>
+            <p>{startnode.key["name"]}: {startnode.key["number of entities created"]} entities</p>
+          </div>)
+        }
+        
+        
+        var stationnode = data["Station Nodes"];
+        var stationInfo = [<h3>Station Nodes</h3>];
+        for(var key in stationnode){
+          var n = stationnode.key; 
+          if(n["container summaries"] !== {}){
+            var containerInfo = stationnode.key["container summaries"];
+            for(var k in containerInfo){
+              stationInfo.push(<div>
+                <p>Owner: {containerInfo.k["owner"]}</p>
+                <p>Resource: {containerInfo.k["resource"]}</p>
+                <p>Amount: {containerInfo.k["level"]}</p>
+              </div>)
+            }
+          }
+        }
+        
+        var runInfo = data["run_info"]
+        
+        var averageWaitTime = runInfo["avg_entity_duration_by_start"]
+        var infoTimeSpend = []
+        for(var key in averageWaitTime){
+          infoTimeSpend.push(<p>{key} : {averageWaitTime.key}</p>);
+        }
+        
+        var summaryContent = 
+          <div>
+            <p>Simulation Runtime: {runInfo["sim_end_time"]}</p>
+            <p>Number of Entities: {runInfo["num_spawned_entities"]}</p>
+            <p>Number of Entities Completed Run: {runInfo["num_completed_entities"]}</p>
+            <h3>Average Entity Run Time: </h3>
+            {infoTimeSpend}
+            {startInfo}
+            {stationInfo}
+            {endInfo}
+          </div>
+
+
         this.setState({
-          log: gotUser
+          log: gotUser,
+          summaryContent: summaryContent
         });
 
       }).catch(console.log)
 
-      /*
-      var data = this.state.log;
-      var endnode = data["End Nodes"];
-      var endInfo = [];
-      for(var key in endnode){
-        endInfo.push(<div>
-          <p>Name: {endnode.key["name"]}</p>
-          <p>Number of Entities: {endnode.key["number of caught entities"]}</p>
-        </div>)
-      }
       
-      
-      var startnode = data["Starting Nodes"];
-      var startInfo = [];
-      for(var key in startnode){
-        startInfo.push(<div>
-          <p>{startnode.key["name"]}: {startnode.key["number of entities created"]} entities</p>
-        </div>)
-      }
-      
-      
-      var stationnode = data["Station Nodes"];
-      var stationInfo = [];
-      for(var key in stationnode){
-        if(stationnode.key["container summaries"] !== {}){
-          var containerInfo = stationnode.key["container summaries"];
-          for(var k in containerInfo){
-            stationInfo.push(<div>
-              <p>Owner: {containerInfo.k["owner"]}</p>
-              <p>Resource: {containerInfo.k["resource"]}</p>
-              <p>Amount: {containerInfo.k["level"]}</p>
-            </div>)
-          }
-        }
-      }
-      
-      var runInfo = data["run_info"]
-      
-      var averageWaitTime = runInfo["avg_entity_duration_by_start"]
-      var infoTimeSpend = []
-      for(var key in averageWaitTime){
-        infoTimeSpend.push(<p>{key} : {averageWaitTime.key}</p>);
-      }
-      
-      var summaryContent = 
-        <div>
-          <p>Simulation Runtime: {runInfo["sim_end_time"]}</p>
-          <p>Number of Entities: {runInfo["num_spawned_entities"]}</p>
-          <p>Number of Entities Completed Run: {runInfo["num_completed_entities"]}</p>
-          <p>Average Entity Run Time: </p>
-          {infoTimeSpend}
-          {startInfo}
-          {stationInfo}
-          {endInfo}
-        </div>*/
 
     } 
 
@@ -609,7 +615,11 @@ class Navigation extends Component{
 
           <div>
             {/*Popup for user to select node to add*/}
-            <Popup open={this.state.openNode} closeOnDocumentClick onClose={this.closePopupNode}>
+            <Popup 
+            open={this.state.openNode} 
+            closeOnDocumentClick 
+            onClose={this.closePopupNode}
+            contentStyle={{textAlign: "center"}}>
               <h2>Create New Node</h2>  
               <button onClick={this.addStart} className="nodeButton">
                 <img src={StartImage} alt="start" />
@@ -638,23 +648,23 @@ class Navigation extends Component{
             contentStyle={{height: 400, overflow: "auto"}}>
               {this.state.displayType == "Summary" && 
               <div>
-                <h3>Summary</h3>
+                <h3>Data</h3>
                 <p>{this.state.log}</p>
               </div>
               }
               {this.state.displayType == "Data" && 
               <div>
-                <h3>Data</h3>
-                <p>{this.state.log}</p>
+                <h3>Summary</h3>
+                {this.state.summaryContent}
               </div>}
-           {/*   <button onClick={this.showInformation}> {this.state.displayType} </button>*/}
-              <button onClick={this.closePopupData} >Close</button>
+              <button className="button" onClick={this.showInformation}> {this.state.displayType} </button>
+              <button className="button" onClick={this.closePopupData} >Close</button>
             </Popup>
           </div>
 
           <div>
             {/*Popup for uploading image */}
-            <Popup open={this.state.openImageOption} closeOnDocumentClick = {true} onClose={this.closePopupImage}>
+            <Popup open={this.state.openImageOption} closeOnDocumentClick onClose={this.closePopupImage}>
               <div class="container">
                 <h3>Add Node </h3>
 
