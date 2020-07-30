@@ -648,17 +648,19 @@ class Navigation extends Component{
             contentStyle={{height: 400, overflow: "auto"}}>
               {this.state.displayType == "Summary" && 
               <div>
-                <h3>Data</h3>
+                <h3 style={{textAlign: "center"}}>Data</h3>
                 <p>{this.state.log}</p>
               </div>
               }
               {this.state.displayType == "Data" && 
               <div>
-                <h3>Summary</h3>
+                <h3 style={{textAlign: "center"}}>Summary</h3>
                 {this.state.summaryContent}
               </div>}
-              <button className="button" onClick={this.showInformation}> {this.state.displayType} </button>
-              <button className="button" onClick={this.closePopupData} >Close</button>
+              <div style={{ position: "absolute", left: "35%"}}>
+                <button className="button" style={{width: '100px'}} onClick={this.closePopupData} >Close</button>
+                <button className="button" style={{width: '100px'}} onClick={this.showInformation}> {this.state.displayType} </button>
+              </div>
             </Popup>
           </div>
 
