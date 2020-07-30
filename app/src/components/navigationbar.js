@@ -556,7 +556,11 @@ class Navigation extends Component{
           
           <div>
             {/*Popup for log */}
-            <Popup open={this.state.openData} closeOnDocumentClick = {true} onClose={this.closePopupData}>
+            <Popup 
+            open={this.state.openData} 
+            closeOnDocumentClick 
+            onClose={this.closePopupData}
+            contentStyle={{height: 400, overflow: "auto"}}>
               <p>{this.state.log}</p>
               <button onClick={this.closePopupData} >Close</button>
             </Popup>

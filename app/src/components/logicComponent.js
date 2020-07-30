@@ -13,9 +13,11 @@ class LogicComponent extends Component{
 
             showLogic: false,
             showConditionGroup: false,
+            showActionGroup: false,
             showCondition:false,
             showAction: false,
             showEditLogic: false,
+            showActionGroupErrorMessage: "",
 
             lstGroup: [], // List of groups already created for the selected node
 
@@ -36,14 +38,17 @@ class LogicComponent extends Component{
             actionName: "",
             actionVal: 0,
 
+            actionGroupName: "",
+
             logic: "",
-            defaultLogic: [{value: "BOOL", label: "Boolean"}] 
+            defaultLogic: [{value: "BOOL", label: "Boolean"}]
 
         };
 
 
         this.showAddLogic = this.showAddLogic.bind(this);
         this.showConditionGroup = this.showConditionGroup.bind(this);
+        this.showActionGroup = this.showActionGroup.bind(this);
         this.showCondition = this.showCondition.bind(this);
         this.showAction = this.showAction.bind(this);
         this.showEditLogic = this.showEditLogic.bind(this);
@@ -62,6 +67,7 @@ class LogicComponent extends Component{
         this.handleEditLogic = this.handleEditLogic.bind(this);
 
         this.createGroup = this.createGroup.bind(this);
+        this.createActionGroup = this.createActionGroup.bind(this);
         this.createCondition = this.createCondition.bind(this);
         this.createAction = this.createAction.bind(this);
 
@@ -113,6 +119,36 @@ class LogicComponent extends Component{
                 showConditionGroup: true,
                 showCondition: false,
                 showAction: false,
+                showActionGroup: false
+            });
+        }
+    }
+
+    // Show the way to add an action group
+    showActionGroup(){
+        if(this.state.showActionGroup){
+            this.setState({showActionGroup: false});
+        }
+        else{
+            this.setState({
+                showActionGroup: true,
+                showActionGroupErrorMessage: "",
+                actionGroupName: "",
+                showEditLogic:false,
+                showConditionGroup: false,
+                showCondition: false,
+                showAction: false,
+            });
+
+            this.props.logics.forEach((l) => {
+                if(l.applyTo == this.props.selectedNodeID){
+                    // Get all of the exisitng group
+                    var condGroup = [];
+                    l.conditionsActionsGroup.forEach((g) => {
+                        condGroup.push({value: g.name, label: g.name});
+                    });
+                    this.setState({ lstGroup: condGroup });
+                }
             });
         }
     }
@@ -136,6 +172,7 @@ class LogicComponent extends Component{
                 showConditionGroup: false,
                 showCondition: true,
                 showAction: false,
+                showActionGroup: false
             });
 
             this.props.logics.forEach((l) => {
@@ -170,6 +207,7 @@ class LogicComponent extends Component{
                 showConditionGroup: false,
                 showCondition: false,
                 showAction: true,
+                showActionGroup: false
             });
 
             this.props.logics.forEach((l) => {
@@ -225,7 +263,8 @@ class LogicComponent extends Component{
                 showEditLogic: true,
                 showConditionGroup: false,
                 showCondition: false,
-                showAction: false 
+                showAction: false,
+                showActionGroup: false
             });
     
         }
@@ -333,12 +372,50 @@ class LogicComponent extends Component{
 
     }
 
-    // Create the group
+    // Create the condition group
     createGroup(){
         this.props.createConditionGroup(this.props.selectedNodeID, this.state.groupName,
             this.state.passPath, this.state.passName, this.state.failPath, this.state.failName);
         
         this.showConditionGroup();
+    }
+
+    //Create the action group
+    createActionGroup(){
+        //Assume that the condition group already have an action group 
+        var existed = true;
+
+        // Find if that action group really existed
+        this.props.logics.forEach((l) => {
+            if(l.applyTo == this.props.selectedNodeID){
+                l.conditionsActionsGroup.forEach((group) => {
+                    if(group.name == this.state.groupSelected){
+                        if(group.actionGroup.name === ""){
+                            //Action group do not exist
+                            existed = false;
+                        }
+                    }
+                })
+            }
+        });
+
+        if(this.state.actionGroupName !== "" && !existed){
+            this.props.createActionGroup(this.props.selectedNodeID, 
+                this.state.groupSelected, this.state.actionGroupName);
+            
+            this.showActionGroup();
+        }
+        else{
+            if(this.state.actionGroupName == ""){
+                this.setState({ showActionGroupErrorMessage: "Name"});
+            }
+            else{
+                this.setState({ showActionGroupErrorMessage: "Exist"});
+            }
+            
+        }
+
+
     }
 
     // Create a condition
@@ -474,6 +551,32 @@ class LogicComponent extends Component{
                 </label>
                 <button className="button" onClick={this.createGroup}>
                     Create Group
+                </button>
+            </div>
+
+        var actionGroupContent = 
+            <div>
+                <h3>Add Action Group</h3>
+                <label>Select a Condition Group:
+                    <Select
+                    styles={customStyle}
+                    options={this.state.lstGroup}
+                    name="groupSelected"
+                    onChange={this.handleSelectedGroup}
+                    />
+                </label>
+                <label className="label">Action Group Name:
+                    <input 
+                        type="text" 
+                        name="actionGroupName"
+                        className="form-control"
+                        value={this.state.actionGroupName}
+                        onChange={this.onChange} />
+                </label>
+                {this.state.showActionGroupErrorMessage == "Exist" && <p>Condition group can only have one Action group</p>}
+                {this.state.showActionGroupErrorMessage == "Name" && <p>Please enter the Action group's name</p>}
+                <button className="button" onClick={this.createActionGroup}>
+                    Create Condition
                 </button>
             </div>
 
@@ -628,6 +731,9 @@ class LogicComponent extends Component{
                     <button className="button" onClick={this.showConditionGroup} >
                         Add Condition Group
                     </button>
+                    <button className="button" onClick={this.showActionGroup} >
+                        Add Action Group 
+                    </button>
                     <button className="button" onClick={this.showCondition} >
                         Add Condition 
                     </button>
@@ -641,6 +747,7 @@ class LogicComponent extends Component{
                 {this.state.showCondition ? conditionContent : <div></div>}
                 {this.state.showAction ? actionContent : <div></div>}
                 {this.state.showEditLogic ? editLogic : <div></div>}
+                {this.state.showActionGroup ? actionGroupContent : <div></div>}
             </div>
         )
     }

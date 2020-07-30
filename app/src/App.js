@@ -106,6 +106,7 @@ class App extends Component{
     this.submitLogic = this.submitLogic.bind(this);
     this.createLogic = this.createLogic.bind(this);
     this.createConditionGroup = this.createConditionGroup.bind(this);
+    this.createActionGroup = this.createActionGroup.bind(this);
     this.createCondition = this.createCondition.bind(this);
     this.createAction = this.createAction.bind(this);
     this.submitEditLogic = this.submitEditLogic.bind(this);
@@ -991,11 +992,6 @@ class App extends Component{
       count: count
     });
 
-<<<<<<< HEAD
-    console.log(nodes.lst[0]);
-    console.log(spec);
-=======
->>>>>>> 89907323893425400d3261b87937232361bda3d4
 
     // multiple nodes
       var assignSpec = {
@@ -1153,7 +1149,10 @@ class App extends Component{
         l.conditionsActionsGroup.push({
           name: groupName,
           conditions: [],
-          actions: [],
+          actionGroup: {
+            name: "",
+            actions: []
+          },
           passPath: passPath,
           passName: passName,
           failPath: failPath,
@@ -1192,6 +1191,26 @@ class App extends Component{
     });
   }
 
+  // Create Action group
+  createActionGroup(selectedNodeID, conditionGroupName, actionGroupName){
+    var lst = this.state.logics;
+    lst.forEach((l) => {
+      if(l.applyTo == selectedNodeID){
+        l.conditionsActionsGroup.forEach((group) => {
+          if(group.name == conditionGroupName){
+            // Add new condition to group
+            group.actionGroup.name = actionGroupName;
+          }
+        });
+      }
+    });
+    this.setState({
+      logics: lst
+    });
+
+    console.log(lst);
+  }
+
   // Add a condition to the group with the groupName 
   createAction(selectedNodeID, groupName, name, entityName, nodeName, op, val){
     var lst = this.state.logics;
@@ -1200,7 +1219,7 @@ class App extends Component{
         l.conditionsActionsGroup.forEach((group) => {
           if(group.name == groupName){
             // Add new condition to group
-            group.actions.push({
+            group.actionGroup.actions.push({
               name: name,
               encon_name: entityName,
               nodecon_name: nodeName,
@@ -1344,6 +1363,7 @@ class App extends Component{
           specs={this.state.specs}
           createLogic={this.createLogic}
           createConditionGroup={this.createConditionGroup}
+          createActionGroup={this.createActionGroup}
           createCondition={this.createCondition}
           createAction={this.createAction}
           
