@@ -135,7 +135,8 @@ class App extends Component{
           scale: parseInt(data.scale),
           limit: parseInt(data.limit),
           imageURL: data.imageFile,
-          logic: data.logic
+          logic: data.logic,
+          containers: []
         });
         this.setState({startNode: node, addedStart: true});
         break;
@@ -833,6 +834,18 @@ class App extends Component{
       constantValue: constantValue
     });
 
+    // Create a list of containers name that are applied to the start node
+    if(selectedNode.includes("start")){
+      var startNode = this.state.startNode;
+      startNode.forEach((n) => {
+        if(n.uid == selectedNode){
+          n.containers.push(name + "-" + this.state.count);
+        }
+      });
+
+      this.setState({ startNode: startNode});
+    }
+
     const addblue = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -954,6 +967,7 @@ class App extends Component{
   useBlueprintMakeContainer(spec, nodes){
     var containers = this.state.containers;
     var count = this.state.count;
+    var startNode = this.state.startNode;
 
     // Create container for each of node
     nodes.lst.forEach((uid) => {
@@ -969,6 +983,15 @@ class App extends Component{
         capacity: spec.capacity,
         constantValue: spec.constantValue
       });
+
+      // Create a list of containers name that are applied to the start node
+      if(uid.includes("start")){
+        startNode.forEach((n) => {
+          if(n.uid == uid){
+            n.containers.push(spec.name + "-" + count);
+          }
+        })
+      }
       count = count + 1;
 
     });
@@ -989,7 +1012,8 @@ class App extends Component{
 
     this.setState({
       containers: containers,
-      count: count
+      count: count,
+      startNode: startNode
     });
 
     // multiple nodes
