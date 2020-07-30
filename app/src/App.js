@@ -1236,6 +1236,73 @@ class App extends Component{
     this.setState({
       logics: lst
     });
+
+    var actGroup= {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          // Change the name value to this.state.name to refer to user input
+        owner: selectedNodeID,
+        cond_group: groupName,
+        name: name
+        })
+    };
+
+    /**fetch to api tos set container*/
+    fetch('http://127.0.0.1:5000/api/node/logic/condition_group/action_group/', actGroup).then(res => res.json()).then(gotUser => {
+        console.log(gotUser);
+
+    }).catch(function() {
+        console.log("Error on add condition group");
+    });
+
+    // var actTake= {
+    //     method: 'PUT',
+    //     headers: { 'Content-Type': 'application/json' },
+    //     body: JSON.stringify({
+    //       // Change the name value to this.state.name to refer to user input
+    //     owner: selectedNodeID,
+    //     cond_group: groupName,
+    //     action_group: name,
+    //     name: "take pay",
+    //     encon_name: entityName,
+    //     nodecon_name: nodeName,
+    //     op: op,
+    //     val: val
+    //     })
+    // };
+
+    // /**fetch to api tos set container*/
+    // fetch('http://127.0.0.1:5000/api/node/logic/condition_group/action_group/action/', act).then(res => res.json()).then(gotUser => {
+    //     console.log(gotUser);
+
+    // }).catch(function() {
+    //     console.log("Error on add condition group");
+    // });
+
+    // var actGive= {
+    //     method: 'PUT',
+    //     headers: { 'Content-Type': 'application/json' },
+    //     body: JSON.stringify({
+    //       // Change the name value to this.state.name to refer to user input
+    //     owner: selectedNodeID,
+    //     cond_group: groupName,
+    //     action_group: name,
+    //     name: "take give",
+    //     encon_name: entityName,
+    //     nodecon_name: nodeName,
+    //     op: op,
+    //     val: val
+    //     })
+    // };
+
+    // /**fetch to api tos set container*/
+    // fetch('http://127.0.0.1:5000/api/node/logic/condition_group/action_group/action/', act).then(res => res.json()).then(gotUser => {
+    //     console.log(gotUser);
+
+    // }).catch(function() {
+    //     console.log("Error on add condition group");
+    // });
   }
 
   // Change the logic of a node
