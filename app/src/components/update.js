@@ -568,7 +568,7 @@ class UpdatePopUp extends Component{
                                     <td><p>Capacity: {s.capacity}</p></td>
                                 </tr>
                                 <tr>
-                                    <td><p>Current Container: {lstContainer}</p></td>
+                                   
                                 </tr>
                                 <tr>
                                     <td><p>Time Function: {s.time_func}</p></td>
