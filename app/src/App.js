@@ -991,11 +991,7 @@ class App extends Component{
       count: count
     });
 
-<<<<<<< HEAD
-    console.log(nodes.lst[0]);
-    console.log(spec);
-=======
->>>>>>> 89907323893425400d3261b87937232361bda3d4
+    console.log(nodes);
 
     // multiple nodes
       var assignSpec = {
@@ -1003,7 +999,7 @@ class App extends Component{
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             // Change the name value to this.state.name to refer to user input
-            owner: nodes,
+            owner: nodes.lst[0],
             blueprint: spec.uid,
           })
       };

@@ -55,9 +55,9 @@ class AssestPopUp extends Component{
         var max = parseInt(this.state.maxAmount);
         var constantValue = parseInt(this.state.constantValue);
         var capacity = parseInt(this.state.capacity);
-
+        var value = parseInt(this.state.value);
         if(max >= loc){
-            this.props.addSpec(specName, dist, resource, loc, scale, max, constantValue,capacity,this.state.value);
+            this.props.addSpec(specName, dist, resource, loc, scale, max, constantValue,capacity,value);
             this.closeSpecPopup();
             this.state.value = -1;
             this.state.capacity = 0;
