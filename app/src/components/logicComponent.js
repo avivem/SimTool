@@ -431,7 +431,7 @@ class LogicComponent extends Component{
     createAction(){
         this.props.createAction(this.props.selectedNodeID, this.state.groupSelected,
             this.state.conditionName, this.state.entityName, this.state.containerName,
-            this.state.action, this.state.condVal);
+            this.state.action, this.state.condVal, this.state.actionGroupName);
 
         // Make the input field for the condition to close
         this.showAction();
