@@ -1094,25 +1094,6 @@ class App extends Component{
       })
     }
 
-    // var assignSpec = {
-    //     method: 'PUT',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify({
-    //       // Change the name value to this.state.name to refer to user input
-    //       node: nodes[i],
-    //       resource: spec.resourceName,
-    //       uid: spec.uid
-    //     })
-    // };
-
-    // /**fetch to api tos set container*/
-    // fetch('http://127.0.0.1:5000/api/node/container/blueprint/', assignSpec).then(res => res.json()).then(gotUser => {
-    //     console.log(gotUser);
-
-    // }).catch(function() {
-    //     console.log("Error on add spec");
-    // });
-
 
     this.setState((state) => ({
       count: state.count + 1,
@@ -1161,6 +1142,28 @@ class App extends Component{
     this.setState({
       logics: lst
     });
+
+
+    var condGroup = {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          // Change the name value to this.state.name to refer to user input
+          owner: selectedNodeID,
+          name: groupName,
+          pass_paths: passPath,
+          fail_paths: failPath
+        })
+    };
+
+    /**fetch to api tos set container*/
+    fetch('http://127.0.0.1:5000/api/node/logic/condition_group/', condGroup).then(res => res.json()).then(gotUser => {
+        console.log(gotUser);
+
+    }).catch(function() {
+        console.log("Error on add condition group");
+    });
+
   }
 
   // Add a condition to the group with the groupName
@@ -1185,6 +1188,29 @@ class App extends Component{
 
     this.setState({
       logics: lst
+    });
+
+    var cond= {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          // Change the name value to this.state.name to refer to user input
+          owner: selectedNodeID,
+          cond_group: groupName,
+          name: name,
+          encon_name: entityName,
+          nodecon_name: nodeName,
+          op: check,
+          val: val
+        })
+    };
+
+    /**fetch to api tos set container*/
+    fetch('http://127.0.0.1:5000/api/node/logic/condition_group/condition/', cond).then(res => res.json()).then(gotUser => {
+        console.log(gotUser);
+
+    }).catch(function() {
+        console.log("Error on add condition group");
     });
   }
 
