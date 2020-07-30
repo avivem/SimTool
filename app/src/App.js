@@ -644,7 +644,8 @@ class App extends Component{
           console.log("Error on add Start Node");
       });
 
-
+      console.log(node.uid);
+      
       const requestOptionsStartLogic = {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },

@@ -290,8 +290,11 @@ class LogicComponent extends Component{
     handlePass(e){
         var path = [];
         var name = [];
+
         if(e != null){
+
             e.forEach((a) => {
+                console.log(a);
                 path.push(a.value);
                 name.push(a.label);
             });
@@ -376,6 +379,9 @@ class LogicComponent extends Component{
 
     // Create the condition group
     createGroup(){
+        console.log(this.props.selectedNodeID);
+        console.log(this.props.groupName);
+
         this.props.createConditionGroup(this.props.selectedNodeID, this.state.groupName,
             this.state.passPath, this.state.passName, this.state.failPath, this.state.failName);
         
@@ -534,6 +540,7 @@ class LogicComponent extends Component{
                         value={this.state.groupName}
                         onChange={this.onChange} />
                 </label>
+            {/*this needs to be the UID not the NAME*/}
                 <label>Pass Path:
                     <Select
                     isMulti
