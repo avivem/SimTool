@@ -165,6 +165,62 @@ class Navigation extends Component{
 
       // }).catch(console.log)
 
+      /*
+      var data = this.state.log;
+      var endnode = data["End Nodes"];
+      var endInfo = [];
+      for(var key in endnode){
+        endInfo.push(<div>
+          <p>Name: {endnode.key["name"]}</p>
+          <p>Number of Entities: {endnode.key["number of caught entities"]}</p>
+        </div>)
+      }
+      
+      
+      var startnode = data["Starting Nodes"];
+      var startInfo = [];
+      for(var key in startnode){
+        startInfo.push(<div>
+          <p>{startnode.key["name"]}: {startnode.key["number of entities created"]} entities</p>
+        </div>)
+      }
+      
+      
+      var stationnode = data["Station Nodes"];
+      var stationInfo = [];
+      for(var key in stationnode){
+        if(stationnode.key["container summaries"] !== {}){
+          var containerInfo = stationnode.key["container summaries"];
+          for(var k in containerInfo){
+            stationInfo.push(<div>
+              <p>Owner: {containerInfo.k["owner"]}</p>
+              <p>Resource: {containerInfo.k["resource"]}</p>
+              <p>Amount: {containerInfo.k["level"]}</p>
+            </div>)
+          }
+        }
+      }
+      
+      var runInfo = data["run_info"]
+      
+      var averageWaitTime = runInfo["avg_entity_duration_by_start"]
+      var infoTimeSpend = []
+      for(var key in averageWaitTime){
+        infoTimeSpend.push(<p>{key} : {averageWaitTime.key}</p>);
+      }
+      
+      var summaryContent = 
+        <div>
+          <p>Simulation Runtime: {runInfo["sim_end_time"]}</p>
+          <p>Number of Entities: {runInfo["num_spawned_entities"]}</p>
+          <p>Number of Entities Completed Run: {runInfo["num_completed_entities"]}</p>
+          <p>Average Entity Run Time: </p>
+          {infoTimeSpend}
+          {startInfo}
+          {stationInfo}
+          {endInfo}
+        </div>*/
+
     } 
 
     handleChangeTime(e){
@@ -494,6 +550,10 @@ class Navigation extends Component{
                         </div>
         }
 
+
+
+
+
       return(
         <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark navbar-expand ">
          
@@ -549,7 +609,7 @@ class Navigation extends Component{
 
           <div>
             {/*Popup for user to select node to add*/}
-            <Popup open={this.state.openNode} closeOnDocumentClick = {true} onClose={this.closePopupNode}>
+            <Popup open={this.state.openNode} closeOnDocumentClick onClose={this.closePopupNode}>
               <h2>Create New Node</h2>  
               <button onClick={this.addStart} className="nodeButton">
                 <img src={StartImage} alt="start" />
@@ -576,18 +636,18 @@ class Navigation extends Component{
             closeOnDocumentClick 
             onClose={this.closePopupData}
             contentStyle={{height: 400, overflow: "auto"}}>
-              {this.state.displayType == "Data" && 
-              <div>
-                <h3>Data</h3>
-                <p>{this.state.log}</p>
-              </div>}
               {this.state.displayType == "Summary" && 
               <div>
                 <h3>Summary</h3>
                 <p>{this.state.log}</p>
               </div>
               }
-              <button onClick={this.showInformation}> {this.state.displayType} </button>
+              {this.state.displayType == "Data" && 
+              <div>
+                <h3>Data</h3>
+                <p>{this.state.log}</p>
+              </div>}
+           {/*   <button onClick={this.showInformation}> {this.state.displayType} </button>*/}
               <button onClick={this.closePopupData} >Close</button>
             </Popup>
           </div>
