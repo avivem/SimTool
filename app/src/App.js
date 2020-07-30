@@ -644,12 +644,13 @@ class App extends Component{
           console.log("Error on add Start Node");
       });
 
+
       const requestOptionsStartLogic = {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           owner: node.uid,
-          split_policy: node.logic
+          split_policy: "RAND"
         })
       };
 
@@ -681,6 +682,24 @@ class App extends Component{
 
       }).catch(function() {
           console.log("Error on add Basic Node");
+      });
+
+
+
+      const requestOptionsStartLogic = {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          owner: node.uid,
+          split_policy: "BOOL"
+        })
+      };
+
+      fetch('http://127.0.0.1:5000/api/node/logic/', requestOptionsStartLogic).then(res => res.json()).then(gotUser => {
+          console.log(gotUser);
+
+      }).catch(function() {
+          console.log("Error on add Start Logic");
       });
     }
     else if(node.uid.includes("end")){
@@ -1148,6 +1167,10 @@ class App extends Component{
   // Ex: where passName[1] would be name for node at passNode[1]
   createConditionGroup(selectedNodeID, groupName, passPath, passName, failPath, failName){
     var lst = this.state.logics;
+
+    console.log(passPath);
+    console.log(failPath);
+
     lst.forEach((l) => {
       if(l.applyTo == selectedNodeID){
         l.conditionsActionsGroup.push({
@@ -1194,6 +1217,7 @@ class App extends Component{
 
   // Add a condition to the group with the groupName
   createCondition(selectedNodeID, groupName, name, entityName, nodeName, check, val){
+
     var lst = this.state.logics;
     lst.forEach((l) => {
       if(l.applyTo == selectedNodeID){
@@ -1257,6 +1281,7 @@ class App extends Component{
       logics: lst
     });
 
+
     var actGroup= {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -1280,8 +1305,10 @@ class App extends Component{
   }
 
   // Add a condition to the group with the groupName 
-  createAction(selectedNodeID, groupName, name, entityName, nodeName, op, val,agn){
+  createAction(selectedNodeID, groupName, name, entityName, nodeName, op, val, agn){
     var lst = this.state.logics;
+
+
     lst.forEach((l) => {
       if(l.applyTo == selectedNodeID){
         l.conditionsActionsGroup.forEach((group) => {
