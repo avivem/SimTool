@@ -504,6 +504,10 @@ class BasicContainerBlueprint(object):
     def build(self, env,owner):
         return BasicContainer(env=env, name=self.name, owner=owner, resource=self.resource, init=self.init, capacity=self.capacity, uid=self.uid)
 
+    def update(self, args):
+        for k,v in args.items():
+            setattr(self, k, v)
+
 #Wrapper for SimPy containers that allow us to differentiate between types of resources and
 #identifies the owner for a container.
 class BasicContainer(object):

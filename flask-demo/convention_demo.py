@@ -15,8 +15,8 @@ poor_gen = {
     'loc'   : 5,
     'scale' : .8
 }
-rich = StartingPoint(env=env, name="Rich Start", entity_name="Richee", generation=rich_gen, limit=300, uid='st')
-poor = StartingPoint(env=env, name="Poor Start", entity_name="Pooree", generation=poor_gen, limit=2000, uid='st')
+rich = StartingPoint(env=env, name="Rich Start", entity_name="Rich Attendee", generation=rich_gen, limit=300, uid='st')
+poor = StartingPoint(env=env, name="Poor Start", entity_name="Poor Attendee", generation=poor_gen, limit=2000, uid='st')
 
 rich.create_logic("RAND")
 poor.create_logic("RAND")
