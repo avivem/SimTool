@@ -225,10 +225,7 @@ class Navigation extends Component{
       var url = 'http://127.0.0.1:5000/api/run/' + this.state.runTime;
       fetch(url).then(res => res.json()).then(gotUser => {
           console.log("Finish Running");
-
-          this.setState({ summaryContent: <div></div> })
       }).catch(console.log)
-      
 
     } 
 
