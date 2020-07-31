@@ -76,12 +76,12 @@ class SpecSelectPopup extends Component{
                 showErrorMessage: false,
                 showEditSpec: true,
                 specName: spec.name,
-                resourceName: spec.resourceName,
+                resourceName: spec.resource,
                 distribution: spec.distribution,
                 maxAmount: spec.maxAmount,
                 scale: spec.scale,
                 loc: spec.loc,
-                constantValue: spec.constantValue
+                constantValue: spec.init
             });
 
         }
@@ -249,10 +249,10 @@ class SpecSelectPopup extends Component{
                 <div>
                     <div>
                         <h1>{spec.name}</h1>
-                        <p>Resource: {spec.resourceName}</p>
+                        <p>Resource: {spec.resource}</p>
                         <p>Distribution: {spec.distribution}</p>
                         {spec.distribution == "CONSTANT" ? 
-                        <div><p>Value: {spec.constantValue}</p></div>
+                        <div><p>Value: {spec.init}</p></div>
                         :
                         <div>
                             <p>Scale: {spec.scale} </p>

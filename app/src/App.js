@@ -114,6 +114,7 @@ class App extends Component{
 
   /* Add node, determine what node to add by checking nodeType
   nodeType can be start, station, or end */
+  // Only start node have a container to be use in the logic
   addNode(nodeType, data){
     var xPos = 200;
     var yPos = 200;
@@ -614,7 +615,8 @@ class App extends Component{
     this.setState((state) => ({numLoadedImage: state.numLoadedImage + 1}));
   }
 
-  // Used to add node when loading 
+  // Used to add node when loading
+  // Also used for regular adding node
   handleBackendLoadNodes(node){
     console.log("Back end load");
     if(node.uid.includes("start")){
@@ -729,18 +731,20 @@ class App extends Component{
   }
 
   // Add interaction/resource to list
-  addSpec(specName, dist, resource, loc, scale, max, constantValue,capacity,value){
+  addSpec(specName, dist, resource, loc, scale, max, init,capacity,value){
     var lst = this.state.specs;
     lst.push({
       uid: "spec-" + this.state.count,
   //    specTo: [],
       name: specName,
-      resourceName: resource,
+  //    resourceName: resource, 
+      resource: resource,
       distribution: dist,
       loc: loc,
       scale: scale,
       capacity: max,
-      constantValue: constantValue
+  //constantValue: constantValue,
+      init: init
     });
 
     var addcontainerspec;
@@ -840,18 +844,18 @@ class App extends Component{
   }
 
   // Add a new container
-  submitContainer(selectedNode, name, resource, loc, scale, dist, capacity, constantValue){
+  submitContainer(selectedNode, name, resource, loc, scale, dist, capacity, init){
     var lst = this.state.containers;
     lst.push({
       uid: "container-" + this.state.count,
       selectedNode: selectedNode,
       name: name + "-" + this.state.count,
-      resourceName: resource,
+      resource: resource,
       loc: loc,
       scale: scale,
       distribution: dist,
       capacity: capacity,
-      constantValue: constantValue
+      init: init
     });
 
     // Create a list of containers name that are applied to the start node
@@ -996,12 +1000,12 @@ class App extends Component{
         uid: "container-" + count,
         selectedNode: uid,
         name: spec.name + "-" + count,
-        resourceName: spec.resourceName,
+        resource: spec.resource,
         loc: spec.loc,
         scale: spec.scale,
         distribution: spec.distribution,
         capacity: spec.capacity,
-        constantValue: spec.constantValue
+        init: spec.init
       });
 
       // Create a list of containers name that are applied to the start node
@@ -1057,18 +1061,18 @@ class App extends Component{
   }
   
   // Edit the selected spec, selectedSpec is a dict
-  editSpec(selectedSpec, specName, dist, resource, loc, scale, max, constantValue){
+  editSpec(selectedSpec, specName, dist, resource, loc, scale, max, init){
     var specs = this.state.specs;
     
     specs.forEach((s) => {
       if(s.uid == selectedSpec.uid){
           s.name = specName;
-          s.resourceName = resource;
+          s.resource = resource;
           s.distribution = dist;
           s.loc = loc;
           s.scale = scale;
           s.maxAmount = max;  
-          s.constantValue = constantValue;
+          s.init = init;
       }
     });
 

@@ -211,7 +211,7 @@ class UpdatePopUp extends Component{
                 {this.state.showContainer &&
                 <div>
                     <p>Container Name: {this.state.selectedContainer.name}</p>
-                    <p>Resource: {this.state.selectedContainer.resourceName}</p>
+                    <p>Resource: {this.state.selectedContainer.resource}</p>
                     <p>Loc: {this.state.selectedContainer.loc}</p>
                     <p>Scale: {this.state.selectedContainer.scale}</p>
                     <p>Distribution: {this.state.selectedContainer.distribution}</p>
