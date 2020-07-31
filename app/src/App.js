@@ -849,7 +849,7 @@ class App extends Component{
     lst.push({
       uid: "container-" + this.state.count,
       selectedNode: selectedNode,
-      name: name + "-" + this.state.count,
+      name: name,
       resource: resource,
       loc: loc,
       scale: scale,
@@ -863,7 +863,7 @@ class App extends Component{
       var startNode = this.state.startNode;
       startNode.forEach((n) => {
         if(n.uid == selectedNode){
-          n.containers.push(name + "-" + this.state.count);
+          n.containers.push(name);
         }
       });
 
