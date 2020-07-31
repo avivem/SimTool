@@ -564,6 +564,7 @@ class Canvas extends Component{
                     })
                   };
                   
+                  console.log(requestOptionsStart);
                   // fetch to api to create connection
                   // should prob move this to App.js
                   fetch(`http://127.0.0.1:5000/api/dirto/`, requestOptionsStart).then(gotUser => {

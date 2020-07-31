@@ -508,7 +508,7 @@ class LogicComponent extends Component{
         var lstContainer = [{ value: "", label: "" }]
         this.props.containers.forEach((c) => {
             if(c.selectedNode == this.props.selectedNodeID){
-                lstContainer.push({value: c.uid, label: c.name});
+                lstContainer.push({value: c.name, label: c.name});
             }
         });
 

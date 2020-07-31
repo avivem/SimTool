@@ -114,6 +114,7 @@ class App extends Component{
 
   /* Add node, determine what node to add by checking nodeType
   nodeType can be start, station, or end */
+  // Only start node have a container to be use in the logic
   addNode(nodeType, data){
     var xPos = 200;
     var yPos = 200;
@@ -228,6 +229,8 @@ class App extends Component{
            })
          };
 
+         console.log(requestOptionsStart);
+
          /**fetch to api */
          fetch('http://127.0.0.1:5000/api/node/', requestOptionsStart).then(res => res.json()).then(gotUser => {
              console.log(gotUser);
@@ -273,6 +276,8 @@ class App extends Component{
            })
          };
 
+         console.log(requestOptionsBasic);
+
          /**fetch to api */
          fetch('http://127.0.0.1:5000/api/node/', requestOptionsBasic).then(res => res.json()).then(gotUser => {
              console.log(gotUser);
@@ -300,6 +305,8 @@ class App extends Component{
 
            })
          };
+
+         console.log(requestOptionsEnd);
 
          /**fetch to api */
          fetch('http://127.0.0.1:5000/api/node/', requestOptionsEnd).then(res => res.json()).then(gotUser => {
@@ -484,6 +491,8 @@ class App extends Component{
         headers: { 'Content-Type': 'application/json' },
       }
 
+
+
       // Clear the back end
       fetch('http://127.0.0.1:5000/api/clean/', requestClean).then(res => res.json()).then(gotUser => {
         console.log(gotUser);
@@ -614,7 +623,8 @@ class App extends Component{
     this.setState((state) => ({numLoadedImage: state.numLoadedImage + 1}));
   }
 
-  // Used to add node when loading 
+  // Used to add node when loading
+  // Also used for regular adding node
   handleBackendLoadNodes(node){
     console.log("Back end load");
     if(node.uid.includes("start")){
@@ -636,6 +646,8 @@ class App extends Component{
         })
       };
 
+      console.log(requestOptionsStart);
+
       /**fetch to api */
       fetch('http://127.0.0.1:5000/api/node/', requestOptionsStart).then(res => res.json()).then(gotUser => {
           console.log(gotUser);
@@ -644,8 +656,7 @@ class App extends Component{
           console.log("Error on add Start Node");
       });
 
-      console.log(node.uid);
-      
+
       const requestOptionsStartLogic = {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -654,6 +665,8 @@ class App extends Component{
           split_policy: "RAND"
         })
       };
+
+      console.log(requestOptionsStartLogic);
 
       fetch('http://127.0.0.1:5000/api/node/logic/', requestOptionsStartLogic).then(res => res.json()).then(gotUser => {
           console.log(gotUser);
@@ -677,6 +690,8 @@ class App extends Component{
         })
       };
 
+      console.log(requestOptionsBasic);
+
       /**fetch to api */
       fetch('http://127.0.0.1:5000/api/node/', requestOptionsBasic).then(res => res.json()).then(gotUser => {
           console.log(gotUser);
@@ -685,23 +700,27 @@ class App extends Component{
           console.log("Error on add Basic Node");
       });
 
+      console.log(node.logic);
 
+      if(node.logic != "NONE"){
+        const requestOptionsStartLogic = {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            owner: node.uid,
+            split_policy: "BOOL"
+          })
+        };
 
-      const requestOptionsStartLogic = {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          owner: node.uid,
-          split_policy: "BOOL"
-        })
-      };
+        console.log(requestOptionsStartLogic);
 
-      fetch('http://127.0.0.1:5000/api/node/logic/', requestOptionsStartLogic).then(res => res.json()).then(gotUser => {
-          console.log(gotUser);
+        fetch('http://127.0.0.1:5000/api/node/logic/', requestOptionsStartLogic).then(res => res.json()).then(gotUser => {
+            console.log(gotUser);
 
-      }).catch(function() {
-          console.log("Error on add Start Logic");
-      });
+        }).catch(function() {
+            console.log("Error on add Start Logic");
+        });
+      }
     }
     else if(node.uid.includes("end")){
       const requestOptionsEnd = {
@@ -714,6 +733,8 @@ class App extends Component{
           uid: node.uid
         })
       };
+
+      console.log(requestOptionsEnd);
 
       /**fetch to api */
       fetch('http://127.0.0.1:5000/api/node/', requestOptionsEnd).then(res => res.json()).then(gotUser => {
@@ -729,18 +750,20 @@ class App extends Component{
   }
 
   // Add interaction/resource to list
-  addSpec(specName, dist, resource, loc, scale, max, constantValue,capacity,value){
+  addSpec(specName, dist, resource, loc, scale, max, init,capacity,value){
     var lst = this.state.specs;
     lst.push({
       uid: "spec-" + this.state.count,
   //    specTo: [],
       name: specName,
-      resourceName: resource,
+  //    resourceName: resource, 
+      resource: resource,
       distribution: dist,
       loc: loc,
       scale: scale,
       capacity: max,
-      constantValue: constantValue
+  //constantValue: constantValue,
+      init: init
     });
 
     var addcontainerspec;
@@ -814,6 +837,8 @@ class App extends Component{
       };  
     }
 
+    console.log(addcontainerspec);
+
     /**fetch to api tos set container*/
     fetch('http://127.0.0.1:5000/api/container/blueprint/', addcontainerspec).then(res => res.json()).then(gotUser => {
         console.log(gotUser);
@@ -840,18 +865,18 @@ class App extends Component{
   }
 
   // Add a new container
-  submitContainer(selectedNode, name, resource, loc, scale, dist, capacity, constantValue){
+  submitContainer(selectedNode, name, resource, loc, scale, dist, capacity, init){
     var lst = this.state.containers;
     lst.push({
       uid: "container-" + this.state.count,
       selectedNode: selectedNode,
-      name: name + "-" + this.state.count,
-      resourceName: resource,
+      name: name,
+      resource: resource,
       loc: loc,
       scale: scale,
       distribution: dist,
       capacity: capacity,
-      constantValue: constantValue
+      init: init
     });
 
     // Create a list of containers name that are applied to the start node
@@ -859,7 +884,7 @@ class App extends Component{
       var startNode = this.state.startNode;
       startNode.forEach((n) => {
         if(n.uid == selectedNode){
-          n.containers.push(name + "-" + this.state.count);
+          n.containers.push(name);
         }
       });
 
@@ -883,6 +908,8 @@ class App extends Component{
       })
     };
 
+    console.log(addblue);
+
     /**fetch to api tos set container*/
     fetch('http://127.0.0.1:5000/api/container/blueprint/', addblue).then(res => res.json()).then(gotUser => {
         console.log(gotUser);
@@ -900,6 +927,8 @@ class App extends Component{
         blueprint: name
       })
     };
+
+    console.log(addcontainer);
 
     /**fetch to api tos set container*/
     fetch('http://127.0.0.1:5000/api/node/container/', addcontainer).then(res => res.json()).then(gotUser => {
@@ -995,20 +1024,20 @@ class App extends Component{
       containers.push({
         uid: "container-" + count,
         selectedNode: uid,
-        name: spec.name + "-" + count,
-        resourceName: spec.resourceName,
+        name: spec.name,
+        resource: spec.resource,
         loc: spec.loc,
         scale: spec.scale,
         distribution: spec.distribution,
         capacity: spec.capacity,
-        constantValue: spec.constantValue
+        init: spec.init
       });
 
       // Create a list of containers name that are applied to the start node
       if(uid.includes("start")){
         startNode.forEach((n) => {
           if(n.uid == uid){
-            n.containers.push(spec.name + "-" + count);
+            n.containers.push(spec.name);
           }
         })
       }
@@ -1047,6 +1076,8 @@ class App extends Component{
           })
       };
 
+      console.log(assignSpec);
+
       /**fetch to api tos set container*/
       fetch('http://127.0.0.1:5000/api/node/container/', assignSpec).then(res => res.json()).then(gotUser => {
           console.log(gotUser);
@@ -1057,18 +1088,18 @@ class App extends Component{
   }
   
   // Edit the selected spec, selectedSpec is a dict
-  editSpec(selectedSpec, specName, dist, resource, loc, scale, max, constantValue){
+  editSpec(selectedSpec, specName, dist, resource, loc, scale, max, init){
     var specs = this.state.specs;
     
     specs.forEach((s) => {
       if(s.uid == selectedSpec.uid){
           s.name = specName;
-          s.resourceName = resource;
+          s.resource = resource;
           s.distribution = dist;
           s.loc = loc;
           s.scale = scale;
           s.maxAmount = max;  
-          s.constantValue = constantValue;
+          s.init = init;
       }
     });
 
@@ -1206,6 +1237,8 @@ class App extends Component{
         })
     };
 
+    console.log(condGroup);
+
     /**fetch to api tos set container*/
     fetch('http://127.0.0.1:5000/api/node/logic/condition_group/', condGroup).then(res => res.json()).then(gotUser => {
         console.log(gotUser);
@@ -1230,7 +1263,7 @@ class App extends Component{
               encon_name: entityName,
               nodecon_name: nodeName,
               check: check,
-              val: val
+              val: parseInt(val)
             });
           }
         });
@@ -1252,9 +1285,11 @@ class App extends Component{
           encon_name: entityName,
           nodecon_name: nodeName,
           op: check,
-          val: val
+          val: parseInt(val)
         })
     };
+
+    console.log(cond);
 
     /**fetch to api tos set container*/
     fetch('http://127.0.0.1:5000/api/node/logic/condition_group/condition/', cond).then(res => res.json()).then(gotUser => {
@@ -1294,6 +1329,8 @@ class App extends Component{
         })
     };
 
+    console.log(actGroup);
+
     /**fetch to api tos set container*/
     fetch('http://127.0.0.1:5000/api/node/logic/condition_group/action_group/', actGroup).then(res => res.json()).then(gotUser => {
         console.log(gotUser);
@@ -1320,7 +1357,7 @@ class App extends Component{
               encon_name: entityName,
               nodecon_name: nodeName,
               op: op,
-              val: val
+              val: parseInt(val)
             });
           }
         });
@@ -1342,9 +1379,11 @@ class App extends Component{
         encon_name: entityName,
         nodecon_name: nodeName,
         op: op,
-        val: val
+        val: parseInt(val)
         })
     };
+
+    console.log(action);
 
     /**fetch to api tos set container*/
     fetch('http://127.0.0.1:5000/api/node/logic/condition_group/action_group/action/', action).then(res => res.json()).then(gotUser => {
