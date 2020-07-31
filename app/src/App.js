@@ -999,7 +999,7 @@ class App extends Component{
       containers.push({
         uid: "container-" + count,
         selectedNode: uid,
-        name: spec.name + "-" + count,
+        name: spec.name,
         resource: spec.resource,
         loc: spec.loc,
         scale: spec.scale,
@@ -1012,7 +1012,7 @@ class App extends Component{
       if(uid.includes("start")){
         startNode.forEach((n) => {
           if(n.uid == uid){
-            n.containers.push(spec.name + "-" + count);
+            n.containers.push(spec.name);
           }
         })
       }
