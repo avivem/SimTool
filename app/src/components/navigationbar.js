@@ -509,6 +509,7 @@ class Navigation extends Component{
                         </label>
                         <label className="label">Logic:
                           <select name="logic" className="form-control" onChange={this.onChange}>
+                            <option value="NONE"></option>
                             <option value="NONE">NONE</option>
                             <option value="BOOL">BOOL</option>
                             <option value="RAND">RAND</option>
@@ -549,6 +550,7 @@ class Navigation extends Component{
                         </label>
                         <label className="label">Logic:
                           <select name="logic" className="form-control" onChange={this.onChange}>
+                            <option value="NONE"></option>
                             <option value="NONE">NONE</option>
                             <option value="BOOL">BOOL</option>
                             <option value="RAND">RAND</option>
