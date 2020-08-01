@@ -37,7 +37,7 @@ class Navigation extends Component{
         
         log: null,
         displayType: "Summary",
-        summaryContent: <div></div>,
+        summaryContent: '<div></div>',
 
         openPopupLoad: false,
         loadedFile: null,
@@ -115,7 +115,8 @@ class Navigation extends Component{
         openData: true
       });
 
-      if(this.state.summaryContent == <div></div>){
+      // Get summary if have not gotten summary for this run before
+      if(this.state.summaryContent == '<div></div>'){
         fetch('http://127.0.0.1:5000/api/run/summary').then(res => res.json()).then(gotUser => {
           console.log(gotUser);
           
@@ -231,6 +232,9 @@ class Navigation extends Component{
       var url = 'http://127.0.0.1:5000/api/run/' + this.state.runTime;
       fetch(url).then(res => res.json()).then(gotUser => {
           console.log("Finish Running");
+
+          // Reset the summaryContent since new run
+          this.setState({ summaryContent: '<div></div>' });
       }).catch(console.log)
 
     } 
