@@ -36,6 +36,8 @@ class App extends Component{
       savedArrows: [],
       savedNumImage: 0,
       savedContainer: [],
+      savedSpecs: [],
+      savedLogics: [],
       loadMode: false,
       loadModeMakeArrow: false,
       numImage: 0,
@@ -81,10 +83,14 @@ class App extends Component{
     this.handleImageUpload = this.handleImageUpload.bind(this);
 
     this.handleSave = this.handleSave.bind(this);
+    this.handleLoadFromFile = this.handleLoadFromFile.bind(this);
     this.handleLoad = this.handleLoad.bind(this);
     this.incrNumImage = this.incrNumImage.bind(this);
     this.incrNumLoadedImage = this.incrNumLoadedImage.bind(this);
     this.handleBackendLoadNodes = this.handleBackendLoadNodes.bind(this);
+    this.handleBackendLoadSpecs = this.handleBackendLoadSpecs.bind(this);
+    this.handleBackendLoadContainers = this.handleBackendLoadContainers.bind(this);
+    this.handleBackendLoadLogics = this.handleBackendLoadLogics.bind(this);
 
     this.closeContainerPopup = this.closeContainerPopup.bind(this);
     this.submitContainer = this.submitContainer.bind(this);
@@ -472,18 +478,20 @@ class App extends Component{
   }
 
   // Clear Canvas
-  handleClearMode(){
-    if(this.state.clearMode){
-      this.setState({clearMode: false});
+  handleClearMode(v){
+    if(!v){
+      this.setState({clearMode: v});
       console.log("Clear canvas");
     }
     else{
       this.setState({
-        clearMode: true,
+        clearMode: v,
         arrows: [],
         startNode: [],
         stationNode: [],
-        endNode: []
+        endNode: [],
+        containers: [],
+        specs: []
       });
 
       const requestClean = {
@@ -552,24 +560,67 @@ class App extends Component{
 
   // Save the current model
   handleSave(){
-    var lst1 = this.state.startNode.slice(0);
-    var lst2 = this.state.stationNode.slice(0);
-    var lst3 = this.state.endNode.slice(0);
-    var lst4 = this.state.arrows.slice(0);
-    var num = this.state.numImage
-    var actions = this.state.containers.slice(0);
 
-    console.log("numImage: " + num);
+    var lst1 = this.state.startNode;
+    var lst2 = this.state.stationNode;
+    var lst3 = this.state.endNode;
+    var lst4 = this.state.arrows;
+    var num = this.state.numImage
+    var containers = this.state.containers;
     
-    this.setState({
-      savedStart: lst1,
-      savedStation: lst2,
-      savedEnd: lst3,
-      savedArrows: lst4,
-      savedNumImage: num,
-      savedContainer: actions,
-    });
+    var specs = this.state.specs;
+    var logics = this.state.logics;
+
+    var obj = {
+      startNode: lst1,
+      stationNode: lst2,
+      endNode: lst3,
+      arrows: lst4,
+      numImage: num,
+      containers: containers,
+      specs: specs,
+      logics: logics,
+    }
+
+    const element = document.createElement("a");
+    const file = new Blob([JSON.stringify(obj, null, 2)], {type: 'application/json'});
+    element.href = URL.createObjectURL(file);
+    element.download = "model.json";
+    document.body.appendChild(element); 
+    element.click();
+    document.body.removeChild(element);
+    
     console.log("Saved current model");  
+  }
+
+  // Load the saved file part to the saved statement 
+  handleLoadFromFile(file){
+    fetch(file).then(response => response.json()).then((loadedData) => {
+      console.log(typeof(loadedData.startNode));
+
+      // Set the data from file to specific statement
+      // This happen because when image is upload for image
+      // there is a call back to display the node. This create a conflict
+      // when connection are being created when node is currently not on the 
+      // stage yet. 
+      this.setState({
+        savedStart: loadedData.startNode,
+        savedStation: loadedData.stationNode,
+        savedEnd: loadedData.endNode,
+        savedArrows: loadedData.arrows,
+        savedNumImage: loadedData.numImage,
+        savedContainer: loadedData.containers,
+        savedSpecs: loadedData.specs,
+        savedLogics: loadedData.logics,
+      });
+
+      // Clear the stage
+      this.handleClearMode(true);
+
+      // Handle the load 
+      this.handleLoad();
+
+    }).catch((error) => {console.log(error)});
   }
 
   // Load saved model
@@ -577,13 +628,14 @@ class App extends Component{
     var makeNode = this.state.loadMode;
     var makeArrow = this.state.loadModeMakeArrow; 
 
-    var lst1 = this.state.savedStart.slice(0);
-    var lst2 = this.state.savedStation.slice(0);
-    var lst3 = this.state.savedEnd.slice(0);
-    var lst4 = this.state.savedArrows.slice(0);
+    var lst1 = this.state.savedStart;
+    var lst2 = this.state.savedStation;
+    var lst3 = this.state.savedEnd;
+    var lst4 = this.state.savedArrows;
     var num = this.state.savedNumImage;
-    var actions = this.state.savedContainer.slice(0);
-
+    var containers = this.state.savedContainer;
+    var specs = this.state.savedSpecs;
+    var logics = this.state.savedLogics;
 
     if(makeNode == false && makeArrow == false){
       this.setState({
@@ -594,7 +646,9 @@ class App extends Component{
         numImage: 0,
         numLoadedImage: 0,
         numImageToLoad: num,
-        containers: actions,
+        containers: containers,
+        specs: specs,
+        logics: logics
       });
     }
     else if(makeNode == true && makeArrow == false){
@@ -609,6 +663,11 @@ class App extends Component{
         loadMode: false,
         loadModeMakeArrow: false
       });
+
+      /* TODO: CREATE THE handleBackendLoadContainers and handleBackendLoadSpecs */
+      //this.handleBackendLoadContainers();
+      //this.handleBackendLoadSpecs();
+      //this.handleBackendLoadLogics();
     }
     console.log("Load Mode");
   }
@@ -748,6 +807,141 @@ class App extends Component{
       console.log("Invalid node being send to back end")
     }
   }
+
+  // Use to add specs when loading
+  handleBackendLoadSpecs(){
+    var specs = this.state.specs;
+    specs.forEach((s) => {
+      var uid = s.uid;
+      var name = s.name;
+      var resource = s.resource;
+      var dist = s.distribution;
+      var loc = s.loc;
+      var scale = s.scale;
+      var capacity = s.capacity;
+      var init = s.init
+
+
+    });
+
+  }
+
+  // Used to add containers to backend when loading from file
+  handleBackendLoadContainers(){
+    var containers = this.state.containers;
+
+  }
+
+  // Use to add logic to backend when loading from file
+  handleBackendLoadLogics(){
+    var logics = this.state.logics;
+
+    // Loop to all logics
+    logics.forEach((l) => {
+      var group = l.conditionsActionsGroup;
+      //Loop to all group in the current logic to create all condition group and action group
+      group.forEach((condGroup) => {
+        var data = {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            // Change the name value to this.state.name to refer to user input
+            owner: l.applyTo,
+            name: condGroup.name,
+            pass_paths: condGroup.pass_paths,
+            fail_paths: condGroup.fail_paths
+          })
+        };
+        /**fetch to api tos set container*/
+        fetch('http://127.0.0.1:5000/api/node/logic/condition_group/', data).then(res => res.json()).then(gotUser => {
+          console.log(gotUser);
+
+        }).catch(function() {
+            console.log("Error on add condition group");
+        });
+
+        // Create action group
+        var actGroup= {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            // Change the name value to this.state.name to refer to user input
+          owner: l.applyTo,
+          cond_group: condGroup.name,
+          name: condGroup.actionGroup.name
+          })
+        };
+
+        /**fetch to api tos set container*/
+        fetch('http://127.0.0.1:5000/api/node/logic/condition_group/action_group/', actGroup).then(res => res.json()).then(gotUser => {
+          console.log(gotUser);
+
+        }).catch(function() {
+            console.log("Error on add condition group");
+        });
+      });
+
+      // Loop to all group and create the conditions and actions
+      group.forEach((condGroup) => {
+        // Loop to all conditions in the group
+        condGroup.conditions.forEach((c) => {
+          var cond= {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              // Change the name value to this.state.name to refer to user input
+              owner: l.applyTo,
+              cond_group: condGroup.name,
+              name: c.name,
+              encon_name: c.encon_name,
+              nodecon_name: c.nodecon_name,
+              op: c.check,
+              val: c.val
+            })
+          };
+
+          /**fetch to api tos set container*/
+          fetch('http://127.0.0.1:5000/api/node/logic/condition_group/condition/', cond).then(res => res.json()).then(gotUser => {
+            console.log(gotUser);
+
+          }).catch(function() {
+            console.log("Error on add condition group");
+          });
+
+        });
+
+        // Loop to all actions in the group
+        condGroup.actionGroup.actions.forEach((a) => {
+          var action= {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              // Change the name value to this.state.name to refer to user input
+            owner: l.applyTo,
+            cond_group: condGroup.name,
+            action_group: condGroup.actionGroup.name,
+            name: a.name,
+            encon_name: a.encon_name,
+            nodecon_name: a.nodecon_name,
+            op: a.op,
+            val: a.val
+            })
+          };
+
+          /**fetch to api tos set container*/
+          fetch('http://127.0.0.1:5000/api/node/logic/condition_group/action_group/action/', action).then(res => res.json()).then(gotUser => {
+            console.log(gotUser);
+
+          }).catch(function() {
+            console.log("Error on add condition group");
+          });
+
+        });
+      })
+
+    })
+  }
+
 
   // Add interaction/resource to list
   addSpec(specName, dist, resource, loc, scale, max, init,capacity,value){
@@ -1146,9 +1340,9 @@ class App extends Component{
         condAmount: condAmount,
         action: action,
         actionAmount: actionAmount,
-        passPath: passPath,
+        pass_paths: passPath,
         passName: passName,
-        failPath: failPath,
+        fail_paths: failPath,
         failName: failName,
       });
     }
@@ -1160,9 +1354,9 @@ class App extends Component{
           l.condAmount= condAmount;
           l.action= action;
           l.actionAmount= actionAmount;
-          l.passPath= passPath;
+          l.pass_paths= passPath;
           l.passName= passName;
-          l.failPath= failPath;
+          l.fail_paths= failPath;
           l.failName= failName;
         }
       })
@@ -1212,9 +1406,9 @@ class App extends Component{
             name: "",
             actions: []
           },
-          passPath: passPath,
+          pass_paths: passPath,
           passName: passName,
-          failPath: failPath,
+          fail_paths: failPath,
           failName: failName
         });
       }
@@ -1287,7 +1481,7 @@ class App extends Component{
           op: check,
           val: parseInt(val)
         })
-    };
+      };
 
     console.log(cond);
 
@@ -1442,7 +1636,7 @@ class App extends Component{
             handleResetSim={this.handleResetSim}
             handleImageUpload={this.handleImageUpload}
             handleSave={this.handleSave}
-            handleLoad={this.handleLoad}
+            handleLoadFromFile={this.handleLoadFromFile}
             updateMode={this.state.updateMode}
             handleContainer={this.handleContainer} 
             openSpecPopup={this.openSpecPopup}/>

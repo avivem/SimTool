@@ -39,6 +39,9 @@ class Navigation extends Component{
         displayType: "Summary",
         summaryContent: <div></div>,
 
+        openPopupLoad: false,
+        loadedFile: null,
+
       }
 
       this.handleChangeTime = this.handleChangeTime.bind(this)
@@ -71,7 +74,10 @@ class Navigation extends Component{
       this.onChange = this.onChange.bind(this);
 
       this.handleSave = this.handleSave.bind(this);
-      this.handleLoad = this.handleLoad.bind(this);
+      this.openLoad = this.openLoad.bind(this);
+      this.closeLoad = this.closeLoad.bind(this);
+      this.handleLoadModel = this.handleLoadModel.bind(this);
+      this.submitLoad = this.submitLoad.bind(this);
 
       this.openSpecPopup = this.openSpecPopup.bind(this);
 
@@ -315,7 +321,7 @@ class Navigation extends Component{
 
     // Clear canvas
     handleClearMode(){
-      this.props.handleClearMode();
+      this.props.handleClearMode(true);
     }
 
     //Reset Simulation
@@ -414,9 +420,33 @@ class Navigation extends Component{
       this.props.handleSave();
     }
 
-    // Load the save
-    handleLoad(){
-      this.props.handleLoad();
+    // Open the popup to look for savd model
+    openLoad(){
+      this.setState({ openPopupLoad: true})
+    }
+
+    closeLoad(){
+      this.setState({ 
+        openPopupLoad: false,
+        loadedFile: null,
+      })
+    }
+
+    handleLoadModel(e){
+      if(e.target.files[0] !== undefined){
+        this.setState({
+          loadedFile: URL.createObjectURL(e.target.files[0])
+        });
+        console.log("Upload file");          
+      }
+    }
+
+    // Submit the loaded file
+    submitLoad(){
+      if(this.state.loadedFile !== null){
+        this.props.handleLoadFromFile(this.state.loadedFile);
+        this.closeLoad();
+      }
     }
 
     openSpecPopup(){
@@ -611,7 +641,7 @@ class Navigation extends Component{
                 <button className="button" style={{backgroundColor:'yellow', color:"black"}} onClick={this.handleSave}>Save</button>
               </li>
              <li class="nav-item active">
-                <button className="button" style={{backgroundColor:'yellow', color:"black"}} onClick={this.handleLoad}>Load</button>
+                <button className="button" style={{backgroundColor:'yellow', color:"black"}} onClick={this.openLoad}>Load</button>
               </li>
             </ul>
 
@@ -686,6 +716,18 @@ class Navigation extends Component{
                 {/*<button className="button" onClick={this.handleDefaultImage}>Default</button>*/} 
                 <button className="button" onClick={this.handleCancelImage}>Cancel</button>
               
+              </div>
+            </Popup>
+          </div>
+          <div>
+            <Popup open={this.state.openPopupLoad} closeOnDocumentClick onClose={this.closeLoad}>
+              <div>
+                <h3>Load the saved model:</h3>
+                <input type="file" accept=".json" onChange={this.handleLoadModel} />
+              </div>              
+              <div>
+                <button className="button" onClick={this.submitLoad}>Load</button>
+                <button className="button" onClick={this.closeLoad}>Cancel</button>
               </div>
             </Popup>
           </div>
