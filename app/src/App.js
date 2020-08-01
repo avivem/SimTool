@@ -665,9 +665,9 @@ class App extends Component{
       });
 
       /* TODO: CREATE THE handleBackendLoadContainers and handleBackendLoadSpecs */
-      //this.handleBackendLoadContainers();
-      //this.handleBackendLoadSpecs();
-      //this.handleBackendLoadLogics();
+      this.handleBackendLoadSpecs();
+      this.handleBackendLoadContainers();
+      this.handleBackendLoadLogics();
     }
     console.log("Load Mode");
   }
@@ -822,6 +822,83 @@ class App extends Component{
       var init = s.init
 
 
+      var addcontainerspec;
+      if(dist == "CONSTANT"){
+        if(capacity == 0){
+          if(init == -1){
+            addcontainerspec = {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                // Change the name value to this.state.name to refer to user input
+                name: name,
+                resource: resource,
+                init : {
+                  init: "inf"
+                },
+                uid: uid
+              })
+            };
+          }else{
+            addcontainerspec = {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                // Change the name value to this.state.name to refer to user input
+                name: name,
+                resource: resource,
+                init : {
+                  init: init
+                },
+                uid: uid
+              })
+            };
+          }
+
+        }else{
+          console.log("attendee");
+          addcontainerspec = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              // Change the name value to this.state.name to refer to user input
+              name: name,
+              resource: resource,
+              init : {
+                init: capacity
+              },
+              capacity: capacity,
+              uid: uid
+            })
+          };
+        }
+      }else{
+        addcontainerspec = {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            // Change the name value to this.state.name to refer to user input
+            name: name,
+            resource: resource,
+            init : {
+              dist: dist,
+              loc: loc,
+              scale: scale
+            },
+            capacity: capacity,
+            uid: uid
+          })
+        };  
+      }
+
+      /**fetch to api tos set container*/
+      fetch('http://127.0.0.1:5000/api/container/blueprint/', addcontainerspec).then(res => res.json()).then(gotUser => {
+        console.log(gotUser);
+
+      }).catch(function() {
+          console.log("Error on add Contaier");
+      });
+
     });
 
   }
@@ -829,6 +906,30 @@ class App extends Component{
   // Used to add containers to backend when loading from file
   handleBackendLoadContainers(){
     var containers = this.state.containers;
+
+    // Make the container
+    containers.forEach((c) => {
+      //TODO: THIS WILL NOT WORK IF THE CONTAINER WAS NOT MAKE FROM A BLUEPRINT
+      //c.fromBluePrint can be No or something spec/blueprint uid
+      
+      const addcontainer = {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          // Change the name value to this.state.name to refer to user input
+          owner: c.selectedNode,
+          blueprint: c.fromBluePrint
+        })
+      };
+
+      fetch('http://127.0.0.1:5000/api/node/container/', addcontainer).then(res => res.json()).then(gotUser => {
+        console.log(gotUser);
+
+      }).catch(function() {
+          console.log("Error on add container from spec");
+      });
+
+    })
 
   }
 
@@ -944,7 +1045,7 @@ class App extends Component{
 
 
   // Add interaction/resource to list
-  addSpec(specName, dist, resource, loc, scale, max, init,capacity,value){
+  addSpec(specName, dist, resource, loc, scale, max, init, capacity){
     var lst = this.state.specs;
     lst.push({
       uid: "spec-" + this.state.count,
@@ -955,7 +1056,7 @@ class App extends Component{
       distribution: dist,
       loc: loc,
       scale: scale,
-      capacity: max,
+      capacity: (dist == "CONSTANT" ? capacity : max),
   //constantValue: constantValue,
       init: init
     });
@@ -963,7 +1064,7 @@ class App extends Component{
     var addcontainerspec;
     if(dist == "CONSTANT"){
       if(capacity == 0){
-        if(value == -1){
+        if(init == -1){
           console.log("ticket");
           addcontainerspec = {
             method: 'POST',
@@ -988,7 +1089,7 @@ class App extends Component{
               name: specName,
               resource: resource,
               init : {
-                init: value
+                init: init
               },
               uid: "spec-" + this.state.count
             })
@@ -1070,7 +1171,8 @@ class App extends Component{
       scale: scale,
       distribution: dist,
       capacity: capacity,
-      init: init
+      init: init,
+      fromBluePrint: "No" 
     });
 
     // Create a list of containers name that are applied to the start node
@@ -1224,7 +1326,8 @@ class App extends Component{
         scale: spec.scale,
         distribution: spec.distribution,
         capacity: spec.capacity,
-        init: spec.init
+        init: spec.init,
+        fromBluePrint: spec.uid
       });
 
       // Create a list of containers name that are applied to the start node
