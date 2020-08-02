@@ -15,46 +15,60 @@ class App extends Component{
     super(props);
 
     this.state = {
+      // node arrays
       startNode: [],
       stationNode: [],
       endNode: [],
+
+      // variables to determine if start, station or end node has been added
       addedStart: false,
       addedStation: false,
       addedEnd: false,
+
       count: 0,
-      arrows: [],
+
+      // determine which modes are turned on
       createArrowMode: false,
       createArrow: false,
       removeMode: false,
       clearMode: false,
+
+      // images corresponding to eacg node
       imageStart: null,
       imageStation: null,
       imageEnd: null,
+
+      // arrays for saved states
       savedStart: [],
       savedStation: [],
       savedEnd: [],
       savedArrows: [],
       savedNumImage: 0,
       savedContainer: [],
+
+      // variables to determine if load more is turned on
       loadMode: false,
       loadModeMakeArrow: false,
       numImage: 0,
       numLoadedImage: 0,
       numImageToLoad: 0,
-      updateMode: true,
-      
-      containers: [],
-      specs: [],
 
-      openSpec: false,
-      openContainer: false,
-      openSpecSelect: false,    // For popup to select start node to app spec to 
+      // arrow array
+      arrows: [],
+      
+      // blueprint array, container array, logic array
+      specs: [],
+      containers: [],
+      logics: [],
       selectedSpec: {},
 
-      selectedNodeID: "",
+      // variables to determine if pop ups are open or not
+      openBlue: false,
+      openContainer: false,
+      openSpecSelect: false,    // For popup to select start node to app spec to 
+      updateMode: true,
 
-      logics: [],
-      
+      selectedNodeID: "",
     }
 
     // numImage keep track of current number of image in model
@@ -62,46 +76,55 @@ class App extends Component{
     // savedNumImage saved the numImage for load
     // numImageToLoad used in loading to keep track of how many image needed to be load
 
+    // adding new node
     this.addNode = this.addNode.bind(this);
     this.confirmAdded = this.confirmAdded.bind(this);
-
     this.handleChangeNode = this.handleChangeNode.bind(this);
+    this.handleBackendLoadNodes = this.handleBackendLoadNodes.bind(this);
 
+    // handing arrow mode functions
     this.addArrowMode = this.addArrowMode.bind(this);
     this.addArrowState = this.addArrowState.bind(this);
 
+    // removinf noodes
     this.handleRemoveMode = this.handleRemoveMode.bind(this);
     this.handleRemove = this.handleRemove.bind(this);
 
+    // resetting the canvas, clearing canvas, resetting environment
     this.handleReset= this.handleReset.bind(this);
-
     this.handleClearMode = this.handleClearMode.bind(this);
     this.handleResetSim = this.handleResetSim.bind(this);
     
+    // image upolad
     this.handleImageUpload = this.handleImageUpload.bind(this);
+    this.incrNumLoadedImage = this.incrNumLoadedImage.bind(this);
 
+    // handle saving anf loading
     this.handleSave = this.handleSave.bind(this);
     this.handleLoad = this.handleLoad.bind(this);
     this.incrNumImage = this.incrNumImage.bind(this);
-    this.incrNumLoadedImage = this.incrNumLoadedImage.bind(this);
-    this.handleBackendLoadNodes = this.handleBackendLoadNodes.bind(this);
 
+    // adding new container from blueprint, deleting container
     this.submitContainer = this.submitContainer.bind(this);
     this.deleteContainer = this.deleteContainer.bind(this);
 
+    // open/close update/settings popup
     this.openUpdatePopup = this.openUpdatePopup.bind(this);
     this.closeUpdatePopup = this.closeUpdatePopup.bind(this);
 
-    this.openSpecPopup = this.openSpecPopup.bind(this);
-    this.closeSpecPopup = this.closeSpecPopup.bind(this);
-    this.addSpec = this.addSpec.bind(this);
+    // add new blueprint, open/close blueprint popup
+    this.openBlueprintPopup = this.openBlueprintPopup.bind(this);
+    this.closeBlueprintPopup = this.closeBlueprintPopup.bind(this);
+    this.addBlueprint = this.addBlueprint.bind(this);
+    this.useBlueprintMakeContainer = this.useBlueprintMakeContainer.bind(this);
 
+    // open blueprint pop up from sidebar 
     this.openSpecSelectPopup = this.openSpecSelectPopup.bind(this);
     this.closeSpecSelectPopup = this.closeSpecSelectPopup.bind(this);
-    this.useBlueprintMakeContainer = this.useBlueprintMakeContainer.bind(this);
     this.editSpec = this.editSpec.bind(this);
     this.deleteSpec = this.deleteSpec.bind(this);
     
+    // handle node logic
     this.submitLogic = this.submitLogic.bind(this);
     this.createLogic = this.createLogic.bind(this);
     this.createConditionGroup = this.createConditionGroup.bind(this);
@@ -749,19 +772,16 @@ class App extends Component{
   }
 
   // Add interaction/resource to list - rename to add blueprint
-  addSpec(specName, dist, resource, loc, scale, max, init,capacity,value){
+  addBlueprint(specName, dist, resource, loc, scale, max, init,capacity,value){
     var lst = this.state.specs;
     lst.push({
       uid: "spec-" + this.state.count,
-  //    specTo: [],
       name: specName,
-  //    resourceName: resource, 
       resource: resource,
       distribution: dist,
       loc: loc,
       scale: scale,
       capacity: max,
-  //constantValue: constantValue,
       init: init
     });
 
@@ -857,7 +877,7 @@ class App extends Component{
 
   // Add a new spec and container from update pop up - call
   submitContainer(uid, name, resource, loc, scale, dist, capacity, value){
-    // TODO: can just call addSpec and useBlueprintMakeContainer
+    // TODO: can just call addBlueprint and useBlueprintMakeContainer
 
   }
 
@@ -876,17 +896,17 @@ class App extends Component{
   }
 
   // Open interaction popup
-  openSpecPopup(){
+  openBlueprintPopup(){
     this.setState({
-        openSpec: true,
+        openBlue: true,
     });
     console.log("Open blueprint Popup");
   }
 
   // close interaction popup
-  closeSpecPopup(){
+  closeBlueprintPopup(){
       this.setState({
-          openSpec: false
+          openBlue: false
       });
       console.log("Close spec Popup");
   }
@@ -1022,10 +1042,9 @@ class App extends Component{
 
     this.setState({ specs: specs });
 
-    console.log(specs);
-  }
 
-  
+    // fetch to delete spec
+  }
 
   // status - new/edit, if new then add new logic, if edit then edit an existing logic
   // cond - el==, el<=, el<, el>=, el>
@@ -1327,8 +1346,8 @@ class App extends Component{
   render(){
     return (
       <div className="App">
-        
 
+        {/* Navigation Bar */}
         <div className="head">
           <Navigation 
             handleAddNode={this.addNode}
@@ -1345,10 +1364,9 @@ class App extends Component{
             updateMode={this.state.updateMode}
             handleContainer={this.handleContainer} 
             openSpecPopup={this.openSpecPopup}/>
-            
         </div>
 
-        
+        {/* Canvas */}
         <div>
           <Canvas 
             startNode={this.state.startNode} 
@@ -1394,14 +1412,16 @@ class App extends Component{
             />
         </div>
 
+        {/* Blueprint Popup from NavBar */}
         <div>
           <BlueprintPopUp 
-          openSpec={this.state.openSpec}
-          addSpec={this.addSpec}
-          closeSpecPopup={this.closeSpecPopup}
+          openBlue={this.state.openBlue}
+          addBlueprint={this.addBlueprint}
+          closeBlueprintPopup={this.closeBlueprintPopup}
            />
         </div>
 
+        {/* Update PopUp from Node*/}
         <div>
           <UpdatePopUp 
           openUpdate={this.state.openUpdate}
@@ -1425,13 +1445,12 @@ class App extends Component{
           createActionGroup={this.createActionGroup}
           createCondition={this.createCondition}
           createAction={this.createAction}
-          
           useBlueprintMakeContainer={this.useBlueprintMakeContainer}
-
           submitEditLogic={this.submitEditLogic}
           />
         </div>
         
+        {/* Blueprint pop up from sidebaar */}
         <div>
           <SpecSelectPopup
           openSpecSelect= {this.state.openSpecSelect}
@@ -1443,11 +1462,9 @@ class App extends Component{
           editSpec={this.editSpec}
           />
         </div>
-
       </div>
     );
   }
-
 }
 
 export default App;
