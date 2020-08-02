@@ -4,9 +4,9 @@ import './App.css';
 
 import Navigation from './components/navigationbar'
 import Canvas from './components/canvas'
-import AssetPopUp from './components/asset'
+import BlueprintPopUp from './components/blueprint'
 import UpdatePopUp from './components/update'
-import ContainerPopup from './components/container';
+
 import SpecSelectPopup from './components/SpecSelectPopup';
 
 
@@ -86,7 +86,6 @@ class App extends Component{
     this.incrNumLoadedImage = this.incrNumLoadedImage.bind(this);
     this.handleBackendLoadNodes = this.handleBackendLoadNodes.bind(this);
 
-    this.closeContainerPopup = this.closeContainerPopup.bind(this);
     this.submitContainer = this.submitContainer.bind(this);
     this.deleteContainer = this.deleteContainer.bind(this);
 
@@ -749,7 +748,7 @@ class App extends Component{
     }
   }
 
-  // Add interaction/resource to list
+  // Add interaction/resource to list - rename to add blueprint
   addSpec(specName, dist, resource, loc, scale, max, init,capacity,value){
     var lst = this.state.specs;
     lst.push({
@@ -856,94 +855,9 @@ class App extends Component{
     console.log(lst);
   }
 
-  // close interaction popup
-  closeContainerPopup(){
-      this.setState({
-          openContainer: false
-      });
-      console.log("Close container Popup");
-  }
-
-  // Add a new container
-  submitContainer(selectedNode, name, resource, loc, scale, dist, capacity, init){
-    var lst = this.state.containers;
-    lst.push({
-      uid: "container-" + this.state.count,
-      selectedNode: selectedNode,
-      name: name,
-      resource: resource,
-      loc: loc,
-      scale: scale,
-      distribution: dist,
-      capacity: capacity,
-      init: init
-    });
-
-    // Create a list of containers name that are applied to the start node
-    if(selectedNode.includes("start")){
-      var startNode = this.state.startNode;
-      startNode.forEach((n) => {
-        if(n.uid == selectedNode){
-          n.containers.push(name);
-        }
-      });
-
-      this.setState({ startNode: startNode});
-    }
-
-    const addblue = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        // Change the name value to this.state.name to refer to user input
-        name: name,
-        resource: resource,
-        init : {
-          dist: dist,
-          loc: loc,
-          scale: scale
-        },
-        capacity: capacity,
-        uid: selectedNode
-      })
-    };
-
-    console.log(addblue);
-
-    /**fetch to api tos set container*/
-    fetch('http://127.0.0.1:5000/api/container/blueprint/', addblue).then(res => res.json()).then(gotUser => {
-        console.log(gotUser);
-
-    }).catch(function() {
-        console.log("Error on add Contaier");
-    });
-
-    const addcontainer = {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        // Change the name value to this.state.name to refer to user input
-        owner: selectedNode,
-        blueprint: name
-      })
-    };
-
-    console.log(addcontainer);
-
-    /**fetch to api tos set container*/
-    fetch('http://127.0.0.1:5000/api/node/container/', addcontainer).then(res => res.json()).then(gotUser => {
-        console.log(gotUser);
-
-    }).catch(function() {
-        console.log("Error on add Contaier");
-    });
-
-    this.setState((state) => ({
-      count: state.count + 1 
-    }));
-
-    console.log("Added container");
-    console.log(lst);
+  // Add a new spec and container from update pop up - call
+  submitContainer(uid, name, resource, loc, scale, dist, capacity, value){
+    // TODO: can just call addSpec and useBlueprintMakeContainer
 
   }
 
@@ -966,7 +880,7 @@ class App extends Component{
     this.setState({
         openSpec: true,
     });
-    console.log("Open spec Popup");
+    console.log("Open blueprint Popup");
   }
 
   // close interaction popup
@@ -1001,6 +915,7 @@ class App extends Component{
       selectedSpec: spec,
      // selectedSpecTo: spec.specTo
     })
+    console.log("open spec select")
   }
   
   // Close the popup to select start node to apply the selected spec to, called in t he SoecSelectPopup.js
@@ -1013,51 +928,35 @@ class App extends Component{
   }
 
   // Make container for the selected list of nodes
-  useBlueprintMakeContainer(spec, nodes){
+  useBlueprintMakeContainer(blueprint, nodes){
     var containers = this.state.containers;
     var count = this.state.count;
     var startNode = this.state.startNode;
 
     // Create container for each of node
-    nodes.lst.forEach((uid) => {
-      
+    nodes.lst.forEach((uid) => {   
       containers.push({
         uid: "container-" + count,
         selectedNode: uid,
-        name: spec.name,
-        resource: spec.resource,
-        loc: spec.loc,
-        scale: spec.scale,
-        distribution: spec.distribution,
-        capacity: spec.capacity,
-        init: spec.init
+        name: blueprint.name,
+        resource: blueprint.resource,
+        loc: blueprint.loc,
+        scale: blueprint.scale,
+        distribution: blueprint.distribution,
+        capacity: blueprint.capacity,
+        init: blueprint.init
       });
 
       // Create a list of containers name that are applied to the start node
       if(uid.includes("start")){
         startNode.forEach((n) => {
           if(n.uid == uid){
-            n.containers.push(spec.name);
+            n.containers.push(blueprint.name);
           }
         })
       }
       count = count + 1;
-
     });
-
-
-/*
-    var specs = this.state.specs;
-    specs.forEach((s) => {
-      if(s.uid == spec.uid){
-        s.specTo = nodes;
-      }
-    });
-
-    this.setState({
-      specs: specs
-    });
-*/
 
     this.setState({
       containers: containers,
@@ -1066,24 +965,24 @@ class App extends Component{
     });
 
     // multiple nodes
-      var assignSpec = {
+      var assignBlue = {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             // Change the name value to this.state.name to refer to user input
             owner: nodes.lst[0],
-            blueprint: spec.uid,
+            blueprint: blueprint.uid,
           })
       };
 
-      console.log(assignSpec);
+      console.log(assignBlue);
 
-      /**fetch to api tos set container*/
-      fetch('http://127.0.0.1:5000/api/node/container/', assignSpec).then(res => res.json()).then(gotUser => {
+      /**fetch to api tos set container from blueprint*/
+      fetch('http://127.0.0.1:5000/api/node/container/', assignBlue).then(res => res.json()).then(gotUser => {
           console.log(gotUser);
 
       }).catch(function() {
-          console.log("Error on add container from spec");
+          console.log("Error on add container from blueprint");
       });
   }
   
@@ -1496,7 +1395,7 @@ class App extends Component{
         </div>
 
         <div>
-          <AssetPopUp 
+          <BlueprintPopUp 
           openSpec={this.state.openSpec}
           addSpec={this.addSpec}
           closeSpecPopup={this.closeSpecPopup}
@@ -1530,15 +1429,6 @@ class App extends Component{
           useBlueprintMakeContainer={this.useBlueprintMakeContainer}
 
           submitEditLogic={this.submitEditLogic}
-          />
-        </div>
-        
-        <div>
-          <ContainerPopup
-          selectedNodeID={this.state.selectedNodeID}
-          openContainer= {this.state.openContainer}
-          closeContainerPopup={this.closeContainerPopup}
-          submitContainer={this.submitContainer}
           />
         </div>
         

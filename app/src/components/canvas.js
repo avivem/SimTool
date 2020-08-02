@@ -611,6 +611,7 @@ class Canvas extends Component{
                         specs={this.props.specs}
                         openSpecSelectPopup={this.props.openSpecSelectPopup}
                         deleteSpec={this.props.deleteSpec} />
+                        console.log("open")
 
         var content = <div className="content">
                         <p>.</p>
