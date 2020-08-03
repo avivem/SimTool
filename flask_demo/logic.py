@@ -2,7 +2,6 @@ import simpy
 import sys
 import io
 import uuid
-import json
 import random
 import math
 import pprint
@@ -84,10 +83,6 @@ class Node(object):
     #each node type should define their own reset steps.
     def reset(self):
         pass
-
-    def p(self):
-        pp = pprint.PrettyPrinter(indent=4)
-        #evnt_logger.info(self.__dict__,extra={'sim_time':self.env.now})
 
     def create_logic(self, split_policy):
         self.logic = Logic(split_policy)
