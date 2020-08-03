@@ -1,5 +1,5 @@
 
-.button {
+/*.button {
   border: none;
   color: white;
   padding: 10px;
@@ -11,17 +11,17 @@
   border-radius: 20%;
   background-color: blue;
   min-width:60px;
-}
+}*/
 
-.textbox{
+/*.textbox{
   width: 40%;
   padding: 12px 12px;
   margin: 8px 8px;
   box-sizing: border-box;
   font-size: 18px;
 }
-
-.nodeButton{
+*/
+/*.nodeButton{
   padding: 12px 12px;
   margin: 8px 8px;
   width: 70px;
@@ -29,10 +29,14 @@
   border-color: white; 
   align-items: center; 
   position: relative;
-}
+}*/
 
-.label{
+/*.label{
   font-size: 20px;
   margin: 8px 8px;
+}*/
+
+.nav-itenm{
+  padding: 10px
 }
 

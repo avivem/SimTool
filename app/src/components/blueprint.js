@@ -128,7 +128,7 @@ class BlueprintPopUp extends Component{
                 </div>           
 
         return (
-            <Popup open={this.props.openBlueprintPopup} closeOnDocumentClick = {true} onClose={this.closeBlueprintPopup} >
+            <Popup open={this.props.openBlue} closeOnDocumentClick = {true} onClose={this.closeBlueprintPopup} >
                 <div style={{alignContent: 'center'}}>
                     <h1>Add Blueprint</h1>
                 </div>
@@ -172,7 +172,7 @@ class BlueprintPopUp extends Component{
                 
                 <div>
                     {this.state.showErrorMessage ? <p>Max can't be smaller than the mean</p> : <div></div>}
-                    <button className="button" onClick={this.addBlueprint}>
+                    <button type="button" className="button btn btn-primary" onClick={this.addBlueprint}>
                         Apply
                     </button>
                 </div>

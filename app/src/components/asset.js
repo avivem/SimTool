@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Popup from "reactjs-popup";
 
 
-class AssestPopUp extends Component{
+class BlueprintPopUp extends Component{
     constructor(props){
         super(props);
 
@@ -126,7 +126,7 @@ class AssestPopUp extends Component{
                 </div>           
 
         return (
-            <Popup open={this.props.openSpec} closeOnDocumentClick = {true} onClose={this.closeSpecPopup} >
+            <Popup open={this.props.openBlue} closeOnDocumentClick = {true} onClose={this.closeSpecPopup} >
                 <div style={{alignContent: 'center'}}>
                     <h1>Add Blueprint</h1>
                 </div>
@@ -180,4 +180,4 @@ class AssestPopUp extends Component{
 
 }
 
-export default AssestPopUp;
+export default BlueprintPopUp;

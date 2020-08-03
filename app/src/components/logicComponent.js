@@ -585,7 +585,7 @@ class LogicComponent extends Component{
                 {this.state.showActionGroupErrorMessage == "Exist" && <p>Condition group can only have one Action group</p>}
                 {this.state.showActionGroupErrorMessage == "Name" && <p>Please enter the Action group's name</p>}
                 <button className="button" onClick={this.createActionGroup}>
-                    Create Condition
+                    Create Action Group
                 </button>
             </div>
 

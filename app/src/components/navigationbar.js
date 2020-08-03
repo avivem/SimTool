@@ -5,7 +5,7 @@ import StartImage from "../image/start-circle.png";
 import StationImage from "../image/station-circle.png";
 import EndImage from "../image/end-circle.png";
 
-import './css/popup.css';
+// import './css/popup.css';
 
 
 class Navigation extends Component{
@@ -73,7 +73,7 @@ class Navigation extends Component{
       this.handleSave = this.handleSave.bind(this);
       this.handleLoad = this.handleLoad.bind(this);
 
-      this.openSpecPopup = this.openSpecPopup.bind(this);
+      this.openBlueprintPopup = this.openBlueprintPopup.bind(this);
 
       this.showInformation = this.showInformation.bind(this);
     }
@@ -419,14 +419,15 @@ class Navigation extends Component{
       this.props.handleLoad();
     }
 
-    openSpecPopup(){
+    openBlueprintPopup(){
       this.setState({
         arrowButtonColor: "#2cbebe",
         removeButtonColor: "#ff0000",
         actionButtonColor: "#2cbebe",
       })
+
       this.props.handleReset();
-      this.props.openSpecPopup()
+      this.props.openBlueprintPopup()
     }
 
     // Show the type of information
@@ -568,50 +569,45 @@ class Navigation extends Component{
         <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark navbar-expand ">
          
          {/*navbar*/}
-          <div class="collapse navbar-collapse " id="navbarsExampleDefault">
-            <ul class="navbar-nav mr-auto ">
-              <li class="nav-item active">
-                <button className="button" style={{backgroundColor:'#2cbebe'}} onClick={this.openPopupNode}>+</button>
+          <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+            <ul class="row navbar-nav mr-auto">
+              <li class="col-sm-2 nav-item active">
+                <button type="button" className="button btn btn-primary" style={{backgroundColor:'#2cbebe'}} onClick={this.openPopupNode}>+</button>
               </li>
-              <li class="nav-item">
-                <button className="button" style={{backgroundColor:this.state.arrowButtonColor}} onClick={this.addArrowMode}>→</button>
+              <li class="col-sm-2 nav-item">
+                <button type="button" className="button btn btn-primary"  style={{backgroundColor:this.state.arrowButtonColor}} onClick={this.addArrowMode}>→</button>
               </li>
-              <li class="nav-item">
-                <button className="button" style={{backgroundColor: "#2cbebe"}} onClick={this.openSpecPopup}>Blueprint</button>
+              <li class="col-sm-4 nav-item">
+                <button type="button" className="button btn btn-primary" style={{backgroundColor: "#2cbebe"}} onClick={this.openBlueprintPopup}>Blueprint</button>
               </li>
-              <li class="nav-item">
-                <button className="button" style={{backgroundColor:this.state.removeButtonColor}} onClick={this.handleRemoveMode}>x</button>
+              <li class="col-sm-2 nav-item">
+                <button type="button" className="button btn btn-primary" style={{backgroundColor:this.state.removeButtonColor}} onClick={this.handleRemoveMode}>x</button>
               </li>
             </ul>
 
-            <ul class="navbar-nav  " style={{float: 'right'}}>
+            <ul class="row navbar-nav" style={{float: 'right'}}>
               {/*fix format*/}
-              <li class="nav-item">
-                <label className="label" style={{color:'white'}}>Run Until: </label>
+              <li class="col-md-5 nav-item active">    
+                <label className="label" style={{color:'white', padding: "10px"}}>Run Until: </label>
+                <input type="text" id="runTime"  className=" textbox" value={this.state.runTime} onChange={this.handleChangeTime}></input>
               </li>
-              <li class="nav-item active">    
-                <input type="text" id="runTime"  className="textbox" value={this.state.runTime} onChange={this.handleChangeTime}></input>
+              <li class="col-sm-1 nav-item active">
+                <button type="button" className="button btn btn-primary" style={{backgroundColor:'#4CAF50'}} onClick={this.handleRun}>Run</button>
               </li>
-              <li class="nav-item active">
-                <button className="button" style={{backgroundColor:'#4CAF50'}} onClick={this.handleRun}>Run</button>
+              <li class="col-sm-1 nav-item active">
+                <button type="button" className="button btn btn-primary" style={{backgroundColor:'yellow', color:"black"}} onClick={this.openPopupData}>Data</button>
               </li>
-              {/*<li class="nav-item active">
-                <button className="button" style={{backgroundColor:'red'}}>Stop</button>
-              </li>*/}
-              <li class="nav-item active">
-                <button className="button" style={{backgroundColor:'yellow', color:"black"}} onClick={this.openPopupData}>Data</button>
+              <li class="col-sm-1 nav-item active">
+                <button type="button" className="button btn btn-primary" style={{backgroundColor:'yellow', color:"black"}} onClick={this.handleResetSim}>Reset</button>
               </li>
-              <li class="nav-item active">
-                <button className="button" style={{backgroundColor:'yellow', color:"black"}} onClick={this.handleResetSim}>Reset</button>
+              <li class="col-sm-1 nav-item active">
+                <button type="button" className="button btn btn-primary" style={{backgroundColor:'yellow', color:"black"}} onClick={this.handleClearMode}>Clear</button>
               </li>
-              <li class="nav-item active">
-                <button className="button" style={{backgroundColor:'yellow', color:"black"}} onClick={this.handleClearMode}>Clear</button>
+              <li class="col-sm-1 nav-item active">
+                <button type="button" className="button btn btn-primary" style={{backgroundColor:'yellow', color:"black"}} onClick={this.handleSave}>Save</button>
               </li>
-              <li class="nav-item active">
-                <button className="button" style={{backgroundColor:'yellow', color:"black"}} onClick={this.handleSave}>Save</button>
-              </li>
-             <li class="nav-item active">
-                <button className="button" style={{backgroundColor:'yellow', color:"black"}} onClick={this.handleLoad}>Load</button>
+             <li class="col-sm-1 nav-item active">
+                <button type="button" className="button btn btn-primary" style={{backgroundColor:'yellow', color:"black"}} onClick={this.handleLoad}>Load</button>
               </li>
             </ul>
 

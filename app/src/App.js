@@ -1363,7 +1363,7 @@ class App extends Component{
             handleLoad={this.handleLoad}
             updateMode={this.state.updateMode}
             handleContainer={this.handleContainer} 
-            openSpecPopup={this.openSpecPopup}/>
+            openBlueprintPopup={this.openBlueprintPopup}/>
         </div>
 
         {/* Canvas */}
