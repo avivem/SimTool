@@ -141,6 +141,14 @@ class SpecSideBar extends Component{
         });
 
         layer.batchDraw();
+
+        if(this.props.clearMode){
+            layer.find('Rect').destroy();
+            layer.find('Circle').destroy();
+            layer.find('Text').destroy();
+            layer.batchDraw();
+            this.props.handleClearMode(false);
+        }
         
     }
     
