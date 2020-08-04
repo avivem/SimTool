@@ -324,7 +324,6 @@ class Canvas extends Component{
                         y: target.y + radius
                       });
     
-                    
                     layer.add(node);
                     layer.add(label);
 
@@ -598,7 +597,7 @@ class Canvas extends Component{
             layer.find('Image').destroy();
             layer.find('Text').destroy();
             layer.draw();
-            this.props.handleClearMode(false);
+            this.props.handleClearMode();
         }
 
 
@@ -606,8 +605,6 @@ class Canvas extends Component{
 
     render(){
         var sidebar = <SpecSideBar
-                        clearMode={this.props.clearMode}
-                        handleClearMode={this.props.handleClearMode}
                         specs={this.props.specs}
                         openSpecSelectPopup={this.props.openSpecSelectPopup}
                         deleteSpec={this.props.deleteSpec} />
