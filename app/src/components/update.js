@@ -528,7 +528,6 @@ class UpdatePopUp extends Component{
                     {/*when logic button clicked, show html*/}
                    
                         <LogicComponent
-                         submitLogic={this.props.submitLogic}
                          selectedNodeID={this.props.selectedNodeID}
                          containers={this.props.containers}
                          arrows={this.props.arrows}
@@ -542,6 +541,10 @@ class UpdatePopUp extends Component{
                          createActionGroup={this.props.createActionGroup}
                          createCondition={this.props.createCondition}
                          createAction={this.props.createAction}
+                         editConditionGroup={this.props.editConditionGroup}
+                         editActionGroup={this.props.editActionGroup}
+                         editCondition={this.props.editCondition}
+                         editAction={this.props.editAction}
                          submitEditLogic={this.props.submitEditLogic} /> 
                         {logic}
                     </div>
@@ -632,7 +635,6 @@ class UpdatePopUp extends Component{
 
                         {/*when logic button clicked, show html*/}
                             <LogicComponent
-                            submitLogic={this.props.submitLogic}
                             selectedNodeID={this.props.selectedNodeID}
                             containers={this.props.containers}
                             arrows={this.props.arrows}

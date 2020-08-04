@@ -57,7 +57,7 @@ class SpecSideBar extends Component{
                     x: xLoc,
                     y: yLoc,
                     text:
-                      "Name: " + e.name + " \n" + "Resource: " + e.resourceName,
+                      "Name: " + e.name + " \n" + "Resource: " + e.resource,
                     fontSize: 18,
                     fontFamily: 'Calibri',
                     fill: '#555',
@@ -140,6 +140,14 @@ class SpecSideBar extends Component{
         });
 
         layer.batchDraw();
+
+        if(this.props.clearMode){
+            layer.find('Rect').destroy();
+            layer.find('Circle').destroy();
+            layer.find('Text').destroy();
+            layer.batchDraw();
+            this.props.handleClearMode(false);
+        }
         
     }
     
