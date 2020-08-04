@@ -1,16 +1,4 @@
 
-.button {
-  border: none;
-  color: white;
-  padding: 10px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 18px;
-  margin: 20px 5px;
-  border-radius: 20%;
-  min-width:60px;
-}
 
 .textbox{
   width: 40%;

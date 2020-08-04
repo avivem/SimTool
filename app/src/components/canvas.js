@@ -9,14 +9,12 @@ import EndImage from "../image/end.png";
 import Konva from 'konva';
 import Sidebar from "react-sidebar";
 
-
 import './css/popup.css';
 import './css/sidebar.css';
 import SpecSideBar from './SpecSideBar';
 
 
 const mql = window.matchMedia(`(min-width: 800px)`);
-
 
 class Canvas extends Component{
     constructor(props){
@@ -613,6 +611,7 @@ class Canvas extends Component{
                         specs={this.props.specs}
                         openSpecSelectPopup={this.props.openSpecSelectPopup}
                         deleteSpec={this.props.deleteSpec} />
+
 
         var content = <div className="content">
                         <p>.</p>

@@ -4,13 +4,15 @@ import Select from 'react-select';
 class LogicComponent extends Component{
     constructor(props) {
         super(props);
+
         this.state = {
             condAmount: "",
             resource: "",
             action: "",
             actionAmount: "",
-            showErrorMessage: false,
+            showActionGroupErrorMessage: "",
 
+            showErrorMessage: false,
             showLogic: false,
             showConditionGroup: false,
             showActionGroup: false,
@@ -22,13 +24,12 @@ class LogicComponent extends Component{
 
             lstGroup: [], // List of groups already created for the selected node
 
-            groupName: "",
             passPath: [],
             passName: [],
             failPath: [],
             failName: [],
 
-
+            groupName: "",
             groupSelected: "",
             conditionName: "",
             entityName: "",
@@ -79,7 +80,6 @@ class LogicComponent extends Component{
 
         this.onChange = this.onChange.bind(this);
 
-        
         this.handleCond = this.handleCond.bind(this);
         this.handleAction = this.handleAction.bind(this);
         this.handlePass = this.handlePass.bind(this);

@@ -9,6 +9,7 @@ class UpdatePopUp extends Component{
         super(props);
 
         this.state = {
+            // Start Node Variables
             startname: "default name",
             dist: "NORMAL",
             loc: 0,
@@ -16,19 +17,24 @@ class UpdatePopUp extends Component{
             entity_name: "default entity name",
             limit: 100,
 
+            // Station Node Variables
             stationname: "default name",
             capacity: 10,
             time_func: 1,
 
+            // End Node Variables
             endname: "default name",
+
+            // UID for all Variables
+            uid: 0,
 
             showMessageUP: false,
             showMessageCont: false,
 
+            // Bluprint to Create Container From
             selectedBlueprint: "",
 
-            uid: 0,
-
+            // Container Variables
             containerName: "",
             containerResource: "",
             containerDist: "Normal",
@@ -37,12 +43,12 @@ class UpdatePopUp extends Component{
             containerCapacity: 0,
             constantValue: 0,
 
+            // Selected Container to Delete and View
             selectedContainer: {},
             showContainer: false
         }
         
         this.onChange = this.onChange.bind(this);
-        this.changeDist = this.changeDist.bind(this);
         this.applyChanges = this.applyChanges.bind(this);
 
         this.closeUpdatePopup = this.closeUpdatePopup.bind(this);
@@ -53,19 +59,11 @@ class UpdatePopUp extends Component{
         this.selectedContainer = this.selectedContainer.bind(this);
         this.viewContainer = this.viewContainer.bind(this);
         this.deleteContainer = this.deleteContainer.bind(this);
-    
     }
 
     onChange(e){
         // console.log(e.target)
         this.setState({ [e.target.name]: e.target.value })
-    }
-
-    // change for distribution
-    changeDist(e){
-        this.setState({
-            containerDist: e.target.value,
-        });
     }
     
     // Handle submit data of the interaction
@@ -74,20 +72,23 @@ class UpdatePopUp extends Component{
         this.onButtonContainer();
     }
 
-    // Handle submit new container
-    applyContainer(type,uid){
-        var name = this.state.containerName;
-        var resource = this.state.containerResource;
-        var loc = parseInt(this.state.containerLoc);
-        var scale = parseInt(this.state.containerScale);
-        var dist = this.state.containerDist;
-        var capacity = parseInt(this.state.containerCapacity);
-        var constantValue = parseInt(this.state.constantValue);
-        this.props.submitContainer(uid, name, resource, loc, scale, dist, capacity, constantValue);
+    // // Handle submit new spec and container
+    // applyContainer(type,uid){
+    //     var name = this.state.containerName;
+    //     var resource = this.state.containerResource;
+    //     var loc = parseInt(this.state.containerLoc);
+    //     var scale = parseInt(this.state.containerScale);
+    //     var dist = this.state.containerDist;
+    //     var capacity = parseInt(this.state.containerCapacity);
+    //     var value = parseInt(this.state.constantValue);
 
+    //     // Submit Container to backend
+    //     // submit new SPEC
+    //     // submit new CONTAINER
+    //     this.props.submitContainer(uid, name, resource, loc, scale, dist, capacity, value);
 
-        this.onButtonContainer();
-    }
+    //     this.onButtonContainer();
+    // }
 
     closeUpdatePopup(){
         this.setState({
@@ -105,7 +106,6 @@ class UpdatePopUp extends Component{
         }else{
             this.setState({showMessageUP: false});
         }
-        
     };
 
     onButtonContainer = () => {
@@ -121,8 +121,7 @@ class UpdatePopUp extends Component{
             });
         }else{
             this.setState({showMessageCont: false});
-        }
-        
+        }   
     };
 
     // Should save a spec uid
@@ -131,6 +130,7 @@ class UpdatePopUp extends Component{
     }
 
     useBlueprintMakeContainer(){
+        // what is this doing?
         var spec = {};
         this.props.specs.forEach((s) => {
             if(s.uid == this.state.selectedBlueprint){
@@ -138,6 +138,8 @@ class UpdatePopUp extends Component{
             }
         });
         var node = {lst: [this.props.selectedNodeID]};
+
+        // Make Container from Blueprint
         this.props.useBlueprintMakeContainer(spec, node);
         this.onButtonContainer();
     }
@@ -219,8 +221,7 @@ class UpdatePopUp extends Component{
                 </div>}
             </div>
 
-
-
+        // Drop down to add possible blueprints
         var addBlueprint = 
             <div class="container">
                 <div class="row">
@@ -252,9 +253,17 @@ class UpdatePopUp extends Component{
                     name="constantValue" 
                     style={{width: '150px'}}
                     onChange={this.onChange} />
+
+                <label className="label">Capacity: </label> 
+                <input 
+                    type="text" 
+                    className="form-control"
+                    name="containerCapacity" 
+                    style={{width: '150px'}}
+                    onChange={this.onChange} />
             </div>
 
-        //Container field for when distribution is not CONSTANT
+        // Container field for when distribution is not CONSTANT
         var containerNotConstant = 
             <div>
                 <label className="label">Loc: </label> 
@@ -283,90 +292,64 @@ class UpdatePopUp extends Component{
             </div>
 
         // Content for adding container
-        var containerContent = 
-        <div>  
-
+        var applyBlueprint=
+        <div> 
             {/* Add a blueprint to the node */}
-            {addBlueprint}  
-
-            {/*<h2>Create Container</h2>  
-            <label className="label">Name:</label>
-            <input 
-                type="text" 
-                className="form-control"
-                name="containerName" 
-                style={{width: '150px'}}
-                onChange={this.onChange} />
-        
-            <label className="label">Resource:</label>
-            <input 
-                type="text" 
-                className="form-control"
-                name="containerResource" 
-                style={{width: '150px'}}
-                onChange={this.onChange} />
-            
-            <label className="label">Distribution:&nbsp;
-                <select 
-                    className="paymentType" 
-                    name="constainerDist"
-                    onChange={this.changeDist} 
-                    value={this.state.constainerDist}>
-                    <option value="NORMAL">NORMAL</option>
-                    <option value="UNIFORM">UNIFORM</option>
-                    <option value="CONSTANT">CONSTANT</option>
-                    <option value="RANDOM INT">RANDOM INT</option>
-                </select>
-            </label>
-            <br/>
-            {this.state.containerDist == "CONSTANT" ? containerConstant : containerNotConstant}
-            */}
+            {addBlueprint} 
         </div>
+
+        // commented out- html to create a blueprint and container
+        var containerContent = 
+            <div>   
+                {/*<h2>Create Blueprint and Container</h2>  
+                <label className="label">Name:</label>
+                <input 
+                    type="text" 
+                    className="form-control"
+                    name="containerName" 
+                    style={{width: '150px'}}
+                    onChange={this.onChange} />
+            
+                <label className="label">Resource:</label>
+                <input 
+                    type="text" 
+                    className="form-control"
+                    name="containerResource" 
+                    style={{width: '150px'}}
+                    onChange={this.onChange} />
+                
+                <label className="label">Distribution:&nbsp;
+                    <select 
+                        className="paymentType" 
+                        name="constainerDist"
+                        onChange={this.onChange} 
+                        value={this.state.constainerDist}>
+                        <option value="NORMAL">NORMAL</option>
+                        <option value="UNIFORM">UNIFORM</option>
+                        <option value="CONSTANT">CONSTANT</option>
+                        <option value="RANDOM INT">RANDOM INT</option>
+                    </select>
+                </label>
+                <br/>
+                {this.state.containerDist == "CONSTANT" ? containerConstant : containerNotConstant}
+                
+                <div class="container">
+                    <button className="button" onClick={() => this.applyContainer("Station Node",s.uid)}>Submit Container</button>
+                </div>
+                */}
+            </div>
 
         // find type
         var type= this.props.selectedNodeID.substr(0, this.props.selectedNodeID.indexOf('-')); 
 
         let logic = [];
-   /*     this.props.logics.forEach((l) => {
-            if(l.applyTo == this.props.selectedNodeID){
-                l.conditionsActionsGroup.forEach((g) => {
-                    var lstCondition = []
-                    g.conditions.forEach((c) => {
-                        lstCondition.push(<p>{c.name}</p>);
-                    });
-                    var lstAction = []
-                    g.conditions.forEach((a) => {
-                        lstAction.push(<p>{a.name}</p>);
-                    });
-                    var lstPass = []
-                    g.conditions.forEach((p) => {
-                        lstAction.push(<p>{p}</p>);
-                    });
-                    var lstFail = []
-                    g.conditions.forEach((f) => {
-                        lstAction.push(<p>{f}</p>);
-                    });
-                    logic.push(<div>
-                        <h3>Group Name: {g.name}</h3>
-                        <h5>List of Condition</h5>
-                        {lstCondition}
-                        <h5>List of Action</h5>
-                        {lstAction}
-                        <h5>List of Pass Path</h5>
-                        {lstPass}
-                        <h5>List of Fail Path</h5>
-                        {lstFail}
-                    </div>);
-                });
-        
-            }
-        })
-*/
-        let content;
+
+        // variable to hold settings html for specific node
+        let SettingsContent;
 
         var endNode;
         var startNode;
-        var s;
+        var station;
 
         // Find the selected node
         switch(type){
@@ -381,7 +364,7 @@ class UpdatePopUp extends Component{
             case "station":
                 this.props.stationNode.forEach((n) => {
                     if(n.uid == this.props.selectedNodeID){
-                        s = n;
+                        station = n;
                     }
                 });
                 break;
@@ -394,11 +377,10 @@ class UpdatePopUp extends Component{
                 break;
         }
 
+        // End Node Settings
         if(type == "end" && endNode != undefined){
 
-            console.log(this.props);
-
-            content =   <div class="container">
+            SettingsContent =   <div class="container">
                         <h2>Settings for {endNode.name}</h2>
                         <p>Node Name: {endNode.name}</p>
 
@@ -426,8 +408,9 @@ class UpdatePopUp extends Component{
                         </div>}
 
                         </div>
+        // Start Node Settings
         }else if(type == "start" && startNode != undefined){
-            content =   <div class="container">
+            SettingsContent =   <div class="container">
                         <h2>Settings for {startNode.name}</h2>
                         <p>Node Name: {startNode.name}</p>
                         <p>Entity Name: {startNode.entity_name}</p>
@@ -507,74 +490,70 @@ class UpdatePopUp extends Component{
                                 <div class="container">
                                     <button className="button" onClick={() => this.applyChanges("Start Node",startNode.uid)}>Submit Changes</button>
                                 </div>
-                            </div>}
-
-                        <div class="container">
-                            <button className="button" onClick={this.onButtonContainer}>
-                                Add Container
-                            </button>
-                        </div>
-
-                        {/*when container button clicked, show html*/}
-                        {this.state.showMessageCont &&  
-                            <div>
-                                {containerContent}
-                                <div class="container">
-                                    <button className="button" onClick={() => this.applyContainer("Start Node",startNode.uid)}>Submit Container</button>
-                                </div>
                             </div>
                         }
 
-                    {/*when logic button clicked, show html*/}
-                   
-                        <LogicComponent
-                         selectedNodeID={this.props.selectedNodeID}
-                         containers={this.props.containers}
-                         arrows={this.props.arrows}
-                         startNode={this.props.startNode}
-                         stationNode={this.props.stationNode} 
-                         endNode={this.props.endNode}
-                         logics={this.props.logics}
-                         specs={this.props.specs}
-                         createLogic={this.props.createLogic}
-                         createConditionGroup={this.props.createConditionGroup}
-                         createActionGroup={this.props.createActionGroup}
-                         createCondition={this.props.createCondition}
-                         createAction={this.props.createAction}
-                         editConditionGroup={this.props.editConditionGroup}
-                         editActionGroup={this.props.editActionGroup}
-                         editCondition={this.props.editCondition}
-                         editAction={this.props.editAction}
-                         submitEditLogic={this.props.submitEditLogic} /> 
-                        {logic}
+                            <div class="container">
+                                <button className="button" onClick={this.onButtonContainer}>
+                                    Add Container
+                                </button>
+                            </div>
+
+                            {/*when container button clicked, show html*/}
+                            {this.state.showMessageCont &&  
+                                <div>
+                                    {containerContent}
+                                    {applyBlueprint}
+                                </div>
+                            }
+
+                            {/*when logic button clicked, show html*/}
+                            <LogicComponent
+                            selectedNodeID={this.props.selectedNodeID}
+                            containers={this.props.containers}
+                            arrows={this.props.arrows}
+                            startNode={this.props.startNode}
+                            stationNode={this.props.stationNode} 
+                            endNode={this.props.endNode}
+                            logics={this.props.logics}
+                            specs={this.props.specs}
+                            createLogic={this.props.createLogic}
+                            createConditionGroup={this.props.createConditionGroup}
+                            createActionGroup={this.props.createActionGroup}
+                            createCondition={this.props.createCondition}
+                            createAction={this.props.createAction}
+                            editConditionGroup={this.props.editConditionGroup}
+                            editActionGroup={this.props.editActionGroup}
+                            editCondition={this.props.editCondition}
+                            editAction={this.props.editAction}
+                            submitEditLogic={this.props.submitEditLogic} /> 
+                            {logic}
                     </div>
 
-
-
-                      
-        }else if(type == "station" && s != undefined){
+        // Station Node Settings      
+        }else if(type == "station" && station != undefined){
             
             // do a for each to grab correct basic node
             for(var x in this.props.stationNode){
                 var uid = this.props.stationNode[x].uid;
                 
                 if(uid== this.state.targetId){
-                    s = this.props.stationNode[x];
+                    station = this.props.stationNode[x];
                 }
             }
 
-            content =   <div class="container">
-                            <h2>Settings for {s.name}</h2>
+            SettingsContent =   <div class="container">
+                            <h2>Settings for {station.name}</h2>
                             <table>
                                 <tr>
-                                    <td><p>Node Name: {s.name}</p></td>
-                                    <td><p>Capacity: {s.capacity}</p></td>
+                                    <td><p>Node Name: {station.name}</p></td>
+                                    <td><p>Capacity: {station.capacity}</p></td>
                                 </tr>
                                 <tr>
                                    
                                 </tr>
                                 <tr>
-                                    <td><p>Time Function: {s.time_func}</p></td>
+                                    <td><p>Time Function: {station.time_func}</p></td>
                                 </tr>
                             </table>
 
@@ -586,36 +565,36 @@ class UpdatePopUp extends Component{
 
                             {/*when update button clicked, show html*/}
                             {this.state.showMessageUP && 
-                            <div>
-                                <label className="label">Name:
-                                    <input 
-                                        type="text" 
-                                        name="stationname"
-                                        placeholder={s.name}
-                                        className="form-control"
-                                        
-                                        onChange={this.onChange}
-                                    />
-                                </label>
-                                <label className="label">Capacity:
-                                    <input 
-                                        type="text" 
-                                        placeholder={s.capacity}
-                                        className="form-control"
-                                        name="capacity" 
-                                        onChange={this.onChange}
-                                         />
-                                </label>
-                                <label className="label">Time Function:
-                                    <input 
-                                        type="text" 
-                                        placeholder={s.time_func}
-                                        className="form-control"
-                                        name="time_func" 
-                                        onChange={this.onChange}
-                                         />
-                                </label>
-                            </div>}
+                                <div>
+                                    <label className="label">Name:
+                                        <input 
+                                            type="text" 
+                                            name="stationname"
+                                            placeholder={station.name}
+                                            className="form-control"
+                                            
+                                            onChange={this.onChange}
+                                        />
+                                    </label>
+                                    <label className="label">Capacity:
+                                        <input 
+                                            type="text" 
+                                            placeholder={station.capacity}
+                                            className="form-control"
+                                            name="capacity" 
+                                            onChange={this.onChange}
+                                             />
+                                    </label>
+                                    <label className="label">Time Function:
+                                        <input 
+                                            type="text" 
+                                            placeholder={station.time_func}
+                                            className="form-control"
+                                            name="time_func" 
+                                            onChange={this.onChange}
+                                             />
+                                    </label>
+                                </div>}
 
                             <div class="container">
                                 <button className="button" onClick={this.onButtonContainer}>
@@ -627,11 +606,8 @@ class UpdatePopUp extends Component{
                             {this.state.showMessageCont &&  
                                 <div>
                                     {containerContent}
-
-                                    <div class="container">
-                                        <button className="button" onClick={() => this.applyContainer("Station Node",s.uid)}>Submit Container</button>
-                                    </div>
-                                </div>}
+                                </div>
+                            }
 
                         {/*when logic button clicked, show html*/}
                             <LogicComponent
@@ -648,21 +624,19 @@ class UpdatePopUp extends Component{
                             createActionGroup={this.props.createActionGroup}
                             createCondition={this.props.createCondition}
                             createAction={this.props.createAction}
+                            editConditionGroup={this.props.editConditionGroup}
+                            editActionGroup={this.props.editActionGroup}
+                            editCondition={this.props.editCondition}
+                            editAction={this.props.editAction}
                             submitEditLogic={this.props.submitEditLogic} /> 
                             {logic}
                         </div>
                     }
 
         return (
-            <Popup open={this.props.openUpdate} 
-            closeOnDocumentClick 
-            onClose={this.closeUpdatePopup}
-            contentStyle={{height: 400, overflow: "auto"}} >
+            <Popup open={this.props.openUpdate} closeOnDocumentClick onClose={this.closeUpdatePopup} contentStyle={{height: 400, overflow: "auto"}}>
 
-               {content}
-
-            {/*apply changes here*/}
-
+               {SettingsContent}
 
             </Popup>
         );

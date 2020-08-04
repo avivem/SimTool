@@ -7,6 +7,7 @@ class BlueprintPopUp extends Component{
         super(props);
 
         this.state = {
+            // blueprint variables
             specName: "",
             resourceName: "",
             lowerAmount: 0,
@@ -24,9 +25,9 @@ class BlueprintPopUp extends Component{
         
         this.onChange = this.onChange.bind(this);
         this.changeDist = this.changeDist.bind(this);
-        this.submitInteraction = this.submitInteraction.bind(this);
+        this.closeBlueprintPopup = this.closeBlueprintPopup.bind(this);
 
-        this.closeSpecPopup = this.closeSpecPopup.bind(this);
+        this.addBlueprint = this.addBlueprint.bind(this);
     }
 
     onChange(e){
@@ -41,32 +42,32 @@ class BlueprintPopUp extends Component{
         });
     }
 
-     // Handle submit data of the interaction
-    submitInteraction(){
+     // Handle submit blueprint data
+    addBlueprint(){
+        // variables to be passed to props
         var specName = this.state.specName;
         var resource = this.state.resourceName;
- //       var lower = parseInt(this.state.lowerAmount);
- //       var upper = parseInt(this.state.upperAmount);
-
-        // these are not being set
         var dist = this.state.distribution;
         var loc = parseInt(this.state.loc);
         var scale = parseInt(this.state.scale);
         var max = parseInt(this.state.maxAmount);
+        var init = parseInt(this.state.constantValue);
         var capacity = parseInt(this.state.capacity);
-        var init = parseInt(this.state.value);
+        var value = parseInt(this.state.value);
+
+        // max cannot be less than loc
         if(max >= loc){
-            this.props.addSpec(specName, dist, resource, loc, scale, max, init, capacity);
-            this.closeSpecPopup();
+            this.props.addBlueprint(specName, dist, resource, loc, scale, max, init, capacity, value);
+            this.closeBlueprintPopup();
+
             this.state.value = -1;
             this.state.capacity = 0;
-        }
-        else{
+        }else{
             this.setState({showErrorMessage: true});
         }
     }
 
-    closeSpecPopup(){
+    closeBlueprintPopup(){
         this.setState({
             specName: "",
             resourceName: "",
@@ -78,10 +79,11 @@ class BlueprintPopUp extends Component{
             distribution: "NORMAL",
             showErrorMessage: false,
         });
-        this.props.closeSpecPopup();
+        this.props.closeBlueprintPopup();
     }
 
     render(){
+        // form when distribution is constant
         let contentConstant =
             <div className="container input-group">        
                 <label className="label">Optional Value: </label> 
@@ -100,6 +102,7 @@ class BlueprintPopUp extends Component{
                     onChange={this.onChange} />
             </div>
 
+        // form when distribution is anything but constant
         let content =
                 <div className="container input-group">        
                     <label className="label">Scale: </label> 
@@ -125,7 +128,7 @@ class BlueprintPopUp extends Component{
                 </div>           
 
         return (
-            <Popup open={this.props.openBlue} closeOnDocumentClick = {true} onClose={this.closeSpecPopup} >
+            <Popup open={this.props.openBlue} closeOnDocumentClick = {true} onClose={this.closeBlueprintPopup} >
                 <div style={{alignContent: 'center'}}>
                     <h1>Add Blueprint</h1>
                 </div>
@@ -169,7 +172,7 @@ class BlueprintPopUp extends Component{
                 
                 <div>
                     {this.state.showErrorMessage ? <p>Max can't be smaller than the mean</p> : <div></div>}
-                    <button className="button" onClick={this.submitInteraction}>
+                    <button type="button" className="button btn btn-primary" onClick={this.addBlueprint}>
                         Apply
                     </button>
                 </div>
