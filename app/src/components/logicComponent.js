@@ -17,6 +17,7 @@ class LogicComponent extends Component{
             showCondition:false,
             showAction: false,
             showEditLogic: false,
+            showUpdateLogic: false,
             showActionGroupErrorMessage: "",
 
             lstGroup: [], // List of groups already created for the selected node
@@ -41,10 +42,28 @@ class LogicComponent extends Component{
             actionGroupName: "",
 
             logic: "",
-            defaultLogic: [{value: "BOOL", label: "Boolean"}]
+            defaultLogic: [{value: "BOOL", label: "Boolean"}],
+
+            selectedGroupUpdateValue: null,
+            selectedGroupUpdateLabel: null,
+            selectedActionGroupUpdateValue: null,
+            selectedActionGroupUpdateLabel: null,
+            selectedConditionUpdateValue: null,
+            selectedConditionUpdateLabel: null,
+            selectedActionUpdateValue: null,
+            selectedActionUpdateLabel: null,
+            defaultPassPath: [],
+            defaultFailPath: [],
+            defaultSelectedGroup: [],
+            defaultEntity: [],
+            defaultCheck: [],
+            defaultAction: [],
+            defaultContainer: [],
+            editType: "",
+
 
         };
-
+        this.getAllGroup = this.getAllGroup.bind(this);
 
         this.showAddLogic = this.showAddLogic.bind(this);
         this.showConditionGroup = this.showConditionGroup.bind(this);
@@ -52,6 +71,11 @@ class LogicComponent extends Component{
         this.showCondition = this.showCondition.bind(this);
         this.showAction = this.showAction.bind(this);
         this.showEditLogic = this.showEditLogic.bind(this);
+        this.showUpdateLogic = this.showUpdateLogic.bind(this);
+        this.showEditConditionGroup = this.showEditConditionGroup.bind(this);
+        this.showEditActionGroup = this.showEditActionGroup.bind(this);
+        this.showEditCondition = this.showEditCondition.bind(this);
+        this.showEditAction = this.showEditAction.bind(this);
 
         this.onChange = this.onChange.bind(this);
 
@@ -60,19 +84,40 @@ class LogicComponent extends Component{
         this.handleAction = this.handleAction.bind(this);
         this.handlePass = this.handlePass.bind(this);
         this.handleFail = this.handleFail.bind(this);
-        this.submitLogic = this.submitLogic.bind(this);
         this.handleSelectedGroup = this.handleSelectedGroup.bind(this);
         this.handleEntitySelected = this.handleEntitySelected.bind(this);
         this.handleContainerSelected = this.handleContainerSelected.bind(this);
         this.handleEditLogic = this.handleEditLogic.bind(this);
+        this.handleUpdateGroup = this.handleUpdateGroup.bind(this);
+        this.handleUpdateActionGroup = this.handleUpdateActionGroup.bind(this);
+        this.handleUpdateCondition = this.handleUpdateCondition.bind(this);
+        this.handleUpdateAction = this.handleUpdateAction.bind(this);
 
         this.createGroup = this.createGroup.bind(this);
         this.createActionGroup = this.createActionGroup.bind(this);
         this.createCondition = this.createCondition.bind(this);
         this.createAction = this.createAction.bind(this);
 
-        this.submitEditLogic = this.submitEditLogic.bind(this);
+        this.submitEditLogic = this.submitEditLogic.bind(this);  
         
+        this.editGroup = this.editGroup.bind(this);
+        this.editActionGroup = this.editActionGroup.bind(this);
+        this.editCondition = this.editCondition.bind(this);
+        this.editAction = this.editAction.bind(this);
+    }
+
+    // Get all logic group for this node
+    getAllGroup(){
+        this.props.logics.forEach((l) => {
+            if(l.applyTo == this.props.selectedNodeID){
+                // Get all of the exisitng group
+                var condGroup = [];
+                l.conditionsActionsGroup.forEach((g) => {
+                    condGroup.push({value: g.name, label: g.name});
+                });
+                this.setState({ lstGroup: condGroup });
+            }
+        });
     }
 
     // First click will add logic to the node and show 
@@ -103,6 +148,7 @@ class LogicComponent extends Component{
 
     // First click will open the 
     showConditionGroup(){
+      
         if(this.state.showConditionGroup){
             this.setState({
                 showConditionGroup: false,
@@ -115,14 +161,18 @@ class LogicComponent extends Component{
         }
         else{
             this.setState({
+                showUpdateLogic: false,
                 showEditLogic:false,
                 showConditionGroup: true,
                 showCondition: false,
                 showAction: false,
                 showActionGroup: false
             });
-        }
+        }    
+        
     }
+
+
 
     // Show the way to add an action group
     showActionGroup(){
@@ -131,6 +181,7 @@ class LogicComponent extends Component{
         }
         else{
             this.setState({
+                showUpdateLogic: false,
                 showActionGroup: true,
                 showActionGroupErrorMessage: "",
                 actionGroupName: "",
@@ -140,16 +191,7 @@ class LogicComponent extends Component{
                 showAction: false,
             });
 
-            this.props.logics.forEach((l) => {
-                if(l.applyTo == this.props.selectedNodeID){
-                    // Get all of the exisitng group
-                    var condGroup = [];
-                    l.conditionsActionsGroup.forEach((g) => {
-                        condGroup.push({value: g.name, label: g.name});
-                    });
-                    this.setState({ lstGroup: condGroup });
-                }
-            });
+            this.getAllGroup();
         }
     }
 
@@ -168,6 +210,7 @@ class LogicComponent extends Component{
         }
         else{
             this.setState({
+                showUpdateLogic: false,
                 showEditLogic:false,
                 showConditionGroup: false,
                 showCondition: true,
@@ -175,16 +218,7 @@ class LogicComponent extends Component{
                 showActionGroup: false
             });
 
-            this.props.logics.forEach((l) => {
-                if(l.applyTo == this.props.selectedNodeID){
-                    // Get all of the exisitng group
-                    var condGroup = [];
-                    l.conditionsActionsGroup.forEach((g) => {
-                        condGroup.push({value: g.name, label: g.name});
-                    });
-                    this.setState({ lstGroup: condGroup });
-                }
-            });
+            this.getAllGroup();
         }
     }
 
@@ -203,6 +237,7 @@ class LogicComponent extends Component{
         }
         else{
             this.setState({
+                showUpdateLogic: false,
                 showEditLogic:false,
                 showConditionGroup: false,
                 showCondition: false,
@@ -210,16 +245,7 @@ class LogicComponent extends Component{
                 showActionGroup: false
             });
 
-            this.props.logics.forEach((l) => {
-                if(l.applyTo == this.props.selectedNodeID){
-                    // Get all of the exisitng group
-                    var condGroup = [];
-                    l.conditionsActionsGroup.forEach((g) => {
-                        condGroup.push({value: g.name, label: g.name});
-                    });
-                    this.setState({ lstGroup: condGroup });
-                }
-            });
+            this.getAllGroup();
         }
     }
 
@@ -269,6 +295,205 @@ class LogicComponent extends Component{
 
 
     
+        }
+    }
+
+    showUpdateLogic(){
+        if(this.state.showUpdateLogic){
+            this.setState({ showUpdateLogic: false });
+        }
+        else{
+            this.setState({ 
+                showUpdateLogic: true,
+                showEditLogic:false,
+                showConditionGroup: false,
+                showCondition: false,
+                showAction: false,
+                showActionGroup: false
+             });
+        }
+    }
+
+    showEditConditionGroup(){
+        if(this.state.showConditionGroup){
+            this.setState({ showConditionGroup: false });
+        }
+        else{
+            var selected = this.state.selectedGroupUpdateValue;
+            if(selected !== null){
+                var pass = [];
+                var fail = []
+                var index = 0;
+ 
+                // Create the list of default selected pass path
+                selected.pass_paths.forEach((p) => {
+                    pass.push({value: p, label: selected.passName[index]});
+                    index = index + 1;
+                });
+                index = 0;
+ 
+                // Create the list of default selected fail path
+                selected.fail_paths.forEach((f) => {
+                    fail.push({value: f, label: selected.failName[index]});
+                    index = index + 1;
+                });
+
+
+                this.setState({ 
+                    showConditionGroup: true,
+                    showEditLogic:false,
+                    showCondition: false,
+                    showAction: false,
+                    showActionGroup: false,
+
+                    editType: "group",
+                    defaultFailPath: fail,
+                    defaultPassPath: pass,
+                    groupName: selected.name,
+                    
+                    passPath: selected.pass_paths,
+                    passName: selected.passName,
+                    failPath: selected.fail_paths,
+                    failName: selected.failName
+                });
+            }
+        }
+    }
+
+    // Show the action group to be update
+    showEditActionGroup(){
+        if(this.state.showActionGroup){
+            this.setState({ showActionGroup: false });
+        }
+        else{
+            var selected = this.state.selectedActionGroupUpdateValue;
+            if(selected !== null){
+
+                this.setState({ 
+                    showActionGroup: true,
+                    showEditLogic:false,
+                    showConditionGroup: false,
+                    showCondition: false,
+                    showAction: false,
+                    editType: "actionGroup",
+                    actionGroupName: selected[1]
+                 });
+            }
+            
+        }
+    }
+
+    // Show the condition to be update with the current data
+    showEditCondition(){
+        if(this.state.showCondition){
+            this.setState({ showCondition: false });
+        }
+        else{
+            var selected = this.state.selectedConditionUpdateValue;
+            if(selected !== null){
+                var cond;
+                var c = selected[1].check; 
+                switch(c){
+                    case "e==v":
+                        cond = [{value: c, label: "="}];
+                        break;
+                    case "e>=v":
+                        cond = [{value: c, label: ">="}];
+                        break;
+                    case "e>v":
+                        cond = [{value: c, label: ">"}];
+                        break;
+                    case "e<=v":
+                        cond = [{value: c, label: "<="}];
+                        break;
+                    case "e<v":
+                        cond = [{value: c, label: "<"}];
+                        break;
+
+                }
+                // Get all group to display in dropdown when editing condition
+                this.getAllGroup();
+
+                // Set the default for when updating condition
+                this.setState({ 
+                    showCondition: true,
+                    showEditLogic:false,
+                    showConditionGroup: false,
+                    showAction: false,
+                    showActionGroup: false,
+
+                    editType: "condition",
+                    defaultSelectedGroup: [{value: selected[0], label: selected[0]}],
+                    defaultEntity: [{value: selected[1].encon_name, label: selected[1].encon_name}],
+                    defaultContainer: [{value: selected[1].nodecon_name, label: selected[1].nodecon_name}],
+                    defaultCheck: cond,
+                    conditionName: selected[1].name,
+                    condVal: selected[1].val,
+
+                    groupSelected: selected[0],
+                    entityName: selected[1].encon_name,
+                    containerName: selected[1].nodecon_name,
+                    cond: selected[1].check
+
+                 });
+            }
+        }
+    }
+
+    // Show the action to be updated
+    showEditAction(){
+        if(this.state.showAction){
+            this.setState({ showAction: false });
+        }
+        else{
+            var selected = this.state.selectedActionUpdateValue;
+            if(selected !== null){
+                var op;
+                var c = selected[1].op;
+                switch(c){
+                    case "ADD":
+                        op = [{value: c, label: "Add"}];
+                        break;
+                    case "SUB":
+                        op = [{value: c, label: "Subtract"}];
+                        break;
+                    case "GIVE":
+                        op = [{value: c, label: "Give"}];
+                        break;
+                    case "TAKE":
+                        op = [{value: c, label: "Take"}];
+                        break;
+                    case "MULTIPLE":
+                        op = [{value: c, label: "Multiple"}];
+                        break;
+
+                }
+
+                // Get all group to display in dropdown when editing action 
+                this.getAllGroup();
+
+                // Default setting for editing action part of logic
+                this.setState({ 
+                    showAction: true,
+                    showEditLogic:false,
+                    showConditionGroup: false,
+                    showCondition: false,
+                    showActionGroup: false,
+
+                    editType: "action",
+                    defaultSelectedGroup: [{value: selected[0], label: selected[0]}],
+                    defaultEntity: [{value: selected[1].encon_name, label: selected[1].encon_name}],
+                    defaultContainer: [{value: selected[1].nodecon_name, label: selected[1].nodecon_name}],
+                    defaultAction: op,
+
+                    groupSelected: selected[0],
+                    actionName: selected[1].name,
+                    actionVal: selected[1].val,
+                    entityName: selected[1].encon_name,
+                    containerName: selected[1].nodecon_name,
+                    action: selected[1].op
+                 });
+            }
         }
     }
 
@@ -340,47 +565,37 @@ class LogicComponent extends Component{
         this.setState({ logic: e.value });
     }
 
-    submitLogic(){
-        var cond = this.state.cond;
-        var condAmount = parseFloat(this.state.condAmount);
-        var resource = this.state.resource;
-        var action = this.state.action
-        var actionAmount = parseFloat(this.state.actionAmount);
-        var passPath = this.state.passPath;
-        var passName = this.state.passName;
-        var failPath = this.state.failPath;
-        var failName = this.state.failName;
+    // Handle the selected part of logic for update
+    handleUpdateGroup(e){
+        this.setState({ 
+            selectedGroupUpdateValue: e.value,
+            selectedGroupUpdateLabel: e.label
+        })
+    }
 
-        
+    handleUpdateActionGroup(e){
+        this.setState({ 
+            selectedActionGroupUpdateValue: e.value,
+            selectedActionGroupUpdateLabel: e.label
+        })
+    }
 
-        if(cond != "" && !isNaN(condAmount) && resource != "" && action != "" && !isNaN(actionAmount) &&
-            passPath != "" && failPath != ""){
-            
-                if(this.state.logicButtonText == "Add Logic"){
-                this.props.submitLogic("new", cond, condAmount, resource,
-                    action, actionAmount, passPath, passName, failPath, failName, this.props.selectedNodeID);
-        
-            }
-            else{
-                this.props.submitLogic("edit", cond, condAmount, resource,
-                    action, actionAmount, passPath, passName, failPath, failName, this.props.selectedNodeID);
-        
-            }
-    
-            this.showLogic();
-            
-                
-        }
-        else{
-            this.setState({showErrorMessage: true})
-        }
+    handleUpdateCondition(e){
+        this.setState({ 
+            selectedConditionUpdateValue: e.value,
+            selectedConditionUpdateLabel: e.label
+        })
+    }
 
+    handleUpdateAction(e){
+        this.setState({ 
+            selectedActionUpdateValue: e.value,
+            selectedActionUpdateLabel: e.label
+        })
     }
 
     // Create the condition group
     createGroup(){
-        console.log(this.props.selectedNodeID);
-        console.log(this.props.groupName);
 
         this.props.createConditionGroup(this.props.selectedNodeID, this.state.groupName,
             this.state.passPath, this.state.passName, this.state.failPath, this.state.failName);
@@ -420,10 +635,7 @@ class LogicComponent extends Component{
             else{
                 this.setState({ showActionGroupErrorMessage: "Exist"});
             }
-            
         }
-
-
     }
 
     // Create a condition
@@ -450,6 +662,50 @@ class LogicComponent extends Component{
     submitEditLogic(){
         this.props.submitEditLogic(this.props.selectedNodeID, this.state.logic);
         
+    }
+
+    // Edit the logic group
+    editGroup(){
+
+        this.props.editConditionGroup(this.props.selectedNodeID, this.state.groupName,
+            this.state.passPath, this.state.passName, this.state.failPath, this.state.failName, 
+            this.state.selectedGroupUpdateValue);
+        
+        this.showEditConditionGroup();
+    }
+
+    //Edit the action group
+    editActionGroup(){
+        if(this.state.actionGroupName !== ""){
+            this.props.editActionGroup(this.props.selectedNodeID, 
+                this.state.actionGroupName, this.state.selectedActionGroupUpdateValue);
+            
+            this.showEditActionGroup();
+        }
+        else{
+            this.setState({ showActionGroupErrorMessage: "Name"});
+        }
+    }
+
+    // Edit condition 
+    editCondition(){
+        this.props.editCondition(this.props.selectedNodeID, this.state.groupSelected,
+            this.state.conditionName, this.state.entityName, this.state.containerName,
+            this.state.cond, this.state.condVal, this.state.selectedConditionUpdateValue);
+
+        // Make the input field for the condition to close
+        this.showEditCondition();
+    }
+
+    // Edit Action
+    editAction(){
+        this.props.editAction(this.props.selectedNodeID, this.state.groupSelected,
+            this.state.actionName, this.state.entityName, this.state.containerName,
+            this.state.action, this.state.actionVal, this.state.actionGroupName,
+            this.state.selectedActionUpdateValue);
+
+        // Make the input field for the condition to close
+        this.showEditAction();
     }
 
     render(){
@@ -523,6 +779,51 @@ class LogicComponent extends Component{
                     {value: "RAND", label: "RAND"},
                     {value: "ALPHA_SEQ", label: "APLHA_SEQ"}];
 
+
+        var lstGroup = [];
+        var lstCondition = [];
+        var lstActionGroup = [];
+        var lstAction = [];
+        this.props.logics.forEach((l) => {
+            if(l.applyTo == this.props.selectedNodeID){
+                /* Create list of group */
+                /* [type of update, current data] */
+                l.conditionsActionsGroup.forEach((group) => {
+                    lstGroup.push({
+                        value: group, 
+                        label: group.name
+                    });
+                    
+                    /* Create list of condition */
+                    /* [type of update, group name to find, current data] */
+                    group.conditions.forEach((c) => {
+                        lstCondition.push({
+                            value: [group.name, c], 
+                            label: c.name
+                        });
+                    });
+
+                    /* Create list of actions group */
+                    /* [type of update, group name to find, current data] */
+                    lstActionGroup.push({
+                        value: [group.name, group.actionGroup.name], 
+                        label: group.actionGroup.name
+                    });
+
+                    /* Create list of actions */
+                    /* [type of update, group name to find, current data] */
+                    group.actionGroup.actions.forEach((a) => {
+                        lstAction.push({
+                            value: [group.name, a], 
+                            label: a.name
+                        });
+                    });
+
+                })
+            }
+            
+        })
+
         const customStyle = {
             valueContainer: () => ({
                 width: 100
@@ -531,7 +832,6 @@ class LogicComponent extends Component{
 
         var conditionGroupContent = 
             <div>
-                <h3>Add Condition Group</h3>
                 <label className="label">Group Name:
                     <input 
                         type="text" 
@@ -541,40 +841,74 @@ class LogicComponent extends Component{
                         onChange={this.onChange} />
                 </label>
             {/*this needs to be the UID not the NAME*/}
-                <label>Pass Path:
-                    <Select
-                    isMulti
-                    styles={customStyle}
-                    options={path}
-                    name="passPath"
-                    onChange={this.handlePass}
-                    />
-                </label>
-                <label>Fail Pass:
-                    <Select
-                    isMulti
-                    styles={customStyle}
-                    options={path}
-                    name="failPath"
-                    onChange={this.handleFail}
-                    />
-                </label>
-                <button className="button" onClick={this.createGroup}>
-                    Create Group
-                </button>
+                {!(this.state.showUpdateLogic) ? 
+                    <div>
+                        <label>Pass Path:
+                            <Select
+                            isMulti
+                            styles={customStyle}
+                            options={path}
+                            name="passPath"
+                            onChange={this.handlePass}
+                            />
+                        </label>
+                        <label>Fail Pass:
+                            <Select
+                            isMulti
+                            styles={customStyle}
+                            options={path}
+                            name="failPath"
+                            onChange={this.handleFail}
+                            />
+                        </label>
+                        <button className="button" onClick={this.createGroup}>
+                            Create Group
+                        </button>
+                    </div>
+                :
+                    <div>
+                        <label>Pass Path:
+                            <Select
+                            defaultValue={this.state.defaultPassPath}
+                            isMulti
+                            styles={customStyle}
+                            options={path}
+                            name="passPath"
+                            onChange={this.handlePass}
+                            />
+                        </label>
+                        <label>Fail Pass:
+                            <Select
+                            defaultValue={this.state.defaultFailPath}
+                            isMulti
+                            styles={customStyle}
+                            options={path}
+                            name="failPath"
+                            onChange={this.handleFail}
+                            />
+                        </label>
+                        <button className="button" onClick={this.editGroup}>
+                            Edit Group
+                        </button>
+                    </div>
+                }
             </div>
 
         var actionGroupContent = 
             <div>
-                <h3>Add Action Group</h3>
-                <label>Select a Condition Group:
-                    <Select
-                    styles={customStyle}
-                    options={this.state.lstGroup}
-                    name="groupSelected"
-                    onChange={this.handleSelectedGroup}
-                    />
-                </label>
+                {!(this.state.showUpdateLogic) ? 
+                    <label>Select a Condition Group:
+                        <Select
+                        styles={customStyle}
+                        options={this.state.lstGroup}
+                        name="groupSelected"
+                        onChange={this.handleSelectedGroup}
+                        />
+                    </label>
+                :
+                    <div></div>
+                }
+                
                 <label className="label">Action Group Name:
                     <input 
                         type="text" 
@@ -583,23 +917,49 @@ class LogicComponent extends Component{
                         value={this.state.actionGroupName}
                         onChange={this.onChange} />
                 </label>
-                {this.state.showActionGroupErrorMessage == "Exist" && <p>Condition group can only have one Action group</p>}
-                {this.state.showActionGroupErrorMessage == "Name" && <p>Please enter the Action group's name</p>}
-                <button className="button" onClick={this.createActionGroup}>
-                    Create Condition
-                </button>
+                {!(this.state.showUpdateLogic) ?
+                    <div>
+                        {this.state.showActionGroupErrorMessage == "Exist" && <p>Condition group can only have one Action group</p>}
+                        {this.state.showActionGroupErrorMessage == "Name" && <p>Please enter the Action group's name</p>}
+                        <button className="button" onClick={this.createActionGroup}>
+                            Create Action Group
+                        </button>
+                    </div>
+                :
+                    <div>
+                        {this.state.showActionGroupErrorMessage == "Name" && <p>Please enter the Action group's name</p>}
+                        <button className="button" onClick={this.editActionGroup}>
+                            Edit Action Group
+                        </button>
+                    </div>
+                }
             </div>
 
         var conditionContent = 
             <div>
-                <h3>Add Condition to a Group</h3>
+
                 <label>Select Group:
-                    <Select
-                    styles={customStyle}
-                    options={this.state.lstGroup}
-                    name="groupSelected"
-                    onChange={this.handleSelectedGroup}
-                    />
+                    {!(this.state.showUpdateLogic) ?
+                        <div>
+                            <Select
+                            styles={customStyle}
+                            options={this.state.lstGroup}
+                            name="groupSelected"
+                            onChange={this.handleSelectedGroup}
+                            />
+                        </div>
+                    :
+                        <div>
+                            <Select
+                            defaultValue={this.state.defaultSelectedGroup}
+                            styles={customStyle}
+                            options={this.state.lstGroup}
+                            name="groupSelected"
+                            onChange={this.handleSelectedGroup}
+                            />
+                        </div>
+                    }
+                    
                 </label>
                 <label className="label">Condition Name:
                     <input 
@@ -609,30 +969,65 @@ class LogicComponent extends Component{
                         value={this.state.conditionName}
                         onChange={this.onChange} />
                 </label>
-                <label>Entity Name:
-                    <Select
-                    styles={customStyle}
-                    options={lstEntity}
-                    name="entityName"
-                    onChange={this.handleEntitySelected}
-                    />
-                </label>
-                <label>Check:
-                    <Select
-                    styles={customStyle}
-                    options={cond}
-                    name="cond"
-                    onChange={this.handleCond}
-                    />
-                </label>
-                <label>Container Name:
-                    <Select
-                    styles={customStyle}
-                    options={lstContainer}
-                    name="containerName"
-                    onChange={this.handleContainerSelected}
-                    />
-                </label>
+                {!(this.state.showUpdateLogic) ?
+                    <div>
+                        <label>Entity Name:
+                            <Select
+                            styles={customStyle}
+                            options={lstEntity}
+                            name="entityName"
+                            onChange={this.handleEntitySelected}
+                            />
+                        </label>
+                        <label>Check:
+                            <Select
+                            styles={customStyle}
+                            options={cond}
+                            name="cond"
+                            onChange={this.handleCond}
+                            />
+                        </label>
+                        <label>Container Name:
+                            <Select
+                            styles={customStyle}
+                            options={lstContainer}
+                            name="containerName"
+                            onChange={this.handleContainerSelected}
+                            />
+                        </label>
+                    </div>
+                :
+                    <div>
+                        <label>Entity Name:
+                            <Select
+                            defaultValue={this.state.defaultEntity}
+                            styles={customStyle}
+                            options={lstEntity}
+                            name="entityName"
+                            onChange={this.handleEntitySelected}
+                            />
+                        </label>
+                        <label>Check:
+                            <Select
+                            defaultValue={this.state.defaultCheck}
+                            styles={customStyle}
+                            options={cond}
+                            name="cond"
+                            onChange={this.handleCond}
+                            />
+                        </label>
+                        <label>Container Name:
+                            <Select
+                            defaultValue={this.state.defaultContainer}
+                            styles={customStyle}
+                            options={lstContainer}
+                            name="containerName"
+                            onChange={this.handleContainerSelected}
+                            />
+                        </label>
+                    </div>
+                }
+                
                 <label className="label">Value:
                     <input 
                         type="text" 
@@ -642,21 +1037,37 @@ class LogicComponent extends Component{
                         onChange={this.onChange} />
                 </label>
 
-                <button className="button" onClick={this.createCondition}>
-                    Create Condition
-                </button>
+                {!(this.state.showUpdateLogic) ? 
+                    <button className="button" onClick={this.createCondition}>
+                        Create Condition
+                    </button>
+                :
+                    <button className="button" onClick={this.editCondition}>
+                        Edit Condition
+                    </button>
+
+                }
             </div>
 
         var actionContent = 
             <div>
-                <h3>Add Action to a Group</h3>
                 <label>Select Group:
-                    <Select
-                    styles={customStyle}
-                    options={this.state.lstGroup}
-                    name="groupSelected"
-                    onChange={this.handleSelectedGroup}
-                    />
+                    {!(this.state.showUpdateLogic) ? 
+                        <Select
+                        styles={customStyle}
+                        options={this.state.lstGroup}
+                        name="groupSelected"
+                        onChange={this.handleSelectedGroup}
+                        />
+                    :
+                        <Select
+                        defaultValue={this.state.defaultSelectedGroup}
+                        styles={customStyle}
+                        options={this.state.lstGroup}
+                        name="groupSelected"
+                        onChange={this.handleSelectedGroup}
+                        />
+                    }
                 </label>
                 <label className="label">Action Name:
                     <input 
@@ -666,30 +1077,64 @@ class LogicComponent extends Component{
                         value={this.state.actionName}
                         onChange={this.onChange} />
                 </label>
-                <label>Entity Name:
-                    <Select
-                    styles={customStyle}
-                    options={lstEntity}
-                    name="entityName"
-                    onChange={this.handleEntitySelected}
-                    />
-                </label>
-                <label>Action Taken:
-                    <Select
-                    styles={customStyle}
-                    options={action}
-                    name="action"
-                    onChange={this.handleAction}
-                    />
-                </label>
-                <label>Container Name:
-                    <Select
-                    styles={customStyle}
-                    options={lstContainer}
-                    name="containerName"
-                    onChange={this.handleContainerSelected}
-                    />
-                </label>
+                {!(this.state.showUpdateLogic) ? 
+                    <div>
+                        <label>Entity Name:
+                            <Select
+                            styles={customStyle}
+                            options={lstEntity}
+                            name="entityName"
+                            onChange={this.handleEntitySelected}
+                            />
+                        </label>
+                        <label>Action:
+                            <Select
+                            styles={customStyle}
+                            options={action}
+                            name="action"
+                            onChange={this.handleAction}
+                            />
+                        </label>
+                        <label>Container Name:
+                            <Select
+                            styles={customStyle}
+                            options={lstContainer}
+                            name="containerName"
+                            onChange={this.handleContainerSelected}
+                            />
+                        </label>
+                    </div>
+                :
+                    <div>
+                        <label>Entity Name:
+                            <Select
+                            defaultValue={this.state.defaultEntity}
+                            styles={customStyle}
+                            options={lstEntity}
+                            name="entityName"
+                            onChange={this.handleEntitySelected}
+                            />
+                        </label>
+                        <label>Action:
+                            <Select
+                            defaultValue={this.state.defaultAction}
+                            styles={customStyle}
+                            options={action}
+                            name="action"
+                            onChange={this.handleAction}
+                            />
+                        </label>
+                        <label>Container Name:
+                            <Select
+                            defaultValue={this.state.defaultContainer}
+                            styles={customStyle}
+                            options={lstContainer}
+                            name="containerName"
+                            onChange={this.handleContainerSelected}
+                            />
+                        </label>
+                    </div>
+                }
                 <label className="label">Value:
                     <input 
                         type="text" 
@@ -699,9 +1144,16 @@ class LogicComponent extends Component{
                         onChange={this.onChange} />
                 </label>
 
-                <button className="button" onClick={this.createAction}>
-                    Create Action
-                </button>
+                {!(this.state.showUpdateLogic) ? 
+                    <button className="button" onClick={this.createAction}>
+                        Create Action
+                    </button>
+                :
+                    <button className="button" onClick={this.editAction}>
+                        Edit Action
+                    </button>    
+                }
+                
             </div>
 
         var editLogic = 
@@ -720,6 +1172,62 @@ class LogicComponent extends Component{
                 Submit Edit
             </button>
         </div>
+
+        var updateLogicContent =
+            <div>
+                <div>
+                    <label> Groups:
+                        <Select
+                        styles={customStyle}
+                        options={lstGroup}
+                        name="selectedUpdate"
+                        onChange={this.handleUpdateGroup}
+                        />
+                    </label>
+                    <button className="button" onClick={this.showEditConditionGroup}>
+                        Edit Group
+                    </button>
+                </div>
+                <div>
+                    <label> Action Groups:
+                        <Select
+                        styles={customStyle}
+                        options={lstActionGroup}
+                        name="selectedUpdate"
+                        onChange={this.handleUpdateActionGroup}
+                        />
+                    </label>
+                    <button className="button" onClick={this.showEditActionGroup}>
+                        Edit Action Groups
+                    </button>
+                </div>
+                <div>
+                    <label> Conditions:
+                        <Select
+                        styles={customStyle}
+                        options={lstCondition}
+                        name="selectedUpdate"
+                        onChange={this.handleUpdateCondition}
+                        />
+                    </label>
+                    <button className="button" onClick={this.showEditCondition}>
+                        Edit Conditions
+                    </button>
+                </div>
+                <div>
+                    <label> Actions:
+                        <Select
+                        styles={customStyle}
+                        options={lstAction}
+                        name="selectedUpdate"
+                        onChange={this.handleUpdateAction}
+                        />
+                    </label>
+                    <button className="button" onClick={this.showEditAction}>
+                        Edit Actions
+                    </button>
+                </div>
+            </div>
 
         return(
             <div>
@@ -749,14 +1257,48 @@ class LogicComponent extends Component{
                     <button className="button" onClick={this.showAction} >
                         Add Action
                     </button>
+                    <button className="button" onClick={this.showUpdateLogic} >
+                        Update Logic
+                    </button>
                 </div>
                 : <div></div>}
 
-                {this.state.showConditionGroup ? conditionGroupContent : <div></div>}
-                {this.state.showCondition ? conditionContent : <div></div>}
-                {this.state.showAction ? actionContent : <div></div>}
+                {this.state.showUpdateLogic ? 
+                    <div>
+                        {updateLogicContent}
+                    </div>
+                :
+                    <div></div>
+                }
+
+                {this.state.showConditionGroup ? 
+                <div>
+                    <h3>Condition Group</h3>
+                    {conditionGroupContent}
+                </div> 
+                : <div></div>}
+                
+                {this.state.showCondition ? 
+                <div>
+                    <h3>Condition</h3>
+                    {conditionContent}
+                </div>
+                : <div></div>}
+                
+                {this.state.showAction ? 
+                <div>
+                    <h3>Action</h3>
+                    {actionContent}
+                </div>
+                : <div></div>}
+                
+                {this.state.showActionGroup ? 
+                <div>                 
+                    <h3>Action Group</h3>
+                    {actionGroupContent}
+                </div> 
+                : <div></div>}
                 {this.state.showEditLogic ? editLogic : <div></div>}
-                {this.state.showActionGroup ? actionGroupContent : <div></div>}
             </div>
         )
     }

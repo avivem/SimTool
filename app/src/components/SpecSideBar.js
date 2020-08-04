@@ -57,7 +57,7 @@ class SpecSideBar extends Component{
                     x: xLoc,
                     y: yLoc,
                     text:
-                      "Name: " + e.name + " \n" + "Resource: " + e.resourceName,
+                      "Name: " + e.name + " \n" + "Resource: " + e.resource,
                     fontSize: 18,
                     fontFamily: 'Calibri',
                     fill: '#555',

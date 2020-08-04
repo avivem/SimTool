@@ -109,12 +109,17 @@ class App extends Component{
     this.editSpec = this.editSpec.bind(this);
     this.deleteSpec = this.deleteSpec.bind(this);
     
-    this.submitLogic = this.submitLogic.bind(this);
     this.createLogic = this.createLogic.bind(this);
     this.createConditionGroup = this.createConditionGroup.bind(this);
     this.createActionGroup = this.createActionGroup.bind(this);
     this.createCondition = this.createCondition.bind(this);
     this.createAction = this.createAction.bind(this);
+    this.editConditionGroup = this.editConditionGroup.bind(this);
+    this.editActionGroup = this.editActionGroup.bind(this);
+    this.editCondition = this.editCondition.bind(this);
+    this.editAction = this.editAction.bind(this);
+
+    // This logic is a field in the nodes
     this.submitEditLogic = this.submitEditLogic.bind(this);
   }
 
@@ -1423,58 +1428,6 @@ class App extends Component{
     console.log(specs);
   }
 
-  
-
-  // status - new/edit, if new then add new logic, if edit then edit an existing logic
-  // cond - el==, el<=, el<, el>=, el>
-  // condAmount/actionAmount - should be a number
-  // resource - should be a resource from an assign container
-  // action - ADD or SUB
-  // passPath/failPath - UID of node of path to go
-  // selectedNodeID - UID of the selected node 
-  submitLogic(status, cond, condAmount, resource, action, actionAmount, passPath, passName, failPath, failName, selectedNodeID){
-    var lst = this.state.logics;
-    if(status == "new"){
-      lst.push({
-        uid: "logic-" + this.state.count,
-        applyTo: selectedNodeID,
-        resource: resource,
-        cond: cond,
-        condAmount: condAmount,
-        action: action,
-        actionAmount: actionAmount,
-        pass_paths: passPath,
-        passName: passName,
-        fail_paths: failPath,
-        failName: failName,
-      });
-    }
-    else{
-      lst.forEach((l) => {
-        if(selectedNodeID == l.applyTo){
-          l.resource= resource;
-          l.cond= cond;
-          l.condAmount= condAmount;
-          l.action= action;
-          l.actionAmount= actionAmount;
-          l.pass_paths= passPath;
-          l.passName= passName;
-          l.fail_paths= failPath;
-          l.failName= failName;
-        }
-      })
-    }
-
-
-    this.setState((state) => ({
-      count: state.count + 1,
-      logics: lst
-    }))
-
-    console.log(lst);
-  }
-
-
   // Create the logic for selected node
   createLogic(selectedNodeID){
     var lst = this.state.logics;
@@ -1547,7 +1500,7 @@ class App extends Component{
   }
 
   // Add a condition to the group with the groupName
-  createCondition(selectedNodeID, groupName, name, entityName, nodeName, check, val){
+  createCondition(selectedNodeID, groupName, name, entityName, nodeContainerName, check, val){
 
     var lst = this.state.logics;
     lst.forEach((l) => {
@@ -1558,7 +1511,7 @@ class App extends Component{
             group.conditions.push({
               name: name,
               encon_name: entityName,
-              nodecon_name: nodeName,
+              nodecon_name: nodeContainerName,
               check: check,
               val: parseInt(val)
             });
@@ -1580,7 +1533,7 @@ class App extends Component{
           cond_group: groupName,
           name: name,
           encon_name: entityName,
-          nodecon_name: nodeName,
+          nodecon_name: nodeContainerName,
           op: check,
           val: parseInt(val)
         })
@@ -1640,7 +1593,7 @@ class App extends Component{
   }
 
   // Add a condition to the group with the groupName 
-  createAction(selectedNodeID, groupName, name, entityName, nodeName, op, val, agn){
+  createAction(selectedNodeID, groupName, name, entityName, nodeContainerName, op, val, agn){
     var lst = this.state.logics;
 
 
@@ -1648,11 +1601,11 @@ class App extends Component{
       if(l.applyTo == selectedNodeID){
         l.conditionsActionsGroup.forEach((group) => {
           if(group.name == groupName){
-            // Add new condition to group
+            // Add new action to group
             group.actionGroup.actions.push({
               name: name,
               encon_name: entityName,
-              nodecon_name: nodeName,
+              nodecon_name: nodeContainerName,
               op: op,
               val: parseInt(val)
             });
@@ -1674,7 +1627,7 @@ class App extends Component{
         action_group: agn,
         name: name,
         encon_name: entityName,
-        nodecon_name: nodeName,
+        nodecon_name: nodeContainerName,
         op: op,
         val: parseInt(val)
         })
@@ -1691,6 +1644,193 @@ class App extends Component{
     });
 
   }
+
+  // Update to the condition group
+  // oldGroup is an dict of old value of action group
+  editConditionGroup(selectedNodeID, groupName, passPath, passName, failPath, failName, oldGroup){
+    var lst = this.state.logics;
+    var oldName = oldGroup.name;
+
+    lst.forEach((l) => {
+      if(l.applyTo == selectedNodeID){
+        l.conditionsActionsGroup.forEach((group) => {
+          if(group.name == oldName){
+            group.name = groupName;
+            group.pass_paths = passPath;
+            group.passName = passName;
+            group.fail_paths = failPath;
+            group.failName = failName
+          }
+        });
+
+      }
+    });
+
+    this.setState({ logics: lst });
+    console.log(lst);
+
+
+  }
+  
+  // Update to the action group
+  // oldActionGroup is an array of 2 element group [group name, old value of action group]
+  editActionGroup(selectedNodeID, groupName, oldActionGroup){
+    var lst = this.state.logics;
+    var oldName = oldActionGroup[0];
+
+    lst.forEach((l) => {
+      if(l.applyTo == selectedNodeID){
+        l.conditionsActionsGroup.forEach((group) => {
+          if(group.name == oldName){
+            group.actionGroup.name = groupName;
+          }
+        });
+      }
+    });
+
+    this.setState({ logics: lst});
+    console.log(lst);
+
+  }
+
+  // Update to the condition
+  // oldCondition is an array of 2 element group [group name, old value of condition]
+  editCondition(selectedNodeID, groupName, name, entityName, nodeContainerName, check, val, oldCondition){
+    var lst = this.state.logics;
+    var oldGroupName = oldCondition[0];
+
+    if(groupName != oldGroupName){
+      // Remove condition from this group
+      lst.forEach((l) => {
+        if(l.applyTo == selectedNodeID){
+          l.conditionsActionsGroup.forEach((group) => {
+            if(group.name == oldGroupName){
+              var condLst = [];
+              group.conditions.forEach((c) => {
+                if(c.name !== oldCondition[1].name){
+                  condLst.push(c);
+                }
+              });
+              group.conditions = condLst;
+            }
+          });
+        }
+      });
+      // Move update condition to new group
+      lst.forEach((l) => {
+        if(l.applyTo == selectedNodeID){
+          l.conditionsActionsGroup.forEach((group) => {
+            if(group.name == groupName){
+              group.conditions.push({
+                name: name,
+                encon_name: entityName,
+                nodecon_name: nodeContainerName,
+                check: check,
+                val: parseInt(val)
+              });
+            }
+          });
+        }
+      });
+
+    }
+    else{
+      // Condition remain in same group, just value are changed
+      lst.forEach((l) => {
+        if(l.applyTo == selectedNodeID){
+          l.conditionsActionsGroup.forEach((group) => {
+            if(group.name == groupName){
+              group.conditions.forEach((c) => {
+                if(c.name == oldCondition[1].name){
+                  c.name = name;
+                  c.encon_name = entityName;
+                  c.nodecon_name = nodeContainerName;
+                  c.check = check;
+                  c.val = parseInt(val);
+                }
+              });
+            }
+          });
+        }
+      });
+
+    }
+
+    this.setState({ logics: lst });
+    console.log(lst);
+  }
+
+  // Update to the action
+  // oldActionGroup is an array of 2 element group [group name, old value of action]
+  editAction(selectedNodeID, groupName, name, entityName, nodeContainerName, op, val, agn, oldAction){
+    var lst = this.state.logics;
+    var oldGroupName = oldAction[0];
+
+    if(groupName != oldGroupName){
+      console.log("Path 1");
+      console.log(groupName)
+      console.log(oldGroupName)
+      // Remove condition from this group
+      lst.forEach((l) => {
+        if(l.applyTo == selectedNodeID){
+          l.conditionsActionsGroup.forEach((group) => {
+            if(group.name == oldGroupName){
+              var lstAction = [];
+              group.actionGroup.actions.forEach((a) => {  
+                if(a.name != oldAction[1].name){
+                  lstAction.push(a);
+                }
+              });
+              group.actionGroup.actions = lstAction
+            }
+          });
+        }
+      });
+
+      // Move action to new group
+      lst.forEach((l) => {
+        if(l.applyTo == selectedNodeID){
+          l.conditionsActionsGroup.forEach((group) => {
+            if(group.name == groupName){
+              // Add action to group
+              group.actionGroup.actions.push({
+                name: name,
+                encon_name: entityName,
+                nodecon_name: nodeContainerName,
+                op: op,
+                val: parseInt(val)
+              });
+            }
+          });
+        }
+      });
+    }
+    else{
+      // Action remain in same group, just data are changed
+      console.log("Path 2")
+      lst.forEach((l) => {
+        if(l.applyTo == selectedNodeID){
+          l.conditionsActionsGroup.forEach((group) => {
+            if(group.name == oldGroupName){
+              group.actionGroup.actions.forEach((a) => {  
+                if(a.name == oldAction[1].name){
+                  a.name = name;
+                  a.encon_name = entityName;
+                  a.nodecon_name = nodeContainerName;
+                  a.op = op;
+                  a.val = parseInt(val);
+                }
+              });
+            }
+          });
+        }
+      });
+    }
+
+    this.setState({ logics: lst });
+    console.log(lst);
+  }
+
 
   // Change the logic of a node
   submitEditLogic(nodeUID, logic){
@@ -1815,7 +1955,6 @@ class App extends Component{
           
           arrows={this.state.arrows}
           containers={this.state.containers}
-          submitLogic={this.submitLogic}
           logics={this.state.logics}
           specs={this.state.specs}
           createLogic={this.createLogic}
@@ -1823,6 +1962,10 @@ class App extends Component{
           createActionGroup={this.createActionGroup}
           createCondition={this.createCondition}
           createAction={this.createAction}
+          editConditionGroup={this.editConditionGroup}
+          editActionGroup={this.editActionGroup}
+          editCondition={this.editCondition}
+          editAction={this.editAction}
           
           useBlueprintMakeContainer={this.useBlueprintMakeContainer}
 
