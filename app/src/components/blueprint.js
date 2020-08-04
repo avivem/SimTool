@@ -133,7 +133,7 @@ class BlueprintPopUp extends Component{
                     <h1>Add Blueprint</h1>
                 </div>
 
-                <div className="container input-group">                    
+                <div class="container">                    
                     <label className="label">Specification Name:</label>
                     <input 
                         type="text" 
@@ -151,8 +151,8 @@ class BlueprintPopUp extends Component{
                         onChange={this.onChange} />
                 </div>
 
-                <div className="container input-group">  
-
+            {/* fix- make dropdown from bootstrap*/}
+                <div class="container ">  
                     <label className="label">Distribution:&nbsp;
                         <select 
                             className="paymentType" 

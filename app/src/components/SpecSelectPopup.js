@@ -24,12 +24,17 @@ class SpecSelectPopup extends Component{
 
         this.onChange = this.onChange.bind(this);
         this.changeDist = this.changeDist.bind(this);
+
+        // Handle change for the dropdown for nodes to apply to
         this.handleChange = this.handleChange.bind(this);
+
+        // add blurprint to backend
         this.addSelectedSpec = this.addSelectedSpec.bind(this);
 
+        // show blueprint to edit
         this.showEditSpec = this.showEditSpec.bind(this);
+        // submit new edit
         this.submitEdit = this.submitEdit.bind(this);
-        
     }
 
     onChange(e){
@@ -56,9 +61,9 @@ class SpecSelectPopup extends Component{
         this.setState({
             selected: lst
         })
-        
     }
 
+    // add blueprint
     addSelectedSpec(){
         var nodes = {lst: this.state.selected};
         this.props.useBlueprintMakeContainer(this.props.selectedSpec, nodes);
@@ -83,7 +88,6 @@ class SpecSelectPopup extends Component{
                 loc: spec.loc,
                 constantValue: spec.init
             });
-
         }
     }
 
@@ -103,21 +107,24 @@ class SpecSelectPopup extends Component{
         else{
             this.setState({showErrorMessage: true})
         }
-        
     }
 
     render(){
         // Collect the possible option for this container, which is now also called a blueprint
         var options = [];
+
+        // for reach start node, add value and label to options
         this.props.startNode.forEach((node) => {
             options.push({ value: node.uid, label: node.name })
 
         });
 
+        // for reach station node, add value and label to options
         this.props.stationNode.forEach((node)=> {
             options.push({ value: node.uid, label: node.name })
         })
 
+        // for reach start node, add value and label to options
         var spec = this.props.selectedSpec;
 /*
         var defaultSelect = [];
@@ -143,7 +150,8 @@ class SpecSelectPopup extends Component{
         });
 
 */
-       
+
+        // content for a constant dist      
         let contentConstant =
             <div className="container input-group">        
                 <label className="label">Value: </label> 
@@ -163,6 +171,7 @@ class SpecSelectPopup extends Component{
                     onChange={this.onChange} />
             </div>
 
+        // content for a non-constant dist   
         let contentNotConstant = 
             <div className="container input-group">        
                 <label className="label">Scale: </label> 
@@ -190,8 +199,8 @@ class SpecSelectPopup extends Component{
                     onChange={this.onChange} />
             </div>                   
 
-
-        var content = 
+        // content for a updating blueprint
+        var blueprintEdit = 
             <div>
                 <div className="container input-group">                    
                     <label className="label">Specification Name:</label>
@@ -236,23 +245,28 @@ class SpecSelectPopup extends Component{
                         Submit Edit
                     </button>
                 </div>
-
             </div>
         
-
         return (
+
             <Popup 
             open={this.props.openSpecSelect} 
             closeOnDocumentClick = {true} 
             onClose={this.props.closeSpecSelectPopup}
             contentStyle={{height: 400, overflow: "auto"}}>
+
                 <div>
-                    <div>
+                    <div class="containr">
+                        {/*blueprint informtaion*/}
                         <h1>{spec.name}</h1>
                         <p>Resource: {spec.resource}</p>
                         <p>Distribution: {spec.distribution}</p>
+                        
+                        {/*if dist constant, show corresponding htlm form*/}
                         {spec.distribution == "CONSTANT" ? 
-                        <div><p>Value: {spec.init}</p></div>
+                        <div>
+                            <p>Value: {spec.init}</p>
+                        </div>
                         :
                         <div>
                             <p>Scale: {spec.scale} </p>
@@ -260,12 +274,17 @@ class SpecSelectPopup extends Component{
                             <p>Max Amount: {spec.maxAmount}</p>
                         </div>}
                     </div>
+
                     <div>
                         <button className="button" onClick={this.showEditSpec}>
                             Edit
                         </button>
-                        {this.state.showEditSpec ? content : <div></div>}
-                    </div>   
+
+                        {/*if edit selected, show html to change blueprint*/}
+                        {this.state.showEditSpec ? blueprintEdit : <div></div>}
+                    </div>  
+
+                    {/*apply blueprint to node*/}
                     <div>
                         <h5>Apply to:</h5>
                         <Select 
@@ -277,15 +296,14 @@ class SpecSelectPopup extends Component{
                         maxMenuHeight = {150}
                         />    
                     </div>
+
                     <div>
                         <button className="button" onClick={this.addSelectedSpec}>
                             Apply
                         </button>
                     </div>    
                 </div>
-
             </Popup>
-
         );
     }
 

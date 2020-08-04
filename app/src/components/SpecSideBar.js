@@ -51,13 +51,14 @@ class SpecSideBar extends Component{
         this.props.specs.forEach((e) =>{
             var spec = layer.findOne('#' + e.uid + "-rect");
             if(spec == undefined){
+                console.log(e);
                 var label = new Konva.Text({
                     id: e.uid + "-text",
                     name: e.uid,
                     x: xLoc,
                     y: yLoc,
                     text:
-                      "Name: " + e.name + " \n" + "Resource: " + e.resourceName,
+                      "Name: " + e.name + " \n" + "Resource: " + e.resource,
                     fontSize: 18,
                     fontFamily: 'Calibri',
                     fill: '#555',

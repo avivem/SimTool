@@ -568,8 +568,8 @@ class Navigation extends Component{
       return(
         <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark navbar-expand ">
          
-         {/*navbar*/}
-          <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+         {/*navbar- might re-do*/}
+          <div class="collapse navbar-collapse">
             <ul class="row navbar-nav mr-auto">
               <li class="col-sm-2 nav-item active">
                 <button type="button" className="button btn btn-primary" style={{backgroundColor:'#2cbebe'}} onClick={this.openPopupNode}>+</button>
@@ -586,13 +586,12 @@ class Navigation extends Component{
             </ul>
 
             <ul class="row navbar-nav" style={{float: 'right'}}>
-              {/*fix format*/}
               <li class="col-md-5 nav-item active">    
                 <label className="label" style={{color:'white', padding: "10px"}}>Run Until: </label>
                 <input type="text" id="runTime"  className=" textbox" value={this.state.runTime} onChange={this.handleChangeTime}></input>
               </li>
               <li class="col-sm-1 nav-item active">
-                <button type="button" className="button btn btn-primary" style={{backgroundColor:'#4CAF50'}} onClick={this.handleRun}>Run</button>
+                <button type="button" className="button btn btn-secondary" style={{backgroundColor:'#4CAF50'}} onClick={this.handleRun}>Run</button>
               </li>
               <li class="col-sm-1 nav-item active">
                 <button type="button" className="button btn btn-primary" style={{backgroundColor:'yellow', color:"black"}} onClick={this.openPopupData}>Data</button>
