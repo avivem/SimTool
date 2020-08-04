@@ -40,6 +40,7 @@ class BlueprintPopUp extends Component{
         this.setState({
             distribution: e.target.value,
         });
+        console.log(this.state.distribution);
     }
 
      // Handle submit blueprint data
@@ -85,18 +86,18 @@ class BlueprintPopUp extends Component{
     render(){
         // form when distribution is constant
         let contentConstant =
-            <div className="container input-group">        
-                <label className="label">Optional Value: </label> 
+            <div class="container row input-group">        
+                <label class="label">Optional Value: </label> 
                 <input 
                     type="text" 
-                    className="form-control"
+                    class="form-control"
                     name="value" 
                     onChange={this.onChange} />
 
-                <label className="label">Optional Capacity: </label> 
+                <label class="label">Optional Capacity: </label> 
                 <input 
                     type="text" 
-                    className="form-control"
+                    class="form-control"
                     name="capacity" 
                     value={this.state.capacity}
                     onChange={this.onChange} />
@@ -104,58 +105,70 @@ class BlueprintPopUp extends Component{
 
         // form when distribution is anything but constant
         let content =
-                <div className="container input-group">        
-                    <label className="label">Scale: </label> 
-                    <input 
-                        type="text" 
-                        className="form-control"
-                        name="scale" 
-                        onChange={this.onChange} />
-                    
-                    <label className="label">Loc: </label> 
-                    <input 
-                        type="text" 
-                        className="form-control"
-                        name="loc" 
-                        onChange={this.onChange} />
+                <div class="container row">        
+                    <div class="container col ">  
+                        <label class="label">Scale: </label> 
+                        <input 
+                            type="text" 
+                            class="form-control"
+                            name="scale" 
+                            style={{width: '150px'}}
+                            onChange={this.onChange}/>
+                    </div>
+                    <div class="container col">  
+                        <label class="label">Loc: </label> 
+                        <input 
+                            type="text" 
+                            class="form-control"
+                            name="loc" 
+                            style={{width: '150px'}}
+                            onChange={this.onChange} />
+                    </div>
+                    <div class="container ">  
+                        <label class="label">Max Resource Amount: </label> 
+                        <input 
+                            type="text" 
+                            class="form-control"
+                            name="maxAmount" 
+                            style={{width: '150px'}}
+                            onChange={this.onChange} />
+                    </div>
+                </div>
 
-                    <label className="label">Max Resource Amount: </label> 
-                    <input 
-                        type="text" 
-                        className="form-control"
-                        name="maxAmount" 
-                        onChange={this.onChange} />
-                </div>           
 
         return (
             <Popup open={this.props.openBlue} closeOnDocumentClick = {true} onClose={this.closeBlueprintPopup} >
-                <div style={{alignContent: 'center'}}>
+                <div class="container" style={{alignContent: 'center'}}>
                     <h1>Add Blueprint</h1>
                 </div>
 
-                <div class="container">                    
-                    <label className="label">Specification Name:</label>
+                <div class="row container">  
+                    <div class="col container">                 
+                    <label class="label">Specification Name:</label>
                     <input 
                         type="text" 
-                        className="form-control"
+                        class="form-control"
                         name="specName" 
                         style={{width: '150px'}}
                         onChange={this.onChange} />
-                
-                    <label className="label">Resource:</label>
+
+                    </div> 
+                    <div class="col container">  
+                    <label class="label">Resource:</label>
                     <input 
                         type="text" 
-                        className="form-control"
+                        class="form-control"
                         name="resourceName" 
                         style={{width: '150px'}}
                         onChange={this.onChange} />
+                    </div>
                 </div>
 
             {/* fix- make dropdown from bootstrap*/}
-                <div class="container ">  
-                    <label className="label">Distribution:&nbsp;
+                <div class="container">  
+                    <label class="label">Distribution:&nbsp;
                         <select 
-                            className="paymentType" 
+                            class="custom-select" 
                             name="distribution"
                             onChange={this.changeDist} 
                             value={this.state.distribution}>
@@ -170,9 +183,9 @@ class BlueprintPopUp extends Component{
 
                {this.state.distribution == "CONSTANT" ? contentConstant : content}
                 
-                <div>
+                <div class="container" style={{padding: '10px'}}>
                     {this.state.showErrorMessage ? <p>Max can't be smaller than the mean</p> : <div></div>}
-                    <button type="button" className="button btn btn-primary" onClick={this.addBlueprint}>
+                    <button type="button" class="button btn btn-primary" onClick={this.addBlueprint}>
                         Apply
                     </button>
                 </div>

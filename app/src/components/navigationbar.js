@@ -480,70 +480,70 @@ class Navigation extends Component{
         // determine content in popup
         if(this.state.addNodeType == "end"){
             content =   <div class="container">
-                        <label className="label">Name:
+                        <label class="label">Name:
                             <input 
                                 type="text" 
-                                className="form-control"
+                                class="form-control"
                                 placeholder="Enter node name"
                                 name="endname"
                                 onChange={this.onChange} />
                         </label></div>
         }else if(this.state.addNodeType == "start"){
             content =   <div class="container">
-                        <label className="label">Name:
+                        <label class="label">Name:
                             <input 
                                 type="text" 
                                 name="startname"
                                 placeholder="Enter node name"
-                                className="form-control"
+                                class="form-control"
                                 onChange={this.onChange}
                                  />
                         </label>
-                        <label className="label">Gen Function dist:
-                          <select name="dist" className="form-control" onChange={this.onChange}>
+                        <label class="label">Gen Function dist:
+                          <select name="dist" class="form-control" onChange={this.onChange}>
                             <option value="NORMAL">Normal</option>
                             <option value="CONSTANT">Constant</option>
                           </select>
                         </label>
-                        <label className="label">Gen Function loc:
+                        <label class="label">Gen Function loc:
                             <input 
                                 type="text" 
-                                className="form-control"
+                                class="form-control"
                                 placeholder="Enter generation function"
                                 name="loc" 
                                 onChange={this.onChange}
                                  />
                         </label>
-                        <label className="label">Gen Function scale:
+                        <label class="label">Gen Function scale:
                             <input 
                                 type="text" 
-                                className="form-control"
+                                class="form-control"
                                 placeholder="Enter generation function"
                                 name="scale" 
                                 onChange={this.onChange}
                                  />
                         </label>
-                        <label className="label">Entity Name:
+                        <label class="label">Entity Name:
                             <input 
                                 type="text" 
-                                className="form-control"
+                                class="form-control"
                                 placeholder="Enter entity name"
                                 name="entity_name" 
                                 onChange={this.onChange}
                                  />
                         </label>
-                        <label className="label">Limit:
+                        <label class="label">Limit:
                             <input 
                                 type="text" 
                                 placeholder="Enter enter limit"
-                                className="form-control"
+                                class="form-control"
                                 name="limit" 
                                 
                                 onChange={this.onChange}
                                  />
                         </label>
-                        <label className="label">Logic:
-                          <select name="logic" className="form-control" onChange={this.onChange}>
+                        <label class="label">Logic:
+                          <select name="logic" class="form-control" onChange={this.onChange}>
                             <option value="NONE"></option>
                             <option value="NONE">NONE</option>
                             <option value="BOOL">BOOL</option>
@@ -555,36 +555,36 @@ class Navigation extends Component{
                         </div>
         }else{
             content =   <div class="container">
-                        <label className="label">Name:
+                        <label class="label">Name:
                             <input 
                                 type="text" 
                                 name="stationame"
                                 placeholder="Enter node name"
-                                className="form-control"
+                                class="form-control"
                                 
                                 onChange={this.onChange}
                                  />
                         </label>
-                        <label className="label">Capacity:
+                        <label class="label">Capacity:
                             <input 
                                 type="text" 
                                 placeholder="Enter node capacity"
-                                className="form-control"
+                                class="form-control"
                                 name="capacity" 
                                 onChange={this.onChange}
                                  />
                         </label>
-                        <label className="label">Time Function:
+                        <label class="label">Time Function:
                             <input 
                                 type="text" 
                                 placeholder="Enter time function"
-                                className="form-control"
+                                class="form-control"
                                 name="time_func" 
                                 onChange={this.onChange}
                                  />
                         </label>
-                        <label className="label">Logic:
-                          <select name="logic" className="form-control" onChange={this.onChange}>
+                        <label class="label">Logic:
+                          <select name="logic" class="form-control" onChange={this.onChange}>
                             <option value="NONE"></option>
                             <option value="NONE">NONE</option>
                             <option value="BOOL">BOOL</option>
@@ -606,41 +606,41 @@ class Navigation extends Component{
           <div class="collapse navbar-collapse">
             <ul class="row navbar-nav mr-auto">
               <li class="col-sm-2 nav-item active">
-                <button type="button" className="button btn btn-primary" style={{backgroundColor:'#2cbebe'}} onClick={this.openPopupNode}>+</button>
+                <button type="button" class="nav-link button btn btn-primary" style={{width: '50px'}} onClick={this.openPopupNode}>+</button>
               </li>
-              <li class="col-sm-2 nav-item">
-                <button type="button" className="button btn btn-primary"  style={{backgroundColor:this.state.arrowButtonColor}} onClick={this.addArrowMode}>→</button>
+              <li class="col-sm-2 nav-item active">
+                <button type="button" class="nav-link button btn btn-primary"  style={{width: '50px'}} onClick={this.addArrowMode}>→</button>
               </li>
-              <li class="col-sm-4 nav-item">
-                <button type="button" className="button btn btn-primary" style={{backgroundColor: "#2cbebe"}} onClick={this.openBlueprintPopup}>Blueprint</button>
+              <li class="col nav-item active">
+                <button type="button" class="nav-link button btn btn-primary"  onClick={this.openBlueprintPopup}>Blueprint</button>
               </li>
-              <li class="col-sm-2 nav-item">
-                <button type="button" className="button btn btn-primary" style={{backgroundColor:this.state.removeButtonColor}} onClick={this.handleRemoveMode}>x</button>
+              <li class="col nav-item active">
+                <button type="button" class="nav-link button btn btn-danger"  onClick={this.handleRemoveMode}>Delete</button>
               </li>
             </ul>
 
-            <ul class="row navbar-nav" style={{float: 'right'}}>
-              <li class="col-md-5 nav-item active">    
-                <label className="label" style={{color:'white', padding: "10px"}}>Run Until: </label>
-                <input type="text" id="runTime"  className=" textbox" value={this.state.runTime} onChange={this.handleChangeTime}></input>
+            <ul class="row justify-content-md-center navbar-nav" style={{float: 'right'}}>
+              <li class="col-sm-auto nav-item ">    
+                <label class="label" style={{color:'white', padding: "10px"}}>Run Until: </label>
+                <input type="text" id="runTime"  class=" textbox" value={this.state.runTime} onChange={this.handleChangeTime}></input>
               </li>
               <li class="col-sm-1 nav-item active">
-                <button type="button" className="button btn btn-secondary" style={{backgroundColor:'#4CAF50'}} onClick={this.handleRun}>Run</button>
+                <button type="button" class="nav-link button btn btn-success" style={{width: '50px'}} onClick={this.handleRun}>Run</button>
               </li>
               <li class="col-sm-1 nav-item active">
-                <button type="button" className="button btn btn-primary" style={{backgroundColor:'yellow', color:"black"}} onClick={this.openPopupData}>Data</button>
+                <button type="button" class="nav-link button btn btn-info" style={{width: '50px'}} onClick={this.openPopupData}>Data</button>
               </li>
               <li class="col-sm-1 nav-item active">
-                <button type="button" className="button btn btn-primary" style={{backgroundColor:'yellow', color:"black"}} onClick={this.handleResetSim}>Reset</button>
-              </li>
-              <li class="col-sm-1 nav-item active">
-                <button type="button" className="button btn btn-primary" style={{backgroundColor:'yellow', color:"black"}} onClick={this.handleClearMode}>Clear</button>
-              </li>
-              <li class="col-sm-1 nav-item active">
-                <button type="button" className="button btn btn-primary" style={{backgroundColor:'yellow', color:"black"}} onClick={this.handleSave}>Save</button>
+                <button type="button" class="nav-link button btn btn-success" onClick={this.handleSave}>Save</button>
               </li>
              <li class="col-sm-1 nav-item active">
-                <button type="button" className="button btn btn-primary" style={{backgroundColor:'yellow', color:"black"}} onClick={this.openLoad}>Load</button>
+                <button type="button" class="nav-link button btn btn-success" onClick={this.openLoad}>Load</button>
+              </li>
+              <li class="col-sm-auto nav-item active">
+                <button type="button" class="nav-link button btn btn-warning" onClick={this.handleResetSim}>Reset</button>
+              </li>
+              <li class="col-sm-auto nav-item active">
+                <button type="button" class="nav-link button btn btn-warning" onClick={this.handleClearMode}>Clear</button>
               </li>
             </ul>
 
@@ -653,21 +653,31 @@ class Navigation extends Component{
             closeOnDocumentClick 
             onClose={this.closePopupNode}
             contentStyle={{textAlign: "center"}}>
-              <h2>Create New Node</h2>  
-              <button onClick={this.addStart} className="nodeButton">
-                <img src={StartImage} alt="start" />
-                <figcaption>Start</figcaption>
-              </button>
-              
-              <button onClick={this.addStation} className="nodeButton">
-                <img src={StationImage} alt="station" onClick={this.props.handleAddNode} />
-                <figcaption>Station</figcaption>
-              </button>
-              
-              <button onClick={this.addEnd} className="nodeButton">
-                <img src={EndImage} alt="end" onClick={this.props.handleAddNode} />
-                <figcaption>End</figcaption>
-              </button>
+              <div class="container justify-content-center">
+                <h2>Create New Node</h2>  
+                <div class="row container justify-content-center" style={{padding: '10px'}} >
+                  <div class="col container justify-content-center" style={{padding: '10px'}} >
+                    <button type="button" onClick={this.addStart} class=" btn btn-outline-dark">
+                      <img src={StartImage} alt="start" style={{width: '40px'}} />
+                      <figcaption>Start Node</figcaption>
+                    </button>
+                  </div>
+                  
+                  <div class="col container justify-content-center" style={{padding: '10px'}} >
+                    <button type="button" onClick={this.addStation} class="  btn btn-outline-dark">
+                      <img src={StationImage} alt="station" onClick={this.props.handleAddNode} style={{width: '48px'}}/>
+                      <figcaption>Station Node</figcaption>
+                    </button>
+                  </div>
+                  
+                  <div class="col container justify-content-center" style={{padding: '10px'}} >
+                    <button type="button" onClick={this.addEnd} class="  btn btn-outline-dark">
+                      <img src={EndImage} alt="end" onClick={this.props.handleAddNode} style={{width: '40px'}}/>
+                      <figcaption>End Node</figcaption>
+                    </button>
+                  </div>
+                </div>
+              </div>
 
             </Popup>
           </div>
@@ -691,8 +701,8 @@ class Navigation extends Component{
                 {this.state.summaryContent}
               </div>}
               <div style={{ position: "absolute", left: "35%"}}>
-                <button className="button" style={{width: '100px'}} onClick={this.closePopupData} >Close</button>
-                <button className="button" style={{width: '100px'}} onClick={this.showInformation}> {this.state.displayType} </button>
+                <button class="button" style={{width: '100px'}} onClick={this.closePopupData} >Close</button>
+                <button class="button" style={{width: '100px'}} onClick={this.showInformation}> {this.state.displayType} </button>
               </div>
             </Popup>
           </div>
@@ -700,8 +710,8 @@ class Navigation extends Component{
           <div>
             {/*Popup for uploading image */}
             <Popup open={this.state.openImageOption} closeOnDocumentClick onClose={this.closePopupImage}>
-              <div class="container">
-                <h3>Add Node </h3>
+              <div class="container" style={{padding: '10px'}}>
+                <h3>Add {this.state.addNodeType} Node </h3>
 
                 {content}
 
@@ -710,13 +720,13 @@ class Navigation extends Component{
                 <input type="file" accept=".jpg, .jpeg, .png" onChange={this.handleImageUpload} />
                 
               </div>
-              <div>
-                <button className="button" onClick={this.handleSubmitImage}>Submit</button>
-                {/*<button className="button" onClick={this.handleDefaultImage}>Default</button>*/} 
-                <button className="button" onClick={this.handleCancelImage}>Cancel</button>
-              
+              <div class="container" style={{padding: '10px'}}>
+                <button type="button" class="button btn btn-primary" onClick={this.handleSubmitImage}>Submit</button>
+
+                <button type="button" class="button btn btn-primary" style={{floar: 'left'}} onClick={this.handleCancelImage}>Cancel</button>
               </div>
             </Popup>
+
           </div>
           <div>
             <Popup open={this.state.openPopupLoad} closeOnDocumentClick onClose={this.closeLoad}>
@@ -724,9 +734,9 @@ class Navigation extends Component{
                 <h3>Load the saved model:</h3>
                 <input type="file" accept=".json" onChange={this.handleLoadModel} />
               </div>              
-              <div>
-                <button className="button" onClick={this.submitLoad}>Load</button>
-                <button className="button" onClick={this.closeLoad}>Cancel</button>
+              <div class="container">
+                <button type="button" class="button btn btn-primary" onClick={this.submitLoad}>Load</button>
+                <button type="button" class="button btn btn-primary" onClick={this.closeLoad}>Cancel</button>
               </div>
             </Popup>
           </div>

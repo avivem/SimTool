@@ -153,19 +153,19 @@ class SpecSelectPopup extends Component{
 
         // content for a constant dist      
         let contentConstant =
-            <div className="container input-group">        
-                <label className="label">Value: </label> 
+            <div class="container ">        
+                <label class="label">Value: </label> 
                 <input 
                     type="text" 
-                    className="form-control"
+                    class="form-control"
                     name="constantValue" 
                     value={this.state.constantValue}
                     onChange={this.onChange} />
 
-                <label className="label">Optional Capacity: </label> 
+                <label class="label">Optional Capacity: </label> 
                 <input 
                     type="text" 
-                    className="form-control"
+                    class="form-control"
                     name="capacity" 
                     value={this.state.capacity}
                     onChange={this.onChange} />
@@ -173,27 +173,27 @@ class SpecSelectPopup extends Component{
 
         // content for a non-constant dist   
         let contentNotConstant = 
-            <div className="container input-group">        
-                <label className="label">Scale: </label> 
+            <div class="container ">        
+                <label class="label">Scale: </label> 
                 <input 
                     type="text" 
-                    className="form-control"
+                    class="form-control"
                     name="scale" 
                     value = {this.state.scale}
                     onChange={this.onChange} />
                 
-                <label className="label">Loc: </label> 
+                <label class="label">Loc: </label> 
                 <input 
                     type="text" 
-                    className="form-control"
+                    class="form-control"
                     name="loc" 
                     value = {this.state.loc}
                     onChange={this.onChange} />
 
-                <label className="label">Max Resource Amount: </label> 
+                <label class="label">Max Resource Amount: </label> 
                 <input 
                     type="text" 
-                    className="form-control"
+                    class="form-control"
                     name="maxAmount"
                     value = {this.state.maxAmount} 
                     onChange={this.onChange} />
@@ -202,30 +202,32 @@ class SpecSelectPopup extends Component{
         // content for a updating blueprint
         var blueprintEdit = 
             <div>
-                <div className="container input-group">                    
-                    <label className="label">Specification Name:</label>
+                <div class="container" style={{alignContent: 'center'}}>
+                    <h2>Edit Information</h2>
+                </div>
+                <div class="container ">                    
+                    <label class="label">Specification Name:</label>
                     <input 
                         type="text" 
-                        className="form-control"
+                        class="form-control"
                         name="specName" 
                         style={{width: '150px'}}
                         value = {this.state.specName} 
                         onChange={this.onChange} />
                 
-                    <label className="label">Resource:</label>
+                    <label class="label">Resource:</label>
                     <input 
                         type="text" 
-                        className="form-control"
+                        class="form-control"
                         name="resourceName" 
                         style={{width: '150px'}}
                         value = {this.state.resourceName} 
                         onChange={this.onChange} />
                 </div>
-                <div className="container input-group">  
-
-                    <label className="label">Distribution:&nbsp;
+                <div class="container">  
+                    <label class="label">Distribution:&nbsp;
                         <select 
-                            className="paymentType" 
+                            class="custom-select" 
                             name="distribution"
                             onChange={this.changeDist} 
                             value={this.state.distribution}>
@@ -239,9 +241,9 @@ class SpecSelectPopup extends Component{
 
                {this.state.distribution == "CONSTANT" ? contentConstant : contentNotConstant}
 
-                <div>
+                <div class="container" style={{padding: '10px'}}>
                     {this.state.showErrorMessage ? <p>Please enter all fields</p> : <div></div>}
-                    <button className="button" onClick={this.submitEdit}>
+                    <button type="button" class="button btn btn-primary" onClick={this.submitEdit}>
                         Submit Edit
                     </button>
                 </div>
@@ -255,10 +257,13 @@ class SpecSelectPopup extends Component{
             onClose={this.props.closeSpecSelectPopup}
             contentStyle={{height: 400, overflow: "auto"}}>
 
+
                 <div>
-                    <div class="containr">
-                        {/*blueprint informtaion*/}
+                    <div class="container" style={{alignContent: 'center'}}>
                         <h1>{spec.name}</h1>
+                    </div>
+                    <div class="container">
+                        {/*blueprint informtaion*/}
                         <p>Resource: {spec.resource}</p>
                         <p>Distribution: {spec.distribution}</p>
                         
@@ -275,8 +280,8 @@ class SpecSelectPopup extends Component{
                         </div>}
                     </div>
 
-                    <div>
-                        <button className="button" onClick={this.showEditSpec}>
+                    <div class="container" style={{padding: '10px'}}>
+                        <button type="button" class="button btn btn-primary" onClick={this.showEditSpec}>
                             Edit
                         </button>
 
@@ -285,20 +290,20 @@ class SpecSelectPopup extends Component{
                     </div>  
 
                     {/*apply blueprint to node*/}
-                    <div>
+                    <div class="container" style={{padding: '10px'}}>
                         <h5>Apply to:</h5>
                         <Select 
                         isMulti
-                        className="multi-select"
-                        classNamePrefix="select"
+                        class="multi-select"
+                        classPrefix="select"
                         options={options}
                         onChange={this.handleChange}
                         maxMenuHeight = {150}
                         />    
                     </div>
 
-                    <div>
-                        <button className="button" onClick={this.addSelectedSpec}>
+                    <div class="container" style={{padding: '10px'}}>
+                        <button type="button" class="button btn btn-primary" onClick={this.addSelectedSpec}>
                             Apply
                         </button>
                     </div>    
