@@ -285,17 +285,22 @@ class Canvas extends Component{
                 var header = "";
                 var url = target.imageURL;
                 var imageObj = new Image();
+                var offset;
+
                 if(target.uid.includes("start")){
                     header = "Start Node";
                     imageObj.src = StartImage;
+                    offset = { x: 29, y: 27 };
                 }
                 if(target.uid.includes("station")){
                     header = "Station Node";
                     imageObj.src = StationImage;
+                    offset = { x: 30, y: 28 };
                 }
                 if(target.uid.includes("end")){
                     header = "End Node";
                     imageObj.src = EndImage;
+                    offset = { x: 28, y: 28 };
                 } 
                 
                 if(url == null){
@@ -310,7 +315,7 @@ class Canvas extends Component{
                         x: target.x,
                         y: target.y,
                         fillPatternImage: imageObj,
-                        fillPatternOffset: { x: 35, y: 32 },
+                        fillPatternOffset: offset,
                     });
 
                     var label = new Konva.Text({
