@@ -66,7 +66,7 @@ class DataStore():
 		self.evnt_logger.addHandler(self.evnt_out_handler)
 		self.evnt_logger.addHandler(self.evnt_str_handler)
 
-	def newEnv(self, start = 0):
+	def new_env(self, start = 0):
 		self.env = simpy.Environment(start)
 		for node in self.nodes:
 			node.update({'env':self.env})
@@ -76,7 +76,7 @@ class DataStore():
 		if not uid in self.nodes:
 			raise ValueError(f"Node with uid {uid} not present in process.")
 
-	def getNode(self, uid):
+	def get_node(self, uid):
 		self.does_node_exist(uid)
 		node = self.nodes[uid]
 		if isinstance(node, StartingPoint):
@@ -117,13 +117,13 @@ class DataStore():
 		self.nodes[node.uid] = node
 		return f"{tipe} {node.name}:{node.uid} has been added to the process."
 
-	def updateNode(self, uid, inputs):
+	def update_node(self, uid, inputs):
 		self.does_node_exist(uid)
 		node = self.nodes[uid]
 		node.update(inputs)
 		return f"Node with uid {uid} has been updated."
 
-	def deleteNode(self, uid, tipe):
+	def delete_node(self, uid, tipe):
 		#Remove node from node dictionaries
 		self.does_node_exist(uid)
 		if tipe == DataStore.START:

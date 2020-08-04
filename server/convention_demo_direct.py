@@ -1,4 +1,5 @@
-from logic import *
+from server.models import *
+import simpy
 
 #Create environment
 env = simpy.Environment()
@@ -93,7 +94,7 @@ revenue_dict = {
 }
 
 revenue_blueprint = BasicContainerBlueprint(**revenue_dict)
-tb.add_container(revenue_blueprint)
+tb.add_container_bp(revenue_blueprint)
 
 ticket_storage_blueprint = BasicContainerBlueprint(**{
     "name" : "Ticket Storage",
@@ -101,12 +102,12 @@ ticket_storage_blueprint = BasicContainerBlueprint(**{
     "init" : {"init" : "inf"},
     "uid" : "ticket_storage"
 })
-tb.add_container(ticket_storage_blueprint)
+tb.add_container_bp(ticket_storage_blueprint)
 
 tb.create_logic("BOOL")
 condition_group = tb.logic.create_condition_group("Condition Group 1",pass_paths=[end1], fail_paths=[end2])
 condition_group.add_condition("Have enough to buy Ticket", "Wallet", "Revenue", "e>=v", 18)
-action_group = condition_group.create_action_group("Trade Money for Ticket")
+action_group = condition_group.create_action_group()
 action_group.add_action("Take money from Attendee", "Wallet", "Revenue", "TAKE", 18)
 action_group.add_action("Give Attendee Ticket", "Tickets", "Ticket Storage", "GIVE", 1)
 

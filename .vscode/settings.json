@@ -1,5 +1,5 @@
 {
-    "python.pythonPath": "flask-demo\\.venv\\Scripts\\python.exe",
+    "python.pythonPath": "server\\server\\.venv\\Scripts\\python.exe",
     "python.linting.pylintEnabled": true,
     "python.linting.enabled": true
 }
