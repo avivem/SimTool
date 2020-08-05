@@ -19,5 +19,5 @@ app.register_blueprint(views.views_logic.logic_blueprint)
 """ server = threading.Thread(target=serve, kwargs={"app": app, "host": '0.0.0.0', "port" : 5000})
 server.start() """
 #serve(app, host='0.0.0.0', port=5000)
-""" if __name__ == "__main__":
-    serve(app, host='0.0.0.0', port=5000) """
+if __name__ == "__main__":
+    serve(app, host='0.0.0.0', port=5000)

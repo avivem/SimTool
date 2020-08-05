@@ -4,6 +4,7 @@ import numpy as np
 import io
 import sys
 import logging
+import pprint
 from simtool_engine.models.simtool_nodes import StartingPoint, BasicComponent, EndingPoint
 from simtool_engine.models.simtool_logic import Logic
 from simtool_engine.models.simtool_containers import BasicContainer, BasicContainerBlueprint
@@ -15,7 +16,7 @@ class DataStore():
 	def __init__(self, start=0):
 		self.nodes = {}
 		self.starts = {}
-		self.basics = {}
+		self.stations = {}
 		self.ends = {}
 		self.blueprints = {}
 		self.last_run = None
@@ -68,7 +69,9 @@ class DataStore():
 
 	def new_env(self, start = 0):
 		self.env = simpy.Environment(start)
-		for node in self.nodes:
+		self.end_time = None
+		self.start_time = None
+		for _, node in self.nodes.items():
 			node.update({'env':self.env})
 			node.reset()
 
@@ -108,7 +111,7 @@ class DataStore():
 		elif tipe == DataStore.STATION:
 			tipe = "Station"
 			node = BasicComponent(self.env, **inputs)
-			self.basics[node.uid] = node
+			self.stations[node.uid] = node
 		elif tipe == DataStore.END:
 			tipe = "Ending Point"
 			node = EndingPoint(self.env, **inputs)
@@ -131,7 +134,7 @@ class DataStore():
 			tipe = "Starting Point"
 		elif tipe == DataStore.STATION:
 			tipe = "Station"
-			del self.basics[uid]
+			del self.stations[uid]
 		else:
 			tipe = "Ending Point"
 			del self.ends[uid]
@@ -400,11 +403,13 @@ class DataStore():
 			return f"Action {action.name} has been removed from Condition Group {cond_group} of {node.name}:{node_uid}"\
 	
 	def summary(self):
+		if self.end_time == None:
+			raise ValueError("Please run the simulation at least once.")
 		start_nodes = {k:v.summary() for k,v in self.starts.items()}
-		station_nodes = {k:v.summary() for k,v in self.basics.items()}
+		station_nodes = {k:v.summary() for k,v in self.stations.items()}
 		end_nodes = {k:v.summary() for k,v in self.ends.items()}
 		avgbystart = {k:np.mean([e.end_time-e.start_time for e in v.entities if e.end_time != None]) for k,v in self.starts.items()}
-		return {
+		to_ret = {
 			"run_info" : {
 				"sim_start_time" : self.start_time,
 				"sim_end_time" : self.end_time,
@@ -417,23 +422,91 @@ class DataStore():
 			"Station Nodes" : station_nodes,
 			"End Nodes" : end_nodes
 		}
+		return to_ret
 
-	""" def save_state(self):
-		blueprints = {}
-		starts = {}
-		basics = {}
-		ends = {}
-		dirto = {}
-		for name, s in self.starts:
-			dirto[s.uid] = s.get_directed_to()
-			save = {
-				"name" : s.name,
-				"entity_name" : s.entity_name,
-				"generation" : s.generation,
-				"limit" : s.limit,
-				"uid" : s.uid,
-				"blueprints" : {}
-			} """
+	def serialize(self):
+		return {
+			"starts" : {x.uid:x.serialize() for _,x in self.starts.items()},
+			"stations" : {x.uid:x.serialize() for _,x in self.stations.items()},
+			"ends" : {x.uid:x.serialize() for _,x in self.ends.items()},
+			"blueprints" : {uid:blueprint.serialize() for uid,blueprint in self.blueprints.items()}
+		}
+
+	""" def deserialize(self, save):
+		#First, clean the system.
+		self.clean()
+		starts = save["starts"]
+		stations = save["stations"]
+		ends = save["ends"]
+		blueprints = save["blueprints"]
+
+		#Create the base nodes.
+		for uid,node in starts:
+			inputs = {
+				"name" : node["name"],
+				"entity_name" : node["entity_name"],
+				"limit" : node["limit"],
+				"generation" : node["generation"],
+				"uid" : node["uid"]
+			}
+			self.create_node(DataStore.START,inputs)
+		
+		for uid,node in stations:
+			inputs = {
+				"name" : node["name"],
+				"capacity" : node["capacity"],
+				"time_func" : node["time_func"],
+				"generation" : node["generation"],
+				"uid" : node["uid"]
+			}
+			self.create_node(DataStore.STATION,inputs)
+
+		for uid,node in ends:
+			inputs = {
+				"name" : node["name"],
+				"uid" : node["uid"]
+			}
+			self.create_node(DataStore.END,inputs)
+
+		#Now, direct nodes to proper places.
+
+		for uid,node in starts:
+			for to in node["dirto"]:
+				self.set_directed_to(uid,to)
+		
+		for uid,node in stations:
+			for to in node["dirto"]:
+				self.set_directed_to(uid,to)
+
+		for uid,node in ends:
+			for to in node["dirto"]:
+				self.set_directed_to(uid,to)
+
+		#Create blueprints:
+
+		for uid,bp in blueprints:
+			inputs = {
+				"capacity" : bp["capacity"],
+				"init" : bp["init"],
+				"name" : bp["name"],
+				"resource" : bp["resource"],
+				"uid" : bp["uid"]
+			}
+			self.create_blueprint(inputs)
+
+		#Create containers based on blueprints.
+
+		for uid,node in starts:
+			for bp in node["blueprints"]:
+				self.add_blueprint(uid,bp)
+		
+		for uid,node in stations:
+			for bp in node["blueprints"]:
+				self.create_container_bp(uid,bp)
+
+		#Create containers  """
+
+	
 
 	def run(self, until=20000):
 		if len(self.starts) == 0:
@@ -445,7 +518,15 @@ class DataStore():
 			self.data_logger.info(f"Running simulation until {until}")
 			self.start_time = self.env.now
 			self.env.run(until)
+			self.end_time = self.env.now
 			self.last_run = self.strStream.getvalue().split('\n')
 			self.runs.append(self.last_run)
 			return (self.last_run, self.summary())
-			
+
+	def reset(self, start = 0):
+		self.new_env(start)
+		return f"Simulation reset. Time is now {self.env.now}"
+
+	def clean(self):
+		self.__init__()
+		return f"Process has been deleted. Time is now {self.env.now}"

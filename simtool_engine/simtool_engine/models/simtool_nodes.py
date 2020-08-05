@@ -58,9 +58,13 @@ class Node(object):
         for k,v in args.items():
             setattr(self, k, v)
 
+    #Each Node should implement this.
+    def serialize(self):
+        raise ValueError(f"{self} has not implemented serialize.")
+
     #each node type should define their own reset steps.
     def reset(self):
-        pass
+        raise ValueError(f"{self} has not implemented reset.")
 
     def create_logic(self, split_policy):
         self.logic = Logic(split_policy)
@@ -81,6 +85,13 @@ class StartingPoint(Node):
         self.count = 0
         self.blueprints = {}
         self.action = env.process(self.run())
+
+    def update(self, args):
+        for k,v in args.items():
+            setattr(self, k, v)
+        #If new env passed in, reprocess.
+        if 'env' in args:
+            self.env.process(self.run())
         
     def __str__(self):
         return self.name
@@ -114,6 +125,18 @@ class StartingPoint(Node):
         else:
             next_ind = 0
         return path_list[next_ind]
+
+    def serialize(self):
+        return {
+            "name" : self.name,
+            "uid" : self.uid,
+            "entity_name" : self.entity_name,
+            "generation" : self.generation,
+            "limit" : self.limit,
+            "dirto" : list({x.uid for x,_ in self.directed_to.items()}),
+            "blueprints" : list({x.serialize() for _,x in self.blueprints.items()}),
+            "logic" : self.logic.serialize()
+        }
 
     def run(self):
         evnt_logger.info(f'\t {self} starting entity generation',extra={'sim_time':self.env.now})
@@ -238,6 +261,7 @@ class BasicComponent(Node):
             "capacity" : self.capacity,
             "number of entity interactions" : self.count,
             "container summaries" : containers
+            
         }
 
     def update(self, args):
@@ -245,8 +269,20 @@ class BasicComponent(Node):
             setattr(self, k, v)
         #If environment is changed, update containers.
         if "env" in args:
-            for con in self.containers:
+            for _,con in self.containers.items():
                 con.update({"env":self.env})
+
+    def serialize(self):
+        return {
+            "name" : self.name,
+            "uid" : self.uid,
+            "capacity" : self.capacity,
+            "time_func" : self.time_func,
+            "dirto" : list({x.uid for x,_ in self.directed_to.items()}),
+            "blueprints" : list({x.uid for _,x in self.containers.items() if x.blueprint != None}),
+            "containers" : list({x.serialize() for _,x in self.containers.items() if x.blueprint == None}),
+            "logic" : self.logic.serialize()
+        }
 
 
 #Collection point for entities that have travelled through the system.
@@ -271,4 +307,10 @@ class EndingPoint(Node):
             "number of entities by start node" : encountered,
             "most common travel path" : collections.Counter(tuple(x.summary()['travelled path']) for x in self.entities).most_common(1)[0] if len(self.entities) > 0 else None,
             "average entity duration." : np.mean([x.end_time-x.start_time for x in self.entities])
+        }
+
+    def serialize(self):
+        return {
+            "name" : self.name,
+            "uid" : self.uid
         }

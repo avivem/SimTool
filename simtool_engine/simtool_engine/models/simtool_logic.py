@@ -4,11 +4,9 @@ import operator
 
 class Logic(object):
     ResultTuple = collections.namedtuple('Result', ['action_groups','paths'])
-    def __init__(self, split_policy, pass_paths = [], fail_paths = []):
+    def __init__(self, split_policy):
         self.condition_groups = {}
         self.split_policy = split_policy
-        self.pass_paths = pass_paths
-        self.fail_paths = fail_paths
 
     def noconds(self):
         return len(self.condition_groups) == 0
@@ -24,6 +22,15 @@ class Logic(object):
                 self.nodecon_name = nodecon_name
                 self.op = op
                 self.val = val
+            
+            def serialize(self):
+                return {
+                    "name" : self.name,
+                    "encon_name" : self.encon_name,
+                    "nodecon_name" : self.nodecon_name,
+                    "op" : self.op,
+                    "val" : self.val
+                }
         
         def add_action(self, name, encon_name, nodecon_name, op, val):
             self.actions[name] = self.Action(name, encon_name, nodecon_name, op, val)
@@ -31,6 +38,11 @@ class Logic(object):
         
         def remove_action(self, name):
             del self.actions[name]
+
+        def serialize(self):
+            return {
+                "actions" : {name:action.serialize() for name,action in self.actions.items()}
+            }
 
     class ConditionGroup(object):
         PASS = 1000
@@ -71,6 +83,16 @@ class Logic(object):
                 else:
                     return op(encon.name, nodecon.name)
 
+            def serialize(self):
+                return {
+                    "name": self.name,
+                    "encon_name": self.encon_name,
+                    "nodecon_name": self.nodecon_name,
+                    "op": self.op,
+                    "val": self.val,
+                    "names": False
+                }
+
         def addPath(self, uid, opt):
             if opt == Logic.ConditionGroup.PASS:
                 self.pass_paths.add(uid)
@@ -110,7 +132,15 @@ class Logic(object):
                 return any(results)
         #Default to AND so flip once for or.
         def flip_type(self):
-            self.AND = not self.AND 
+            self.AND = not self.AND
+
+        def serialize(self):
+            return {
+                "name" : self.name,
+                "pass_paths" : [x.name for x in self.pass_paths],
+                "fail_paths" : [x.name for x in self.fail_paths],
+                "conditions" : {name:condition.serialize() for name,condition in self.conditions.items()}
+            }
     
     def create_condition_group(self, name, pass_paths, fail_paths):
         self.condition_groups[name] = Logic.ConditionGroup(name, pass_paths, fail_paths)
@@ -134,3 +164,9 @@ class Logic(object):
             return self.ResultTuple(action_groups=action_groups, paths=pass_paths)
         else:
             return self.ResultTuple(action_groups=action_groups, paths=fail_paths)
+
+    def serialize(self):
+        return {
+            "cond_groups": {name:group.serialize() for name,group in self.condition_groups.items()},
+            "split_policy" : self.split_policy
+        }
