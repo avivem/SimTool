@@ -197,19 +197,27 @@ class UpdatePopUp extends Component{
         });
 
         var viewDeleteContainer = 
-            <div>
+            <div class="container">
+
                 <Select
                 styles={customStyle}
                 options={lstContainer}
                 name="selectedContainer"
                 onChange={this.selectedContainer}
                 />
-                <button className="button" onClick={this.viewContainer}>
-                    View
-                </button>
-                <button className="button" onClick={this.deleteContainer}>
-                    Delete
-                </button>
+                <div class="container row" style={{padding: '10px'}}>
+                    <div class="col">
+                    <button type="button" class="button btn btn-secondary" onClick={this.viewContainer}>
+                        View
+                    </button>
+                    </div>
+                    <div class="col">
+                    <button type="button" class="button btn btn-secondary" onClick={this.deleteContainer}>
+                        Delete
+                    </button>
+                    </div>
+                </div>
+
                 {this.state.showContainer &&
                 <div>
                     <p>Container Name: {this.state.selectedContainer.name}</p>
@@ -224,7 +232,7 @@ class UpdatePopUp extends Component{
         // Drop down to add possible blueprints
         var addBlueprint = 
             <div class="container">
-                <div class="row">
+                <div class="row container">
                     <div class="col">
                         <label>Apply New Blueprint: 
                             <Select
@@ -236,7 +244,7 @@ class UpdatePopUp extends Component{
                         </label>
                     </div>
                     <div class="col">
-                        <button className="button" onClick={this.useBlueprintMakeContainer}>
+                        <button type="button" class="button btn btn-secondary" onClick={this.useBlueprintMakeContainer}>
                                 Apply Blueprint
                         </button>
                     </div>
@@ -246,18 +254,18 @@ class UpdatePopUp extends Component{
         // Container field for when distribution is CONSTANT
         var containerConstant = 
             <div>
-                <label className="label">Value: </label> 
+                <label class="label">Value: </label> 
                 <input 
                     type="text" 
-                    className="form-control"
+                    class="form-control"
                     name="constantValue" 
                     style={{width: '150px'}}
                     onChange={this.onChange} />
 
-                <label className="label">Capacity: </label> 
+                <label class="label">Capacity: </label> 
                 <input 
                     type="text" 
-                    className="form-control"
+                    class="form-control"
                     name="containerCapacity" 
                     style={{width: '150px'}}
                     onChange={this.onChange} />
@@ -266,26 +274,26 @@ class UpdatePopUp extends Component{
         // Container field for when distribution is not CONSTANT
         var containerNotConstant = 
             <div>
-                <label className="label">Loc: </label> 
+                <label class="label">Loc: </label> 
                 <input 
                     type="text" 
-                    className="form-control"
+                    class="form-control"
                     name="containerLoc" 
                     style={{width: '150px'}}
                     onChange={this.onChange} />
 
-                <label className="label">Scale: </label> 
+                <label class="label">Scale: </label> 
                 <input 
                     type="text" 
-                    className="form-control"
+                    class="form-control"
                     name="containerScale" 
                     style={{width: '150px'}}
                     onChange={this.onChange} />
 
-                <label className="label">Capacity: </label> 
+                <label class="label">Capacity: </label> 
                 <input 
                     type="text" 
-                    className="form-control"
+                    class="form-control"
                     name="containerCapacity" 
                     style={{width: '150px'}}
                     onChange={this.onChange} />
@@ -302,25 +310,25 @@ class UpdatePopUp extends Component{
         var containerContent = 
             <div>   
                 {/*<h2>Create Blueprint and Container</h2>  
-                <label className="label">Name:</label>
+                <label class="label">Name:</label>
                 <input 
                     type="text" 
-                    className="form-control"
+                    class="form-control"
                     name="containerName" 
                     style={{width: '150px'}}
                     onChange={this.onChange} />
             
-                <label className="label">Resource:</label>
+                <label class="label">Resource:</label>
                 <input 
                     type="text" 
-                    className="form-control"
+                    class="form-control"
                     name="containerResource" 
                     style={{width: '150px'}}
                     onChange={this.onChange} />
                 
-                <label className="label">Distribution:&nbsp;
+                <label class="label">Distribution:&nbsp;
                     <select 
-                        className="paymentType" 
+                        class="paymentType" 
                         name="constainerDist"
                         onChange={this.onChange} 
                         value={this.state.constainerDist}>
@@ -334,7 +342,7 @@ class UpdatePopUp extends Component{
                 {this.state.containerDist == "CONSTANT" ? containerConstant : containerNotConstant}
                 
                 <div class="container">
-                    <button className="button" onClick={() => this.applyContainer("Station Node",s.uid)}>Submit Container</button>
+                    <button class="button" onClick={() => this.applyContainer("Station Node",s.uid)}>Submit Container</button>
                 </div>
                 */}
             </div>
@@ -385,7 +393,7 @@ class UpdatePopUp extends Component{
                         <p>Node Name: {endNode.name}</p>
 
                         <div class="container">
-                            <button className="button" onClick={this.onButtonUpdate}>
+                            <button type="button" class="button btn btn-primary" onClick={this.onButtonUpdate}>
                                 Update Node
                             </button>
                         </div>
@@ -393,17 +401,17 @@ class UpdatePopUp extends Component{
                         {/*when update button clicked, show html*/}
                        {this.state.showMessageUP &&  
                         <div>
-                            <label className="label">Name:
+                            <label class="label">Name:
                                 <input 
                                     type="text" 
-                                    className="form-control"
+                                    class="form-control"
                                     placeholder={endNode.name}
                                     name="endname"
                                     onChange={this.onChange} />
                             </label>
 
                             <div class="container">
-                                <button className="button" onClick={() => this.applyChanges("End Node",endNode.uid)}>Submit Changes</button>
+                                <button type="button" class="button btn btn-secondary" onClick={() => this.applyChanges("End Node",endNode.uid)}>Submit Changes</button>
                             </div>
                         </div>}
 
@@ -420,13 +428,14 @@ class UpdatePopUp extends Component{
                         <p>Limit: {startNode.limit}</p>
 
                         <div>
-                            <label>Containers: 
+                            <label>
+                                <h3>Containers: </h3>
                                 {viewDeleteContainer}
                             </label>
                         </div>
 
-                        <div class="container">
-                            <button className="button" onClick={this.onButtonUpdate}>
+                        <div class="container" style={{padding: '10px'}}>
+                            <button type="button" class="button btn btn-primary" onClick={this.onButtonUpdate}>
                                 Update Node
                             </button>
                         </div>
@@ -434,53 +443,53 @@ class UpdatePopUp extends Component{
                        {/*when update button clicked, show html*/}
                        {this.state.showMessageUP &&  
                             <div>
-                                <label className="label">Name:
+                                <label class="label">Name:
                                     <input 
                                         type="text" 
                                         name="startname"
                                         placeholder={startNode.name}
-                                        className="form-control"
+                                        class="form-control"
                                         onChange={this.onChange}
                                          />
                                 </label>
-                                <label className="label">Gen Function dist:
-                                  <select name="dist" className="form-control" onChange={this.onChange}>
+                                <label class="label">Gen Function dist:
+                                  <select name="dist" class="form-control" onChange={this.onChange}>
                                     <option value="NORMAL">Normal</option>
                                     <option value="CONSTANT">Constant</option>
                                   </select>
                                 </label>
-                                <label className="label">Gen Function loc:
+                                <label class="label">Gen Function loc:
                                     <input 
                                         type="text" 
-                                        className="form-control"
+                                        class="form-control"
                                         placeholder={startNode.loc}
                                         name="loc" 
                                         onChange={this.onChange}
                                          />
                                 </label>
-                                <label className="label">Gen Function scale:
+                                <label class="label">Gen Function scale:
                                     <input 
                                         type="text" 
-                                        className="form-control"
+                                        class="form-control"
                                         placeholder={startNode.scale}
                                         name="scale" 
                                         onChange={this.onChange}
                                          />
                                 </label>
-                                <label className="label">Entity Name:
+                                <label class="label">Entity Name:
                                     <input 
                                         type="text" 
-                                        className="form-control"
+                                        class="form-control"
                                         placeholder={startNode.entity_name}
                                         name="entity_name" 
                                         onChange={this.onChange}
                                          />
                                 </label>
-                                <label className="label">Limit:
+                                <label class="label">Limit:
                                     <input 
                                         type="text" 
                                         placeholder={startNode.limit}
-                                        className="form-control"
+                                        class="form-control"
                                         name="limit" 
                                         
                                         onChange={this.onChange}
@@ -488,16 +497,16 @@ class UpdatePopUp extends Component{
                                 </label>
 
                                 <div class="container">
-                                    <button className="button" onClick={() => this.applyChanges("Start Node",startNode.uid)}>Submit Changes</button>
+                                    <button type="button" class="button btn btn-secondary" onClick={() => this.applyChanges("Start Node",startNode.uid)}>Submit Changes</button>
                                 </div>
                             </div>
                         }
 
-                            <div class="container">
-                                <button className="button" onClick={this.onButtonContainer}>
-                                    Add Container
-                                </button>
-                            </div>
+                        <div class="container" style={{padding: '10px'}}>
+                            <button type="button" class="button btn btn-primary" onClick={this.onButtonContainer}>
+                                Add Container
+                            </button>
+                        </div>
 
                             {/*when container button clicked, show html*/}
                             {this.state.showMessageCont &&  
@@ -557,8 +566,8 @@ class UpdatePopUp extends Component{
                                 </tr>
                             </table>
 
-                            <div class="container">
-                                <button className="button" onClick={this.onButtonUpdate}>
+                            <div class="container" style={{padding: '10px'}}>
+                                <button type="button" class="button btn btn-primary" onClick={this.onButtonUpdate}>
                                     Update Node
                                 </button>
                             </div>
@@ -566,39 +575,39 @@ class UpdatePopUp extends Component{
                             {/*when update button clicked, show html*/}
                             {this.state.showMessageUP && 
                                 <div>
-                                    <label className="label">Name:
+                                    <label class="label">Name:
                                         <input 
                                             type="text" 
                                             name="stationname"
                                             placeholder={station.name}
-                                            className="form-control"
+                                            class="form-control"
                                             
                                             onChange={this.onChange}
                                         />
                                     </label>
-                                    <label className="label">Capacity:
+                                    <label class="label">Capacity:
                                         <input 
                                             type="text" 
                                             placeholder={station.capacity}
-                                            className="form-control"
+                                            class="form-control"
                                             name="capacity" 
                                             onChange={this.onChange}
                                              />
                                     </label>
-                                    <label className="label">Time Function:
+                                    <label class="label">Time Function:
                                         <input 
                                             type="text" 
                                             placeholder={station.time_func}
-                                            className="form-control"
+                                            class="form-control"
                                             name="time_func" 
                                             onChange={this.onChange}
                                              />
                                     </label>
                                 </div>}
 
-                            <div class="container">
-                                <button className="button" onClick={this.onButtonContainer}>
-                                    Add Contaier
+                            <div class="container" style={{padding: '10px'}}>
+                                <button type="button" class="button btn btn-primary" onClick={this.onButtonContainer}>
+                                    Add Container
                                 </button>
                             </div>
 
@@ -606,6 +615,7 @@ class UpdatePopUp extends Component{
                             {this.state.showMessageCont &&  
                                 <div>
                                     {containerContent}
+                                    {applyBlueprint}
                                 </div>
                             }
 
