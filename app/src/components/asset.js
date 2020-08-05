@@ -56,7 +56,7 @@ class BlueprintPopUp extends Component{
         var capacity = parseInt(this.state.capacity);
         var init = parseInt(this.state.value);
         if(max >= loc){
-            this.props.addSpec(specName, dist, resource, loc, scale, max, init, capacity);
+            this.props.addBlueprint(specName, dist, resource, loc, scale, max, init, capacity);
             this.closeSpecPopup();
             this.state.value = -1;
             this.state.capacity = 0;
