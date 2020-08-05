@@ -37,7 +37,7 @@ class Navigation extends Component{
         
         log: null,
         displayType: "Summary",
-        summaryContent: "",
+        summaryContent: '',
 
         openPopupLoad: false,
         loadedFile: null,
@@ -115,75 +115,6 @@ class Navigation extends Component{
         openData: true
       });
 
-      // Get summary if have not gotten summary for this run before
-      if(this.state.summaryContent == ""){
-        fetch('http://127.0.0.1:5000/api/run/summary').then(res => res.json()).then(gotUser => {
-          console.log(gotUser);
-          
-          var data = gotUser;
-          var endnode = data["End Nodes"];
-          var endInfo = [<h3>End Nodes</h3>];
-          for(var key in endnode){
-            endInfo.push(<div>
-              <p>Name: {endnode.key["name"]}</p>
-              <p>Number of Entities: {endnode.key["number of caught entities"]}</p>
-            </div>)
-          }
-          
-          
-          var startnode = data["Starting Nodes"];
-          var startInfo = [<h3>Start Nodes</h3>];
-          for(var key in startnode){
-            startInfo.push(<div>
-              <p>{startnode.key["name"]}: {startnode.key["number of entities created"]} entities</p>
-            </div>)
-          }
-          
-          
-          var stationnode = data["Station Nodes"];
-          var stationInfo = [<h3>Station Nodes</h3>];
-          for(var key in stationnode){
-            var n = stationnode.key; 
-            if(n["container summaries"] !== {}){
-              var containerInfo = stationnode.key["container summaries"];
-              for(var k in containerInfo){
-                stationInfo.push(<div>
-                  <p>Owner: {containerInfo.k["owner"]}</p>
-                  <p>Resource: {containerInfo.k["resource"]}</p>
-                  <p>Amount: {containerInfo.k["level"]}</p>
-                </div>)
-              }
-            }
-          }
-          
-          var runInfo = data["run_info"]
-          
-          var averageWaitTime = runInfo["avg_entity_duration_by_start"]
-          var infoTimeSpend = []
-          for(var key in averageWaitTime){
-            infoTimeSpend.push(<p>{key} : {averageWaitTime.key}</p>);
-          }
-          
-          var summaryContent = 
-            <div>
-              <p>Simulation Runtime: {runInfo["sim_end_time"]}</p>
-              <p>Number of Entities: {runInfo["num_spawned_entities"]}</p>
-              <p>Number of Entities Completed Run: {runInfo["num_completed_entities"]}</p>
-              <h3>Average Entity Run Time: </h3>
-              {infoTimeSpend}
-              {startInfo}
-              {stationInfo}
-              {endInfo}
-            </div>
-
-          this.setState({
-            log: gotUser,
-            summaryContent: summaryContent
-          });
-  
-        }).catch(console.log)
-      }
-
       console.log("Open Popup Data");
     }
 
@@ -234,8 +165,78 @@ class Navigation extends Component{
           console.log("Finish Running");
 
           // Reset the summaryContent since new run
-          this.setState({ summaryContent: "" });
+          // this.setState({ summaryContent: '' });
       }).catch(console.log)
+
+
+            // Get summary if have not gotten summary for this run before
+        fetch('http://127.0.0.1:5000/api/run/summary').then(res => {
+                    console.log(res);
+          return res.json();
+        }).then(gotUser => {
+          
+          var data = gotUser;
+          var endnode = data["End Nodes"];
+          var endInfo = [<h3>End Nodes</h3>];
+          for(var key in endnode){
+            endInfo.push(<div>
+              <p>Name: {endnode.key["name"]}</p>
+              <p>Number of Entities: {endnode.key["number of caught entities"]}</p>
+            </div>)
+          }
+          
+          
+          var startnode = data["Starting Nodes"];
+          var startInfo = [<h3>Start Nodes</h3>];
+          for(var key in startnode){
+            startInfo.push(<div>
+              <p>{startnode.key["name"]}: {startnode.key["number of entities created"]} entities</p>
+            </div>)
+          }
+          
+          
+          var stationnode = data["Station Nodes"];
+          var stationInfo = [<h3>Station Nodes</h3>];
+          for(var key in stationnode){
+            var n = stationnode.key; 
+            if(n["container summaries"] !== {}){
+              var containerInfo = stationnode.key["container summaries"];
+              for(var k in containerInfo){
+                stationInfo.push(<div>
+                  <p>Owner: {containerInfo.k["owner"]}</p>
+                  <p>Resource: {containerInfo.k["resource"]}</p>
+                  <p>Amount: {containerInfo.k["level"]}</p>
+                </div>)
+              }
+            }
+          }
+          
+          var runInfo = data["run_info"]
+          var averageWaitTime = runInfo["avg_entity_duration_by_start"]
+          var infoTimeSpend = []
+          for(var key in averageWaitTime){
+            infoTimeSpend.push(<p>{key} : {averageWaitTime.key}</p>);
+          }
+          
+          var summaryContent = 
+            <div>
+              <p>Simulation Runtime: {runInfo["sim_end_time"]}</p>
+              <p>Number of Entities: {runInfo["num_spawned_entities"]}</p>
+              <p>Number of Entities Completed Run: {runInfo["num_completed_entities"]}</p>
+              <h3>Average Entity Run Time: </h3>
+              {infoTimeSpend}
+              {startInfo}
+              {stationInfo}
+              {endInfo}
+            </div>
+
+          this.setState({
+            log: gotUser,
+            summaryContent: summaryContent
+          });
+  
+        }).catch(console.log)
+
 
     } 
 
@@ -698,6 +699,7 @@ class Navigation extends Component{
               {this.state.displayType == "Data" && 
               <div>
                 <h3 style={{textAlign: "center"}}>Summary</h3>
+                {this.state.log}
                 {this.state.summaryContent}
               </div>}
               <div style={{ position: "absolute", left: "35%"}}>
