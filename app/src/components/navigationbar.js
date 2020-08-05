@@ -172,16 +172,21 @@ class Navigation extends Component{
             // Get summary if have not gotten summary for this run before
         fetch('http://127.0.0.1:5000/api/run/summary').then(res => {
                     console.log(res);
-          return res.json();
+          return res.text();
         }).then(gotUser => {
+
+          gotUser = gotUser.replace(/Infinity/g, "\"Infinity\"");
+
+
           
-          var data = gotUser;
+          var data = JSON.parse(gotUser);
           var endnode = data["End Nodes"];
+          console.log(endnode);
           var endInfo = [<h3>End Nodes</h3>];
           for(var key in endnode){
             endInfo.push(<div>
-              <p>Name: {endnode.key["name"]}</p>
-              <p>Number of Entities: {endnode.key["number of caught entities"]}</p>
+              <p>Name: {endnode[key]["name"]}</p>
+              <p>Number of Entities: {endnode[key]["number of caught entities"]}</p>
             </div>)
           }
           
@@ -190,32 +195,33 @@ class Navigation extends Component{
           var startInfo = [<h3>Start Nodes</h3>];
           for(var key in startnode){
             startInfo.push(<div>
-              <p>{startnode.key["name"]}: {startnode.key["number of entities created"]} entities</p>
+              <p>{startnode[key]["name"]}: {startnode[key]["number of entities created"]} entities</p>
             </div>)
           }
           
           
           var stationnode = data["Station Nodes"];
+          console.log(data["Station Nodes"]);
           var stationInfo = [<h3>Station Nodes</h3>];
           for(var key in stationnode){
-            var n = stationnode.key; 
+            var n = stationnode[key]; 
             if(n["container summaries"] !== {}){
-              var containerInfo = stationnode.key["container summaries"];
+              var containerInfo = stationnode[key]["container summaries"];
               for(var k in containerInfo){
                 stationInfo.push(<div>
-                  <p>Owner: {containerInfo.k["owner"]}</p>
-                  <p>Resource: {containerInfo.k["resource"]}</p>
-                  <p>Amount: {containerInfo.k["level"]}</p>
+                  <p>Owner: {containerInfo[k]["owner"]}</p>
+                  <p>Resource: {containerInfo[k]["resource"]}</p>
+                  <p>Amount: {containerInfo[k]["level"]}</p>
                 </div>)
               }
             }
           }
           
-          var runInfo = data["run_info"]
-          var averageWaitTime = runInfo["avg_entity_duration_by_start"]
-          var infoTimeSpend = []
+          var runInfo = data["run_info"];
+          var averageWaitTime = runInfo["avg_entity_duration_by_start"];
+          var infoTimeSpend = [];
           for(var key in averageWaitTime){
-            infoTimeSpend.push(<p>{key} : {averageWaitTime.key}</p>);
+            infoTimeSpend.push(<p>{key} : {averageWaitTime[key]}</p>);
           }
           
           var summaryContent = 
@@ -235,6 +241,7 @@ class Navigation extends Component{
             summaryContent: summaryContent
           });
   
+        console.log(this.state.summaryContent);
         }).catch(console.log)
 
 
@@ -467,11 +474,11 @@ class Navigation extends Component{
 
     // Show the type of information
     showInformation(){
-      if(this.state.displayType == "Data"){
-        this.setState({ displayType: "Summary" });
+      if(this.state.displayType == "Summary"){
+        this.setState({ displayType: "Data" });
       }
       else{
-        this.setState({ displayType: "Data" });
+        this.setState({ displayType: "Summary" });
       }
     }
 
@@ -690,16 +697,15 @@ class Navigation extends Component{
             closeOnDocumentClick 
             onClose={this.closePopupData}
             contentStyle={{height: 400, overflow: "auto"}}>
-              {this.state.displayType == "Summary" && 
+              {this.state.displayType == "Data" && 
               <div>
                 <h3 style={{textAlign: "center"}}>Data</h3>
                 <p>{this.state.log}</p>
               </div>
               }
-              {this.state.displayType == "Data" && 
+              {this.state.displayType == "Summary" && 
               <div>
                 <h3 style={{textAlign: "center"}}>Summary</h3>
-                {this.state.log}
                 {this.state.summaryContent}
               </div>}
               <div style={{ position: "absolute", left: "35%"}}>
