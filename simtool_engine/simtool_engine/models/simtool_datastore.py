@@ -4,9 +4,9 @@ import numpy as np
 import io
 import sys
 import logging
-from .simtool_nodes import StartingPoint, BasicComponent, EndingPoint
-from .simtool_logic import Logic
-from .simtool_containers import BasicContainer, BasicContainerBlueprint
+from simtool_engine.models.simtool_nodes import StartingPoint, BasicComponent, EndingPoint
+from simtool_engine.models.simtool_logic import Logic
+from simtool_engine.models.simtool_containers import BasicContainer, BasicContainerBlueprint
 
 class DataStore():
 	START = 1000
@@ -180,13 +180,6 @@ class DataStore():
 		self.blueprints[bp.uid] = bp
 		return f"Blueprint {bp.name}:{bp.uid} created."
 
-	def add_blueprint(self, node_uid, blueprint):
-		self.does_node_exist(node_uid)
-		if not blueprint in self.blueprints:
-			raise ValueError(f"Blueprint {blueprint} does not exist.")
-		node = self.nodes[node_uid]
-		node.add_blueprint(self.blueprints[blueprint])
-
 	def update_blueprint(self, uid, inputs):
 		if not uid in self.blueprints:
 			raise ValueError(f"Blueprint {uid} does not exist.")
@@ -208,6 +201,15 @@ class DataStore():
 			raise ValueError(f"Node {owner_uid} does not have a container {name}")
 		else:
 			return self.nodes[owner_uid].containers[name]
+
+	def add_blueprint(self, node_uid, blueprint):
+		self.does_node_exist(node_uid)
+		if not blueprint in self.blueprints:
+			raise ValueError(f"Blueprint {blueprint} does not exist.")
+		node = self.nodes[node_uid]
+		bp = self.blueprints[blueprint]
+		node.add_blueprint(bp)
+		return f"Blueprint {bp.name}:{blueprint} has been added to {node.name}:{node_uid}"
 	
 	def create_container(self, owner_uid, inputs):
 		self.does_node_exist(owner_uid)

@@ -1,3 +1,4 @@
 # Ignore virtual environments called .venv in any subdirectory
+**/venv/
 **/.venv/
 .DS_Store

@@ -2,9 +2,9 @@ import uuid
 import simpy
 import collections
 import logging
-from .simtool_entities import BasicFlowEntity
-from .simtool_logic import Logic
-from .simtool_containers import BasicContainer, BasicContainerBlueprint
+from simtool_engine.models.simtool_entities import BasicFlowEntity
+from simtool_engine.models.simtool_logic import Logic
+from simtool_engine.models.simtool_containers import BasicContainer, BasicContainerBlueprint
 import random
 import scipy.stats as stats
 import numpy as np
@@ -99,7 +99,7 @@ class StartingPoint(Node):
     def add_blueprint(self, blueprint):
         name = blueprint.name
         self.blueprints[name] = blueprint
-
+        return f"Blueprint {blueprint.name}:{blueprint.uid} has been added to {self}"
 
     def next_dir(self):
         path_list = sorted(self.directed_to.keys(), key=lambda x: x.name)
