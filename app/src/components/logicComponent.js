@@ -832,11 +832,11 @@ class LogicComponent extends Component{
 
         var conditionGroupContent = 
             <div>
-                <label className="label">Group Name:
+                <label class="label">Group Name:
                     <input 
                         type="text" 
                         name="groupName"
-                        className="form-control"
+                        class="form-control"
                         value={this.state.groupName}
                         onChange={this.onChange} />
                 </label>
@@ -861,7 +861,7 @@ class LogicComponent extends Component{
                             onChange={this.handleFail}
                             />
                         </label>
-                        <button className="button" onClick={this.createGroup}>
+                        <button type="button" class="button btn btn-secondary" onClick={this.createGroup}>
                             Create Group
                         </button>
                     </div>
@@ -887,7 +887,7 @@ class LogicComponent extends Component{
                             onChange={this.handleFail}
                             />
                         </label>
-                        <button className="button" onClick={this.editGroup}>
+                        <button type="button" class="button btn btn-secondary" onClick={this.editGroup}>
                             Edit Group
                         </button>
                     </div>
@@ -909,11 +909,11 @@ class LogicComponent extends Component{
                     <div></div>
                 }
                 
-                <label className="label">Action Group Name:
+                <label class="label">Action Group Name:
                     <input 
                         type="text" 
                         name="actionGroupName"
-                        className="form-control"
+                        class="form-control"
                         value={this.state.actionGroupName}
                         onChange={this.onChange} />
                 </label>
@@ -921,14 +921,14 @@ class LogicComponent extends Component{
                     <div>
                         {this.state.showActionGroupErrorMessage == "Exist" && <p>Condition group can only have one Action group</p>}
                         {this.state.showActionGroupErrorMessage == "Name" && <p>Please enter the Action group's name</p>}
-                        <button className="button" onClick={this.createActionGroup}>
+                        <button type="button" class="button btn btn-secondary" onClick={this.createActionGroup}>
                             Create Action Group
                         </button>
                     </div>
                 :
                     <div>
                         {this.state.showActionGroupErrorMessage == "Name" && <p>Please enter the Action group's name</p>}
-                        <button className="button" onClick={this.editActionGroup}>
+                        <button type="button" class="button btn btn-secondary" onClick={this.editActionGroup}>
                             Edit Action Group
                         </button>
                     </div>
@@ -961,11 +961,11 @@ class LogicComponent extends Component{
                     }
                     
                 </label>
-                <label className="label">Condition Name:
+                <label class="label">Condition Name:
                     <input 
                         type="text" 
                         name="conditionName"
-                        className="form-control"
+                        class="form-control"
                         value={this.state.conditionName}
                         onChange={this.onChange} />
                 </label>
@@ -1028,21 +1028,21 @@ class LogicComponent extends Component{
                     </div>
                 }
                 
-                <label className="label">Value:
+                <label class="label">Value:
                     <input 
                         type="text" 
                         name="condVal"
-                        className="form-control"
+                        class="form-control"
                         value={this.state.condVal}
                         onChange={this.onChange} />
                 </label>
 
                 {!(this.state.showUpdateLogic) ? 
-                    <button className="button" onClick={this.createCondition}>
+                    <button type="button" class="button btn btn-secondary" onClick={this.createCondition}>
                         Create Condition
                     </button>
                 :
-                    <button className="button" onClick={this.editCondition}>
+                    <button type="button" class="button btn btn-secondary" onClick={this.editCondition}>
                         Edit Condition
                     </button>
 
@@ -1069,11 +1069,11 @@ class LogicComponent extends Component{
                         />
                     }
                 </label>
-                <label className="label">Action Name:
+                <label class="label">Action Name:
                     <input 
                         type="text" 
                         name="actionName"
-                        className="form-control"
+                        class="form-control"
                         value={this.state.actionName}
                         onChange={this.onChange} />
                 </label>
@@ -1135,21 +1135,21 @@ class LogicComponent extends Component{
                         </label>
                     </div>
                 }
-                <label className="label">Value:
+                <label class="label">Value:
                     <input 
                         type="text" 
                         name="actionVal"
-                        className="form-control"
+                        class="form-control"
                         value={this.state.actionVal}
                         onChange={this.onChange} />
                 </label>
 
                 {!(this.state.showUpdateLogic) ? 
-                    <button className="button" onClick={this.createAction}>
+                    <button type="button" class="button btn btn-secondary" onClick={this.createAction}>
                         Create Action
                     </button>
                 :
-                    <button className="button" onClick={this.editAction}>
+                    <button type="button" class="button btn btn-secondary" onClick={this.editAction}>
                         Edit Action
                     </button>    
                 }
@@ -1168,7 +1168,7 @@ class LogicComponent extends Component{
                 onChange={this.handleEditLogic}
                 />
             </label>
-            <button className="button" onClick={this.submitEditLogic}>
+            <button type="button" class="button btn btn-secondary" onClick={this.submitEditLogic}>
                 Submit Edit
             </button>
         </div>
@@ -1184,7 +1184,7 @@ class LogicComponent extends Component{
                         onChange={this.handleUpdateGroup}
                         />
                     </label>
-                    <button className="button" onClick={this.showEditConditionGroup}>
+                    <button type="button" class="button btn btn-secondary" onClick={this.showEditConditionGroup}>
                         Edit Group
                     </button>
                 </div>
@@ -1197,7 +1197,7 @@ class LogicComponent extends Component{
                         onChange={this.handleUpdateActionGroup}
                         />
                     </label>
-                    <button className="button" onClick={this.showEditActionGroup}>
+                    <button type="button" class="button btn btn-secondary" onClick={this.showEditActionGroup}>
                         Edit Action Groups
                     </button>
                 </div>
@@ -1210,7 +1210,7 @@ class LogicComponent extends Component{
                         onChange={this.handleUpdateCondition}
                         />
                     </label>
-                    <button className="button" onClick={this.showEditCondition}>
+                    <button type="button" class="button btn btn-secondary" onClick={this.showEditCondition}>
                         Edit Conditions
                     </button>
                 </div>
@@ -1223,7 +1223,7 @@ class LogicComponent extends Component{
                         onChange={this.handleUpdateAction}
                         />
                     </label>
-                    <button className="button" onClick={this.showEditAction}>
+                    <button type="button" class="button btn btn-secondary" onClick={this.showEditAction}>
                         Edit Actions
                     </button>
                 </div>
@@ -1234,30 +1234,30 @@ class LogicComponent extends Component{
                 {/* Only show the add logic button if node don't already have a logic */}
                 {this.state.showLogic ? <div></div>
                 :
-                <div class="container logic">
-                    <button className="button" onClick={this.showAddLogic} >
+                <div class="container logic" style={{padding: '10px'}}>
+                    <button type="button" class="button btn btn-primary" onClick={this.showAddLogic} >
                         Add Logic
                     </button>
                 </div>}
 
                 {this.state.showLogic ? 
                 <div>
-                    <button className="button" onClick={this.showEditLogic} >
+                    <button type="button" class="button btn btn-secondary" onClick={this.showEditLogic} >
                         Edit Logic
                     </button>
-                    <button className="button" onClick={this.showConditionGroup} >
+                    <button type="button" class="button btn btn-secondary" onClick={this.showConditionGroup} >
                         Add Condition Group
                     </button>
-                    <button className="button" onClick={this.showActionGroup} >
+                    <button type="button" class="button btn btn-secondary" onClick={this.showActionGroup} >
                         Add Action Group 
                     </button>
-                    <button className="button" onClick={this.showCondition} >
+                    <button type="button" class="button btn btn-secondary" onClick={this.showCondition} >
                         Add Condition 
                     </button>
-                    <button className="button" onClick={this.showAction} >
+                    <button type="button" class="button btn btn-secondary" onClick={this.showAction} >
                         Add Action
                     </button>
-                    <button className="button" onClick={this.showUpdateLogic} >
+                    <button type="button" class="button btn btn-secondary" onClick={this.showUpdateLogic} >
                         Update Logic
                     </button>
                 </div>
@@ -1302,9 +1302,6 @@ class LogicComponent extends Component{
             </div>
         )
     }
-
-    
-
 }
 
 export default LogicComponent;
