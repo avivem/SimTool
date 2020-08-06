@@ -2,7 +2,6 @@ import simpy
 import sys
 import io
 import uuid
-import json
 import random
 import math
 import pprint
@@ -84,10 +83,6 @@ class Node(object):
     #each node type should define their own reset steps.
     def reset(self):
         pass
-
-    def p(self):
-        pp = pprint.PrettyPrinter(indent=4)
-        #evnt_logger.info(self.__dict__,extra={'sim_time':self.env.now})
 
     def create_logic(self, split_policy):
         self.logic = Logic(split_policy)
@@ -503,6 +498,10 @@ class BasicContainerBlueprint(object):
 
     def build(self, env,owner):
         return BasicContainer(env=env, name=self.name, owner=owner, resource=self.resource, init=self.init, capacity=self.capacity, uid=self.uid)
+
+    def update(self, args):
+        for k,v in args.items():
+            setattr(self, k, v)
 
 #Wrapper for SimPy containers that allow us to differentiate between types of resources and
 #identifies the owner for a container.
