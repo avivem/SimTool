@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import Popup from "reactjs-popup";
 import Select from 'react-select';
+import Tabs from 'react-bootstrap/Tabs'
+import Tab from 'react-bootstrap/Tab'
 import LogicComponent from './logicComponent';
 
 
@@ -69,7 +71,8 @@ class UpdatePopUp extends Component{
     // Handle submit data of the interaction
     applyChanges(type,uid){
         this.props.handleChangeNode(this.state,uid,type);
-        this.onButtonContainer();
+     //   this.onButtonContainer();
+        this.onButtonUpdate();
     }
 
     // // Handle submit new spec and container
@@ -112,6 +115,7 @@ class UpdatePopUp extends Component{
         if(this.state.showMessageCont== false){
             this.setState({
                 showMessageCont: true,
+                showContainer: false,
                 containerName: "",
                 containerResource: "",
                 containerDist: "Normal",
@@ -131,6 +135,10 @@ class UpdatePopUp extends Component{
 
     useBlueprintMakeContainer(){
         // what is this doing?
+        // This find the blueprint that is being applied 
+        // and pass it to the function
+        // This can occur in the App.js but would need to pass 
+        // the this.state.selectedBlueprint instead of spec
         var spec = {};
         this.props.specs.forEach((s) => {
             if(s.uid == this.state.selectedBlueprint){
@@ -157,12 +165,8 @@ class UpdatePopUp extends Component{
 
     // Show selected container data
     viewContainer(){
-        if(this.state.showContainer){
-            this.setState({ showContainer: false });
-        }
-        else{
-            this.setState({ showContainer: true });
-        }
+        this.setState({ showContainer: true });
+        
     }
 
     deleteContainer(){
@@ -207,14 +211,19 @@ class UpdatePopUp extends Component{
                 />
                 <div class="container row" style={{padding: '10px'}}>
                     <div class="col">
-                    <button type="button" class="button btn btn-secondary" onClick={this.viewContainer}>
-                        View
-                    </button>
+                        <button type="button" class="button btn btn-secondary" onClick={this.viewContainer}>
+                            View
+                        </button>
                     </div>
                     <div class="col">
-                    <button type="button" class="button btn btn-secondary" onClick={this.deleteContainer}>
-                        Delete
-                    </button>
+                        <button type="button" class="button btn btn-secondary" onClick={this.deleteContainer}>
+                            Delete
+                        </button>
+                    </div>
+                    <div class="col">
+                        <button type="button" class="button btn btn-secondary" onClick={this.onButtonContainer}>
+                            Add Container
+                        </button>
                     </div>
                 </div>
 
@@ -347,6 +356,15 @@ class UpdatePopUp extends Component{
                 */}
             </div>
 
+        // Find if this node have a logic already created
+        var logicExist = false;
+        // Show the logic button if logic already existed for this node
+        this.props.logics.forEach((l) => {
+            if(l.applyTo == this.props.selectedNodeID){
+                logicExist = true;
+            }
+        });
+
         // find type
         var type= this.props.selectedNodeID.substr(0, this.props.selectedNodeID.indexOf('-')); 
 
@@ -390,153 +408,159 @@ class UpdatePopUp extends Component{
 
             SettingsContent =   <div class="container">
                         <h2>Settings for {endNode.name}</h2>
-                        <p>Node Name: {endNode.name}</p>
+                        <Tabs defaultActiveKey="content" transition={false} id="noanim-tab">
+                            <Tab eventKey="content" title="Node Content">
+                                <p>Node Name: {endNode.name}</p>
 
-                        <div class="container">
-                            <button type="button" class="button btn btn-primary" onClick={this.onButtonUpdate}>
-                                Update Node
-                            </button>
-                        </div>
+                                <div class="container">
+                                    <button type="button" class="button btn btn-primary" onClick={this.onButtonUpdate}>
+                                        Update Node
+                                    </button>
+                                </div>
 
-                        {/*when update button clicked, show html*/}
-                       {this.state.showMessageUP &&  
-                        <div>
-                            <label class="label">Name:
-                                <input 
-                                    type="text" 
-                                    class="form-control"
-                                    placeholder={endNode.name}
-                                    name="endname"
-                                    onChange={this.onChange} />
-                            </label>
+                                {/*when update button clicked, show html*/}
+                                {this.state.showMessageUP &&  
+                                    <div>
+                                        <label class="label">Name:
+                                            <input 
+                                                type="text" 
+                                                class="form-control"
+                                                placeholder={endNode.name}
+                                                name="endname"
+                                                onChange={this.onChange} />
+                                        </label>
 
-                            <div class="container">
-                                <button type="button" class="button btn btn-secondary" onClick={() => this.applyChanges("End Node",endNode.uid)}>Submit Changes</button>
-                            </div>
-                        </div>}
-
-                        </div>
+                                        <div class="container">
+                                            <button type="button" class="button btn btn-secondary" onClick={() => this.applyChanges("End Node",endNode.uid)}>Submit Changes</button>
+                                        </div>
+                                    </div>
+                                }
+                            </Tab>
+                        </Tabs>
+                    </div>
         // Start Node Settings
         }else if(type == "start" && startNode != undefined){
             SettingsContent =   <div class="container">
                         <h2>Settings for {startNode.name}</h2>
-                        <p>Node Name: {startNode.name}</p>
-                        <p>Entity Name: {startNode.entity_name}</p>
-                        <p>Generation Function dist: {startNode.dist}</p>
-                        <p>Generation Function loc: {startNode.loc}</p>
-                        <p>Generation Function scale: {startNode.scale}</p>
-                        <p>Limit: {startNode.limit}</p>
+                        <Tabs defaultActiveKey="content" transition={false} id="noanim-tab">
+                            <Tab eventKey="content" title="Node Content">
 
-                        <div>
-                            <label>
-                                <h3>Containers: </h3>
-                                {viewDeleteContainer}
-                            </label>
-                        </div>
+                                <p>Node Name: {startNode.name}</p>
+                                <p>Entity Name: {startNode.entity_name}</p>
+                                <p>Generation Function dist: {startNode.dist}</p>
+                                <p>Generation Function loc: {startNode.loc}</p>
+                                <p>Generation Function scale: {startNode.scale}</p>
+                                <p>Limit: {startNode.limit}</p>
 
-                        <div class="container" style={{padding: '10px'}}>
-                            <button type="button" class="button btn btn-primary" onClick={this.onButtonUpdate}>
-                                Update Node
-                            </button>
-                        </div>
-
-                       {/*when update button clicked, show html*/}
-                       {this.state.showMessageUP &&  
-                            <div>
-                                <label class="label">Name:
-                                    <input 
-                                        type="text" 
-                                        name="startname"
-                                        placeholder={startNode.name}
-                                        class="form-control"
-                                        onChange={this.onChange}
-                                         />
-                                </label>
-                                <label class="label">Gen Function dist:
-                                  <select name="dist" class="form-control" onChange={this.onChange}>
-                                    <option value="NORMAL">Normal</option>
-                                    <option value="CONSTANT">Constant</option>
-                                  </select>
-                                </label>
-                                <label class="label">Gen Function loc:
-                                    <input 
-                                        type="text" 
-                                        class="form-control"
-                                        placeholder={startNode.loc}
-                                        name="loc" 
-                                        onChange={this.onChange}
-                                         />
-                                </label>
-                                <label class="label">Gen Function scale:
-                                    <input 
-                                        type="text" 
-                                        class="form-control"
-                                        placeholder={startNode.scale}
-                                        name="scale" 
-                                        onChange={this.onChange}
-                                         />
-                                </label>
-                                <label class="label">Entity Name:
-                                    <input 
-                                        type="text" 
-                                        class="form-control"
-                                        placeholder={startNode.entity_name}
-                                        name="entity_name" 
-                                        onChange={this.onChange}
-                                         />
-                                </label>
-                                <label class="label">Limit:
-                                    <input 
-                                        type="text" 
-                                        placeholder={startNode.limit}
-                                        class="form-control"
-                                        name="limit" 
-                                        
-                                        onChange={this.onChange}
-                                         />
-                                </label>
-
-                                <div class="container">
-                                    <button type="button" class="button btn btn-secondary" onClick={() => this.applyChanges("Start Node",startNode.uid)}>Submit Changes</button>
+                                <div class="container" style={{padding: '10px'}}>
+                                    <button type="button" class="button btn btn-primary" onClick={this.onButtonUpdate}>
+                                        Update Node
+                                    </button>
                                 </div>
-                            </div>
-                        }
 
-                        <div class="container" style={{padding: '10px'}}>
-                            <button type="button" class="button btn btn-primary" onClick={this.onButtonContainer}>
-                                Add Container
-                            </button>
-                        </div>
+                                {/*when update button clicked, show html*/}
+                                {this.state.showMessageUP &&  
+                                    <div>
+                                        <label class="label">Name:
+                                            <input 
+                                                type="text" 
+                                                name="startname"
+                                                placeholder={startNode.name}
+                                                class="form-control"
+                                                onChange={this.onChange}
+                                                />
+                                        </label>
+                                        <label class="label">Gen Function dist:
+                                        <select name="dist" class="form-control" onChange={this.onChange}>
+                                            <option value="NORMAL">Normal</option>
+                                            <option value="CONSTANT">Constant</option>
+                                        </select>
+                                        </label>
+                                        <label class="label">Gen Function loc:
+                                            <input 
+                                                type="text" 
+                                                class="form-control"
+                                                placeholder={startNode.loc}
+                                                name="loc" 
+                                                onChange={this.onChange}
+                                                />
+                                        </label>
+                                        <label class="label">Gen Function scale:
+                                            <input 
+                                                type="text" 
+                                                class="form-control"
+                                                placeholder={startNode.scale}
+                                                name="scale" 
+                                                onChange={this.onChange}
+                                                />
+                                        </label>
+                                        <label class="label">Entity Name:
+                                            <input 
+                                                type="text" 
+                                                class="form-control"
+                                                placeholder={startNode.entity_name}
+                                                name="entity_name" 
+                                                onChange={this.onChange}
+                                                />
+                                        </label>
+                                        <label class="label">Limit:
+                                            <input 
+                                                type="text" 
+                                                placeholder={startNode.limit}
+                                                class="form-control"
+                                                name="limit" 
+                                                
+                                                onChange={this.onChange}
+                                                />
+                                        </label>
 
-                            {/*when container button clicked, show html*/}
-                            {this.state.showMessageCont &&  
+                                        <div class="container">
+                                            <button type="button" class="button btn btn-secondary" onClick={() => this.applyChanges("Start Node",startNode.uid)}>Submit Changes</button>
+                                        </div>
+                                    </div>
+                                }
+                            </Tab>
+                            <Tab eventKey="container" title="Container">
+                                
                                 <div>
-                                    {containerContent}
-                                    {applyBlueprint}
+                                    <label>
+                                        <h3>Containers: </h3>
+                                        {viewDeleteContainer}
+                                    </label>
                                 </div>
-                            }
-
-                            {/*when logic button clicked, show html*/}
-                            <LogicComponent
-                            selectedNodeID={this.props.selectedNodeID}
-                            containers={this.props.containers}
-                            arrows={this.props.arrows}
-                            startNode={this.props.startNode}
-                            stationNode={this.props.stationNode} 
-                            endNode={this.props.endNode}
-                            logics={this.props.logics}
-                            specs={this.props.specs}
-                            createLogic={this.props.createLogic}
-                            createConditionGroup={this.props.createConditionGroup}
-                            createActionGroup={this.props.createActionGroup}
-                            createCondition={this.props.createCondition}
-                            createAction={this.props.createAction}
-                            editConditionGroup={this.props.editConditionGroup}
-                            editActionGroup={this.props.editActionGroup}
-                            editCondition={this.props.editCondition}
-                            editAction={this.props.editAction}
-                            submitEditLogic={this.props.submitEditLogic} /> 
-                            {logic}
+                                {/*when container button clicked, show html*/}
+                                {this.state.showMessageCont &&  
+                                    <div>
+                                        {containerContent}
+                                        {applyBlueprint}
+                                    </div>
+                                }
+                            </Tab>
+                            <Tab eventKey="logic" title="Logic">
+                                {/*when logic button clicked, show html*/}
+                                <LogicComponent
+                                logicExist={logicExist}
+                                selectedNodeID={this.props.selectedNodeID}
+                                containers={this.props.containers}
+                                arrows={this.props.arrows}
+                                startNode={this.props.startNode}
+                                stationNode={this.props.stationNode} 
+                                endNode={this.props.endNode}
+                                logics={this.props.logics}
+                                specs={this.props.specs}
+                                createLogic={this.props.createLogic}
+                                createConditionGroup={this.props.createConditionGroup}
+                                createActionGroup={this.props.createActionGroup}
+                                createCondition={this.props.createCondition}
+                                createAction={this.props.createAction}
+                                editConditionGroup={this.props.editConditionGroup}
+                                editActionGroup={this.props.editActionGroup}
+                                editCondition={this.props.editCondition}
+                                editAction={this.props.editAction}
+                                submitEditLogic={this.props.submitEditLogic} /> 
+                                {logic}
+                            </Tab>
+                        </Tabs> 
                     </div>
 
         // Station Node Settings      
@@ -553,93 +577,104 @@ class UpdatePopUp extends Component{
 
             SettingsContent =   <div class="container">
                             <h2>Settings for {station.name}</h2>
-                            <table>
-                                <tr>
-                                    <td><p>Node Name: {station.name}</p></td>
-                                    <td><p>Capacity: {station.capacity}</p></td>
-                                </tr>
-                                <tr>
-                                   
-                                </tr>
-                                <tr>
-                                    <td><p>Time Function: {station.time_func}</p></td>
-                                </tr>
-                            </table>
+                            <Tabs defaultActiveKey="content" transition={false} id="noanim-tab">
+                                <Tab eventKey="content" title="Node Content">
+                                    <table>
+                                        <tr>
+                                            <td><p>Node Name: {station.name}</p></td>
+                                            <td><p>Capacity: {station.capacity}</p></td>
+                                        </tr>
+                                        <tr>
+                                        
+                                        </tr>
+                                        <tr>
+                                            <td><p>Time Function: {station.time_func}</p></td>
+                                        </tr>
+                                    </table>
 
-                            <div class="container" style={{padding: '10px'}}>
-                                <button type="button" class="button btn btn-primary" onClick={this.onButtonUpdate}>
-                                    Update Node
-                                </button>
-                            </div>
+                                    <div class="container" style={{padding: '10px'}}>
+                                        <button type="button" class="button btn btn-primary" onClick={this.onButtonUpdate}>
+                                            Update Node
+                                        </button>
+                                    </div>
 
-                            {/*when update button clicked, show html*/}
-                            {this.state.showMessageUP && 
-                                <div>
-                                    <label class="label">Name:
-                                        <input 
-                                            type="text" 
-                                            name="stationname"
-                                            placeholder={station.name}
-                                            class="form-control"
-                                            
-                                            onChange={this.onChange}
-                                        />
-                                    </label>
-                                    <label class="label">Capacity:
-                                        <input 
-                                            type="text" 
-                                            placeholder={station.capacity}
-                                            class="form-control"
-                                            name="capacity" 
-                                            onChange={this.onChange}
-                                             />
-                                    </label>
-                                    <label class="label">Time Function:
-                                        <input 
-                                            type="text" 
-                                            placeholder={station.time_func}
-                                            class="form-control"
-                                            name="time_func" 
-                                            onChange={this.onChange}
-                                             />
-                                    </label>
-                                </div>}
-
-                            <div class="container" style={{padding: '10px'}}>
-                                <button type="button" class="button btn btn-primary" onClick={this.onButtonContainer}>
-                                    Add Container
-                                </button>
-                            </div>
-
-                            {/*when contianer button clicked, show html*/}
-                            {this.state.showMessageCont &&  
-                                <div>
-                                    {containerContent}
-                                    {applyBlueprint}
-                                </div>
-                            }
-
-                        {/*when logic button clicked, show html*/}
-                            <LogicComponent
-                            selectedNodeID={this.props.selectedNodeID}
-                            containers={this.props.containers}
-                            arrows={this.props.arrows}
-                            startNode={this.props.startNode}
-                            stationNode={this.props.stationNode} 
-                            endNode={this.props.endNode}
-                            logics={this.props.logics}
-                            specs={this.props.specs}
-                            createLogic={this.props.createLogic}
-                            createConditionGroup={this.props.createConditionGroup}
-                            createActionGroup={this.props.createActionGroup}
-                            createCondition={this.props.createCondition}
-                            createAction={this.props.createAction}
-                            editConditionGroup={this.props.editConditionGroup}
-                            editActionGroup={this.props.editActionGroup}
-                            editCondition={this.props.editCondition}
-                            editAction={this.props.editAction}
-                            submitEditLogic={this.props.submitEditLogic} /> 
-                            {logic}
+                                    {/*when update button clicked, show html*/}
+                                    {this.state.showMessageUP && 
+                                        <div>
+                                            <label class="label">Name:
+                                                <input 
+                                                    type="text" 
+                                                    name="stationname"
+                                                    placeholder={station.name}
+                                                    class="form-control"
+                                                    
+                                                    onChange={this.onChange}
+                                                />
+                                            </label>
+                                            <label class="label">Capacity:
+                                                <input 
+                                                    type="text" 
+                                                    placeholder={station.capacity}
+                                                    class="form-control"
+                                                    name="capacity" 
+                                                    onChange={this.onChange}
+                                                    />
+                                            </label>
+                                            <label class="label">Time Function:
+                                                <input 
+                                                    type="text" 
+                                                    placeholder={station.time_func}
+                                                    class="form-control"
+                                                    name="time_func" 
+                                                    onChange={this.onChange}
+                                                    />
+                                            </label>
+                                            <div class="container">
+                                                <button type="button" class="button btn btn-secondary" onClick={() => this.applyChanges("Station Node",station.uid)}>Submit Changes</button>
+                                            </div>
+                                        </div>
+                                    }
+                                </Tab>
+                                <Tab eventKey="container" title="Container">
+                                    <div>
+                                        <label>
+                                            <h3>Containers: </h3>
+                                            {viewDeleteContainer}
+                                        </label>
+                                    </div>
+                                    {/*when contianer button clicked, show html*/}
+                                    {this.state.showMessageCont &&  
+                                        <div>
+                                            {containerContent}
+                                            {applyBlueprint}
+                                        </div>
+                                    }
+                                </Tab>
+                                <Tab eventKey="logic" title="Logic">
+                                    {/*when logic button clicked, show html*/}
+                                    <LogicComponent
+                                    logicExist={logicExist}
+                                    selectedNodeID={this.props.selectedNodeID}
+                                    containers={this.props.containers}
+                                    arrows={this.props.arrows}
+                                    startNode={this.props.startNode}
+                                    stationNode={this.props.stationNode} 
+                                    endNode={this.props.endNode}
+                                    logics={this.props.logics}
+                                    specs={this.props.specs}
+                                    createLogic={this.props.createLogic}
+                                    createConditionGroup={this.props.createConditionGroup}
+                                    createActionGroup={this.props.createActionGroup}
+                                    createCondition={this.props.createCondition}
+                                    createAction={this.props.createAction}
+                                    editConditionGroup={this.props.editConditionGroup}
+                                    editActionGroup={this.props.editActionGroup}
+                                    editCondition={this.props.editCondition}
+                                    editAction={this.props.editAction}
+                                    submitEditLogic={this.props.submitEditLogic} /> 
+                                    {logic}
+                                </Tab>
+                            </Tabs>
                         </div>
                     }
 

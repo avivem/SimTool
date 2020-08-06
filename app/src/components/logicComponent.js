@@ -77,6 +77,7 @@ class LogicComponent extends Component{
         this.showEditActionGroup = this.showEditActionGroup.bind(this);
         this.showEditCondition = this.showEditCondition.bind(this);
         this.showEditAction = this.showEditAction.bind(this);
+        this.closeField = this.closeField.bind(this);
 
         this.onChange = this.onChange.bind(this);
 
@@ -120,30 +121,13 @@ class LogicComponent extends Component{
         });
     }
 
-    // First click will add logic to the node and show 
-    // the buttons to add condition group, conditions, and actions
+    // Should be only called one time per node, which is to add a logic 
     showAddLogic(){
-        if(this.state.showLogic){
-            this.setState({ 
-                showLogic: false,
-             });
-        }
-        else{
+        this.setState({showLogic: true});
 
-            this.setState({showLogic: true});
-        }
-        var logicExist = false;
-        // Show the logic button if logic already existed for this node
-        this.props.logics.forEach((l) => {
-            if(l.applyTo == this.props.selectedNodeID){
-                logicExist = true;
-                this.setState({showLogic: true});
-            }
-        });
-        if(!logicExist){
-            // Create the logic for this node if had not been created yet.
-            this.props.createLogic(this.props.selectedNodeID)
-        }
+        // Create the logic for this node if had not been created yet.
+        this.props.createLogic(this.props.selectedNodeID)
+        
     }
 
     // First click will open the 
@@ -290,7 +274,8 @@ class LogicComponent extends Component{
                 showConditionGroup: false,
                 showCondition: false,
                 showAction: false,
-                showActionGroup: false
+                showActionGroup: false,
+                showUpdateLogic: false,
             });
 
 
@@ -495,6 +480,17 @@ class LogicComponent extends Component{
                  });
             }
         }
+    }
+
+    // Close all of the popup fields
+    closeField(){
+        this.setState({
+            showAction: false,
+            showEditLogic:false,
+            showConditionGroup: false,
+            showCondition: false,
+            showActionGroup: false,
+        });
     }
 
     onChange(e){
@@ -861,9 +857,6 @@ class LogicComponent extends Component{
                             onChange={this.handleFail}
                             />
                         </label>
-                        <button type="button" class="button btn btn-secondary" onClick={this.createGroup}>
-                            Create Group
-                        </button>
                     </div>
                 :
                     <div>
@@ -887,10 +880,27 @@ class LogicComponent extends Component{
                             onChange={this.handleFail}
                             />
                         </label>
+                    </div>
+                }
+                {!(this.state.showUpdateLogic) ? 
+                    <div>
+                        <button type="button" class="button btn btn-secondary" onClick={this.createGroup}>
+                            Create Group
+                        </button>
+                        <button type="button" class="button btn btn-secondary" onClick={this.closeField}>
+                            Cancel
+                        </button>
+                    </div>
+                :
+                    <div>
                         <button type="button" class="button btn btn-secondary" onClick={this.editGroup}>
                             Edit Group
                         </button>
+                        <button type="button" class="button btn btn-secondary" onClick={this.closeField}>
+                            Cancel
+                        </button>
                     </div>
+
                 }
             </div>
 
@@ -924,6 +934,9 @@ class LogicComponent extends Component{
                         <button type="button" class="button btn btn-secondary" onClick={this.createActionGroup}>
                             Create Action Group
                         </button>
+                        <button type="button" class="button btn btn-secondary" onClick={this.closeField}>
+                            Cancel
+                        </button>
                     </div>
                 :
                     <div>
@@ -931,13 +944,15 @@ class LogicComponent extends Component{
                         <button type="button" class="button btn btn-secondary" onClick={this.editActionGroup}>
                             Edit Action Group
                         </button>
+                        <button type="button" class="button btn btn-secondary" onClick={this.closeField}>
+                            Cancel
+                        </button>
                     </div>
                 }
             </div>
 
         var conditionContent = 
             <div>
-
                 <label>Select Group:
                     {!(this.state.showUpdateLogic) ?
                         <div>
@@ -1038,15 +1053,25 @@ class LogicComponent extends Component{
                 </label>
 
                 {!(this.state.showUpdateLogic) ? 
-                    <button type="button" class="button btn btn-secondary" onClick={this.createCondition}>
-                        Create Condition
-                    </button>
+                    <div>
+                        <button type="button" class="button btn btn-secondary" onClick={this.createCondition}>
+                            Create Condition
+                        </button>
+                        <button type="button" class="button btn btn-secondary" onClick={this.closeField}>
+                            Cancel
+                        </button>
+                    </div>
                 :
-                    <button type="button" class="button btn btn-secondary" onClick={this.editCondition}>
-                        Edit Condition
-                    </button>
-
+                    <div>
+                        <button type="button" class="button btn btn-secondary" onClick={this.editCondition}>
+                            Edit Condition
+                        </button>
+                        <button type="button" class="button btn btn-secondary" onClick={this.closeField}>
+                            Cancel
+                        </button>
+                    </div>
                 }
+                
             </div>
 
         var actionContent = 
@@ -1144,33 +1169,49 @@ class LogicComponent extends Component{
                         onChange={this.onChange} />
                 </label>
 
-                {!(this.state.showUpdateLogic) ? 
-                    <button type="button" class="button btn btn-secondary" onClick={this.createAction}>
-                        Create Action
-                    </button>
+                {!(this.state.showUpdateLogic) ?
+                    <div> 
+                        <button type="button" class="button btn btn-secondary" onClick={this.createAction}>
+                            Create Action
+                        </button>
+                        <button type="button" class="button btn btn-secondary" onClick={this.closeField}>
+                            Cancel
+                        </button>
+                    </div>
                 :
-                    <button type="button" class="button btn btn-secondary" onClick={this.editAction}>
-                        Edit Action
-                    </button>    
+                    <div>
+                        <button type="button" class="button btn btn-secondary" onClick={this.editAction}>
+                            Edit Action
+                        </button>
+                        <button type="button" class="button btn btn-secondary" onClick={this.closeField}>
+                            Cancel
+                        </button>    
+                    </div>
                 }
-                
             </div>
 
         var editLogic = 
         <div>
-            <h3>Edit Logic</h3>
-            <label>Select Group:
-                <Select
-                defaultValue={this.state.defaultLogic}
-                styles={customStyle}
-                options={logic}
-                name="logic"
-                onChange={this.handleEditLogic}
-                />
-            </label>
-            <button type="button" class="button btn btn-secondary" onClick={this.submitEditLogic}>
-                Submit Edit
-            </button>
+            <div>
+                <h3>Edit Logic</h3>
+                <label>Select Group:
+                    <Select
+                    defaultValue={this.state.defaultLogic}
+                    styles={customStyle}
+                    options={logic}
+                    name="logic"
+                    onChange={this.handleEditLogic}
+                    />
+                </label>
+            </div>
+            <div>
+                <button type="button" class="button btn btn-secondary" onClick={this.submitEditLogic}>
+                    Submit Edit
+                </button>
+                <button type="button" class="button btn btn-secondary" onClick={this.closeField}>
+                    Cancel
+                </button>
+            </div>
         </div>
 
         var updateLogicContent =
@@ -1232,7 +1273,7 @@ class LogicComponent extends Component{
         return(
             <div>
                 {/* Only show the add logic button if node don't already have a logic */}
-                {this.state.showLogic ? <div></div>
+                {this.props.logicExist ? <div></div>
                 :
                 <div class="container logic" style={{padding: '10px'}}>
                     <button type="button" class="button btn btn-primary" onClick={this.showAddLogic} >
@@ -1240,7 +1281,7 @@ class LogicComponent extends Component{
                     </button>
                 </div>}
 
-                {this.state.showLogic ? 
+                {(this.state.showLogic || this.props.logicExist) ? 
                 <div>
                     <button type="button" class="button btn btn-secondary" onClick={this.showEditLogic} >
                         Edit Logic
