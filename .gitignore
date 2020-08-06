@@ -2,3 +2,7 @@
 **/venv/
 **/.venv/
 .DS_Store
+simtool_engine/simtool_engine.egg-info/PKG-INFO
+simtool_engine/simtool_engine.egg-info/requires.txt
+simtool_engine/simtool_engine.egg-info/SOURCES.txt
+simtool_engine/simtool_engine.egg-info/top_level.txt

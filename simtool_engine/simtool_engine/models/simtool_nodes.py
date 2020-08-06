@@ -134,7 +134,7 @@ class StartingPoint(Node):
             "generation" : self.generation,
             "limit" : self.limit,
             "dirto" : list({x.uid for x,_ in self.directed_to.items()}),
-            "blueprints" : list({x.serialize() for _,x in self.blueprints.items()}),
+            "blueprints" : list({name:x.serialize() for name,x in self.blueprints.items()}.values()),
             "logic" : self.logic.serialize()
         }
 
