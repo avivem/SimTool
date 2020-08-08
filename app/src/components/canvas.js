@@ -616,9 +616,6 @@ class Canvas extends Component{
 
 
         var content = <div className="content">
-                        <p>.</p>
-                        <p>.</p>
-                        <p>.</p>
                         <div id="canvas-container"></div>
                     </div>
 

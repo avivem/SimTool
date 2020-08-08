@@ -719,8 +719,8 @@ class Navigation extends Component{
             {/*Popup for uploading image */}
             <Popup open={this.state.openImageOption} closeOnDocumentClick onClose={this.closePopupImage}>
               <div class="container" style={{padding: '10px'}}>
-                <h3>Add {this.state.addNodeType} Node </h3>
-
+                <h3>Add {this.state.addNodeType.charAt(0).toUpperCase() + this.state.addNodeType.slice(1)} Node </h3>
+        
                 {content}
 
                 <h3>Upload image file for node icon: </h3>
