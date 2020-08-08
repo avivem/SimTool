@@ -522,7 +522,7 @@ class Canvas extends Component{
                 layer.add(line);
 
                 const requestOptionsStart = {
-                    method: 'POST',
+                    method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
      
@@ -535,7 +535,7 @@ class Canvas extends Component{
                   console.log(requestOptionsStart);
                   // fetch to api to create connection
                   // should prob move this to App.js
-                  fetch(`http://127.0.0.1:5000/api/dirto/`, requestOptionsStart).then(gotUser => {
+                  fetch(`http://127.0.0.1:5000/api/node/dirto/`, requestOptionsStart).then(gotUser => {
                       console.log(gotUser);
   
                   }).catch(console.log)

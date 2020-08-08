@@ -178,7 +178,7 @@ class App extends Component{
         var node = this.state.stationNode;
         node.push({
           uid: "station-" + this.state.count,
-          type: "BASIC",
+          type: "STATION",
           x: xPos,
           y: yPos,
           rate: 0,
@@ -299,7 +299,7 @@ class App extends Component{
            headers: { 'Content-Type': 'application/json' },
            body: JSON.stringify({
              uid: uid,
-             type: 'BASIC',
+             type: 'STATION',
              // Change the name value to this.state.name to refer to user input
              name:change.stationame,
              capacity: parseInt(change.capacity),
@@ -766,7 +766,7 @@ class App extends Component{
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          type: 'BASIC',
+          type: 'STATION',
           // Change the name value to this.state.name to refer to user input
           name: node.name,
           capacity: parseInt(node.capacity),
@@ -980,7 +980,7 @@ class App extends Component{
           })
         };
         /**fetch to api tos set container*/
-        fetch('http://127.0.0.1:5000/api/node/logic/condition_group/', data).then(res => res.json()).then(gotUser => {
+        fetch('http://127.0.0.1:5000/api/node/logic/cond_group/', data).then(res => res.json()).then(gotUser => {
           console.log(gotUser);
 
         }).catch(function() {
@@ -1000,7 +1000,7 @@ class App extends Component{
         };
 
         /**fetch to api tos set container*/
-        fetch('http://127.0.0.1:5000/api/node/logic/condition_group/action_group/', actGroup).then(res => res.json()).then(gotUser => {
+        fetch('http://127.0.0.1:5000/api/node/logic/cond_group/action_group/', actGroup).then(res => res.json()).then(gotUser => {
           console.log(gotUser);
 
         }).catch(function() {
@@ -1028,7 +1028,7 @@ class App extends Component{
           };
 
           /**fetch to api tos set container*/
-          fetch('http://127.0.0.1:5000/api/node/logic/condition_group/condition/', cond).then(res => res.json()).then(gotUser => {
+          fetch('http://127.0.0.1:5000/api/node/logic/cond_group/condition/', cond).then(res => res.json()).then(gotUser => {
             console.log(gotUser);
 
           }).catch(function() {
@@ -1046,7 +1046,6 @@ class App extends Component{
               // Change the name value to this.state.name to refer to user input
             owner: l.applyTo,
             cond_group: condGroup.name,
-            action_group: condGroup.actionGroup.name,
             name: a.name,
             encon_name: a.encon_name,
             nodecon_name: a.nodecon_name,
@@ -1056,7 +1055,7 @@ class App extends Component{
           };
 
           /**fetch to api tos set container*/
-          fetch('http://127.0.0.1:5000/api/node/logic/condition_group/action_group/action/', action).then(res => res.json()).then(gotUser => {
+          fetch('http://127.0.0.1:5000/api/node/logic/cond_group/action_group/action/', action).then(res => res.json()).then(gotUser => {
             console.log(gotUser);
 
           }).catch(function() {
@@ -1159,7 +1158,7 @@ class App extends Component{
     console.log(addcontainerspec);
 
     /**fetch to api tos set container*/
-    fetch('http://127.0.0.1:5000/api/container/blueprint/', addcontainerspec).then(res => res.json()).then(gotUser => {
+    fetch('http://127.0.0.1:5000/api/blueprint/', addcontainerspec).then(res => res.json()).then(gotUser => {
         console.log(gotUser);
 
     }).catch(function() {
@@ -1232,7 +1231,7 @@ class App extends Component{
     console.log(addblue);
 
     /**fetch to api tos set container*/
-    fetch('http://127.0.0.1:5000/api/container/blueprint/', addblue).then(res => res.json()).then(gotUser => {
+    fetch('http://127.0.0.1:5000/api/node/container/blueprint/', addblue).then(res => res.json()).then(gotUser => {
         console.log(gotUser);
 
     }).catch(function() {
@@ -1362,6 +1361,48 @@ class App extends Component{
             n.containers.push(blueprint.name);
           }
         })
+
+        // multiple nodes
+        var assignBlue = {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              // Change the name value to this.state.name to refer to user input
+              owner: nodes.lst[0],
+              blueprint: blueprint.uid,
+            })
+        };
+
+        console.log(assignBlue);
+
+        /**fetch to api tos set container from blueprint*/
+        fetch('http://127.0.0.1:5000/api/node/blueprint/', assignBlue).then(res => res.json()).then(gotUser => {
+            console.log(gotUser);
+
+        }).catch(function() {
+            console.log("Error on add container from blueprint");
+        });
+      }else{
+        // multiple nodes
+        var assignBlue = {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              // Change the name value to this.state.name to refer to user input
+              owner: nodes.lst[0],
+              blueprint: blueprint.uid,
+            })
+        };
+
+        console.log(assignBlue);
+
+        /**fetch to api tos set container from blueprint*/
+        fetch('http://127.0.0.1:5000/api/node/container/blueprint/', assignBlue).then(res => res.json()).then(gotUser => {
+            console.log(gotUser);
+
+        }).catch(function() {
+            console.log("Error on add container from blueprint");
+        });
       }
       count = count + 1;
     });
@@ -1371,27 +1412,6 @@ class App extends Component{
       count: count,
       startNode: startNode
     });
-
-    // multiple nodes
-      var assignBlue = {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            // Change the name value to this.state.name to refer to user input
-            owner: nodes.lst[0],
-            blueprint: blueprint.uid,
-          })
-      };
-
-      console.log(assignBlue);
-
-      /**fetch to api tos set container from blueprint*/
-      fetch('http://127.0.0.1:5000/api/node/container/', assignBlue).then(res => res.json()).then(gotUser => {
-          console.log(gotUser);
-
-      }).catch(function() {
-          console.log("Error on add container from blueprint");
-      });
   }
   
   // Edit the selected spec, selectedSpec is a dict
@@ -1494,7 +1514,7 @@ class App extends Component{
     console.log(condGroup);
 
     /**fetch to api tos set container*/
-    fetch('http://127.0.0.1:5000/api/node/logic/condition_group/', condGroup).then(res => res.json()).then(gotUser => {
+    fetch('http://127.0.0.1:5000/api/node/logic/cond_group/', condGroup).then(res => res.json()).then(gotUser => {
         console.log(gotUser);
 
     }).catch(function() {
@@ -1546,7 +1566,7 @@ class App extends Component{
     console.log(cond);
 
     /**fetch to api tos set container*/
-    fetch('http://127.0.0.1:5000/api/node/logic/condition_group/condition/', cond).then(res => res.json()).then(gotUser => {
+    fetch('http://127.0.0.1:5000/api/node/logic/cond_group/condition/', cond).then(res => res.json()).then(gotUser => {
         console.log(gotUser);
 
     }).catch(function() {
@@ -1586,7 +1606,7 @@ class App extends Component{
     console.log(actGroup);
 
     /**fetch to api tos set container*/
-    fetch('http://127.0.0.1:5000/api/node/logic/condition_group/action_group/', actGroup).then(res => res.json()).then(gotUser => {
+    fetch('http://127.0.0.1:5000/api/node/logic/cond_group/action_group/', actGroup).then(res => res.json()).then(gotUser => {
         console.log(gotUser);
 
     }).catch(function() {
@@ -1628,7 +1648,6 @@ class App extends Component{
           // Change the name value to this.state.name to refer to user input
         owner: selectedNodeID,
         cond_group: groupName,
-        action_group: agn,
         name: name,
         encon_name: entityName,
         nodecon_name: nodeContainerName,
@@ -1640,7 +1659,7 @@ class App extends Component{
     console.log(action);
 
     /**fetch to api tos set container*/
-    fetch('http://127.0.0.1:5000/api/node/logic/condition_group/action_group/action/', action).then(res => res.json()).then(gotUser => {
+    fetch('http://127.0.0.1:5000/api/node/logic/cond_group/action_group/action/', action).then(res => res.json()).then(gotUser => {
         console.log(gotUser);
 
     }).catch(function() {

@@ -161,27 +161,23 @@ class Navigation extends Component{
     handleRun(){
       /**fetch to api */
       var url = 'http://127.0.0.1:5000/api/run/' + this.state.runTime;
-      fetch(url).then(res => res.json()).then(gotUser => {
+      fetch(url).then(res => res.text()).then(gotUser => {
           console.log("Finish Running");
 
           // Reset the summaryContent since new run
           // this.setState({ summaryContent: '' });
-      }).catch(console.log)
-
-
-            // Get summary if have not gotten summary for this run before
-        fetch('http://127.0.0.1:5000/api/run/summary').then(res => {
-                    console.log(res);
-          return res.text();
-        }).then(gotUser => {
 
           gotUser = gotUser.replace(/Infinity/g, "\"Infinity\"");
-
-
-          
           var data = JSON.parse(gotUser);
+
+          this.setState({
+            log: data[0],
+          });
+        
+          data = data[1];
+          console.log(data);
           var endnode = data["End Nodes"];
-          console.log(endnode);
+
           var endInfo = [<h3>End Nodes</h3>];
           for(var key in endnode){
             endInfo.push(<div>
@@ -237,7 +233,6 @@ class Navigation extends Component{
             </div>
 
           this.setState({
-            log: gotUser,
             summaryContent: summaryContent
           });
   
