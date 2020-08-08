@@ -17,7 +17,8 @@ import SpecSideBar from './SpecSideBar';
 const mql = window.matchMedia(`(min-width: 800px)`);
 
 /* Canvas is called in App.js */
-/* This component is the area where the nodes are added to build the simulation */
+/* This component is the area where the nodes are added to build the simulation.
+    It is also connected with what happen when a node is clicked. Ex. update/remove/arrow creation */
 class Canvas extends Component{
     constructor(props){
         super(props);

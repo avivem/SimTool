@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import Konva from 'konva';
 
-
+// Called in the canvas.js
+// Create the canvas that display the blueprint make
 class SpecSideBar extends Component{
     constructor(props) {
         super(props);
@@ -46,12 +47,19 @@ class SpecSideBar extends Component{
     componentDidUpdate(prevProps, prevState){
         var layer = this.state.layer;
 
-        var xLoc = 25;
-        var yLoc = 120;
+        var xLoc = 25;          // The x position of the blueprint image is alway the same
+        var yLoc = 120;         // The y position of the blueprint image need to be calculated 
+                                // base on previous value
+        /* Look at all blueprint(spec) and check if they are added to the canvas.
+            If not on canvas, add the blueprint to canvas.
+            If on canvas then move to the next one */
         this.props.specs.forEach((e) =>{
+            // Find blueprint on canvas
             var spec = layer.findOne('#' + e.uid + "-rect");
             if(spec == undefined){
-                console.log(e);
+                // blueprint not found so add it to canvas
+                
+                // Text display for blueprint
                 var label = new Konva.Text({
                     id: e.uid + "-text",
                     name: e.uid,
@@ -67,7 +75,8 @@ class SpecSideBar extends Component{
                     align: 'center',
                   });
 
-                  var rect = new Konva.Rect({
+                // Rect for blueprint
+                var rect = new Konva.Rect({
                     id: e.uid + "-rect",
                     name: e.uid,
                     x: xLoc,
@@ -85,6 +94,7 @@ class SpecSideBar extends Component{
                     cornerRadius: 10,
                 });
 
+                // Used to let the user be able to delete blueprint
                 var x = new Konva.Text({
                     id: e.uid + "-x",
                     name: e.uid,
@@ -97,6 +107,7 @@ class SpecSideBar extends Component{
                     align: 'center',
                   });
 
+                // Used to let the user be able to delete blueprint
                 var circle = new Konva.Circle({
                     id: e.uid + "-circle",
                     name: e.uid,
@@ -106,8 +117,14 @@ class SpecSideBar extends Component{
                     fill: '#ff0000',
                 });
 
+                // Used to let the user be able to delete blueprint.
+                // Used to cover the x and circle, and it is invisible.
+                // Needed because if need to click exactly on the x to remove 
+                // or exactly on the circle to remove.
+                // But with a cover, you can click on either the circle or x to remove blueprint.
                 var cover = new Konva.Circle({
                     id: e.uid + "-cover",
+                    name: e.uid,
                     radius: 8,
                     x: xLoc + 149,
                     y: yLoc + 9,
@@ -116,32 +133,39 @@ class SpecSideBar extends Component{
 
                 layer.add(rect, label);
                 layer.add(circle, x, cover);
+
+                // Calculate the next blueprint's y position 
                 yLoc = yLoc + label.height() + 15;
 
                 label.on('click', () => {
+                    // On click label, show popup of blueprint
                     this.props.openSpecSelectPopup(e);
                 });
 
                 cover.on('click', () => {
+                    // Delete the blueprint whose x mark is clicked.
+                    // All of the above Konva object have the same name, 
+                    //  which is the uid of the spec(blueprint)
                     var alphaNodes = layer.find(node => {
                         return node.name() == e.uid;
                        });
                     alphaNodes.destroy();
                     layer.batchDraw();
 
+                    // Call function from App.js to remove this blueprint 
                     this.props.deleteSpec(e.uid);
                 });
-
-                
-                
             }
             else{
-                yLoc = spec.y() + spec.height() + 10;
+                // Spec(blueprint) already existed so calculate
+                // the next blueprint's y position
+                yLoc = spec.y() + spec.height() + 15;
             }
         });
 
         layer.batchDraw();
 
+        // Clear the canvas when clear button is clicked
         if(this.props.clearMode){
             layer.find('Rect').destroy();
             layer.find('Circle').destroy();
