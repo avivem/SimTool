@@ -3,6 +3,8 @@ from pprint import pprint
 
 ds = DataStore()
 
+ds.disable_evnt_console()
+
 #Starting Point generation settings
 rich_gen = {
     'dist'  : 'NORMAL',
@@ -225,4 +227,14 @@ ds.add_action("tb", "Conditions",give_ticket)
 
 (log, summary) = ds.run(30000)
 
-pprint(summary)
+pprint(ds.serialize())
+
+##Start changing stuff.
+
+ds.update_node("line1",{"time_func":100,"capacity":12})
+
+print()
+print("CHANGED LINE1")
+print()
+
+pprint(ds.serialize())
