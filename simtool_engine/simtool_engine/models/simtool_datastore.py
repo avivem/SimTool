@@ -2,6 +2,7 @@ import simpy
 import collections
 import numpy as np
 import io
+import math
 import sys
 import logging
 import pprint
@@ -65,6 +66,12 @@ class DataStore():
 		self.data_logger.addHandler(self.data_str_handler)
 
 		self.evnt_logger.addHandler(self.evnt_out_handler)
+		self.evnt_logger.addHandler(self.evnt_str_handler)
+
+	def disable_evnt_console(self):
+		self.evnt_logger.removeHandler(self.evnt_str_handler)
+	
+	def enable_evnt_console(self):
 		self.evnt_logger.addHandler(self.evnt_str_handler)
 
 	def new_env(self, start = 0):
@@ -519,6 +526,10 @@ class DataStore():
 			self.start_time = self.env.now
 			self.env.run(until)
 			self.end_time = self.env.now
+			if (self.env.peek() != math.inf):
+				self.data_logger.info(f"Simulation stopped at {self.end_time}. Further events have not been processed.")
+			else:
+				self.data_logger.info(f"Simulation stopped at {self.end_time}. All scheduled events been processed.")
 			self.last_run = self.strStream.getvalue().split('\n')
 			self.runs.append(self.last_run)
 			return (self.last_run, self.summary())

@@ -1,3 +1,20 @@
+""" simtool_nodes.py contains classes that represent points in a process graph.
+The Node class is "abstract" and should be used to create usable child classes.
+
+StartingPoint represents points in the graph where entities with specific
+charictaristics are generated and entered into the system.
+
+BasicComponent represents "stations" in a system, such as a bank teller, atm,
+robotic arm in a production line, a security checkpoint, etc...
+
+EndingPoint is a collection point where entities terminate.
+
+Entities progress through the system by visiting nodes and interacting with them
+through the interact method.
+
+Written by Aviv Elazar-Mittelman, July 2020.
+"""
+
 import uuid
 import simpy
 import collections
@@ -9,9 +26,22 @@ import random
 import scipy.stats as stats
 import numpy as np
 
+# Get reference to the event logger so that nodes can output correct logs.
 evnt_logger = logging.getLogger('evnt_logger')
 
+
 class Node(object):
+    """ The Node class is an abtract representation of the basic functionality of
+    all nodes in SimTool. Each node has a name, a unique identifier, and a list
+    of nodes they are directed to. 
+    
+    All nodes in a graph should point to the same
+    SimPy Environment. Resetting the simulation requires replacing environment
+    references in all nodes. This can be done with the update function.
+
+    All nodes have a serialize method, which outputs a JSON object that can be
+    read back later in the deserialize method of DataStore to recreate a node.
+    """
     def __init__(self, env, name, uid = None):
         if uid is None:
             self.uid = uuid.uuid4().hex
@@ -21,7 +51,9 @@ class Node(object):
         self.name = name
         self.logic= Logic("RAND")
         self.entities = set()
-        #Achieve an ordered set using a dict and .keys
+
+        # Achieve an ordered set using a dict and .keys, may not be needed
+        # Could possibly switch to just using set() and sorting when needed.
         self.directed_to = {}
 
     def get_directed_to(self):
@@ -58,14 +90,24 @@ class Node(object):
         for k,v in args.items():
             setattr(self, k, v)
 
-    #Each Node should implement this.
+    # Each Node should implement this.
     def serialize(self):
         raise ValueError(f"{self} has not implemented serialize.")
-
-    #each node type should define their own reset steps.
+ 
+    # each node type should define their own reset steps.
     def reset(self):
         raise ValueError(f"{self} has not implemented reset.")
-
+ 
+    # Replaces the default Logic object with a new one with the desired
+    # split policy. Supported split policies include:
+    # 
+    # RAND: randomly choose the next node from the directed_to dict.
+    # 
+    # ALPHA_SEQ: loop through the nodes in directed_to in alphabetical order 
+    # (by name).
+    # 
+    # BOOL: allows for utilization of conditions and actions (Look at 
+    # simtool_logic.py)
     def create_logic(self, split_policy):
         self.logic = Logic(split_policy)
 
@@ -73,8 +115,37 @@ class Node(object):
         pass
 
 
-#Node that generates flowing entities.
 class StartingPoint(Node):
+    """ StartingPoint represents points in the graph where entities enter the
+    system. A StartingPoint object will generate entities of the same type based
+    on inputted settings. To have different "classes" of entities (e.g. rich and
+    poor), use multiple StartingPoints. 
+    
+    To control how often entities should be generated, settings should be passed
+    in as a dict. with the following options:
+
+    To generate an entity every x time units, generation should be of the form:
+        {
+            "init" : x 
+        }
+    
+    To generate an entity based on a probability distribution:
+        {
+            "dist" : <NORMAL or UNIFORM currently supported>,
+            "loc" : x,
+            "scale: y
+        }
+
+        - loc is the location of the distribution.
+
+    To generate an entity based on a random integer:
+        {
+            "dist" : RANDINT,
+            "low" : <smallest possible value>
+            "high : <highest possible value>
+        }
+        
+    """
     def __init__(self,env,name, entity_name,generation, limit=float('inf'),uid=None):
         super().__init__(env=env, name=name, uid=uid)
         self.entity_name = entity_name
@@ -104,14 +175,14 @@ class StartingPoint(Node):
 
     #In order to build a container for each resource for each entity,
     #Need to know design of the container.
-
-    ##TODO: find way to enforce entities posessing containers for all existing
-    ## resources. (If they shouldn't have any, then set their capacity to 0)
     def add_blueprint(self, blueprint):
         name = blueprint.name
         self.blueprints[name] = blueprint
         return f"Blueprint {blueprint.name}:{blueprint.uid} has been added to {self}"
 
+    #Determines the next node the entity should go to. StartingNodes only support,
+    #RAND, and ALPHA_SEQ at the moment, but this can be expanded in the same way
+    #as for stations.
     def next_dir(self):
         path_list = sorted(self.directed_to.keys(), key=lambda x: x.name)
         if len(self.directed_to) > 1:
@@ -126,6 +197,7 @@ class StartingPoint(Node):
             next_ind = 0
         return path_list[next_ind]
 
+    #Return a JSON object that can be used to rebuild this node.
     def serialize(self):
         return {
             "name" : self.name,
@@ -138,6 +210,10 @@ class StartingPoint(Node):
             "logic" : self.logic.serialize()
         }
 
+    #The run function is a generator function that signals to the SimPy
+    #environment that new entities have been created and processes them.
+    #run handles entity creation and sets them up to continue running
+    #independently.
     def run(self):
         evnt_logger.info(f'\t {self} starting entity generation',extra={'sim_time':self.env.now})
 
@@ -181,6 +257,8 @@ class StartingPoint(Node):
 
 #TODO: add probability based time_func
 class BasicComponent(Node):
+    """ BasicComponent represents "stations" in our simulation. 
+    """
     def __init__(self,env, name, capacity, time_func, uid=None):
         super().__init__(env = env, name = name, uid = uid)
         self.name = name
