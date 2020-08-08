@@ -1,13 +1,26 @@
 import React, { Component } from 'react';
 import Select from 'react-select';
 
+
+/* This component will be called from the update.js */
+/* Logic component that appear in the logic tab when a node is selected
+it allow the different parts of the logic to be create and edit.
+A node can only have 1 logic object, but that object can have multiple condition groups
+The parts of the logic are: 
+- condition group - take the name, and paths for when fail/pass the 
+    list of conditions
+- condition - condition that belong to a condition group, used to 
+    determine where to go fail/pass path
+- action group - take name, it is a group for action, conidtion 
+    group can only have 1 action group
+- action - an action between the container of entities and node, 
+    action can be subtract, add, multiple, give, take*/ 
 class LogicComponent extends Component{
     constructor(props) {
         super(props);
 
         this.state = {
             condAmount: "",
-            resource: "",
             action: "",
             actionAmount: "",
             showActionGroupErrorMessage: "",
@@ -77,6 +90,7 @@ class LogicComponent extends Component{
         this.showEditActionGroup = this.showEditActionGroup.bind(this);
         this.showEditCondition = this.showEditCondition.bind(this);
         this.showEditAction = this.showEditAction.bind(this);
+        this.closeField = this.closeField.bind(this);
 
         this.onChange = this.onChange.bind(this);
 
@@ -120,33 +134,19 @@ class LogicComponent extends Component{
         });
     }
 
-    // First click will add logic to the node and show 
-    // the buttons to add condition group, conditions, and actions
+    // Should be only called one time per node, which is to create a logic object
     showAddLogic(){
-        if(this.state.showLogic){
-            this.setState({ 
-                showLogic: false,
-             });
-        }
-        else{
+        this.setState({showLogic: true});
 
-            this.setState({showLogic: true});
-        }
-        var logicExist = false;
-        // Show the logic button if logic already existed for this node
-        this.props.logics.forEach((l) => {
-            if(l.applyTo == this.props.selectedNodeID){
-                logicExist = true;
-                this.setState({showLogic: true});
-            }
-        });
-        if(!logicExist){
-            // Create the logic for this node if had not been created yet.
-            this.props.createLogic(this.props.selectedNodeID)
-        }
+        // Create the logic object
+        this.props.createLogic(this.props.selectedNodeID)
+        
     }
 
-    // First click will open the 
+    /* When showConditionGroup is false and this func is called,
+     it will show the fields to create a group. Also will close any other fields.
+     When showConditionGroup is true and func is called, it will close the fields to add 
+     group and reset the states that hold those field values */
     showConditionGroup(){
       
         if(this.state.showConditionGroup){
@@ -174,10 +174,16 @@ class LogicComponent extends Component{
 
 
 
-    // Show the way to add an action group
-    showActionGroup(){
+    /* When showActionGroup is false and this func is called,
+     it will show the fields to create an action group. Also will close any other fields.
+     When showActionGroup is true and func is called, it will close the fields to add 
+     group and reset the states that hold those field values */    
+     showActionGroup(){
         if(this.state.showActionGroup){
-            this.setState({showActionGroup: false});
+            this.setState({
+                showActionGroup: false,
+                actionGroupName: "",
+            });
         }
         else{
             this.setState({
@@ -191,11 +197,16 @@ class LogicComponent extends Component{
                 showAction: false,
             });
 
+            // When creating action group, need to select a condition group to belong to.
+            // So this will get the list of condition group
             this.getAllGroup();
         }
     }
 
-    // Show the field to create a new condition
+    /* When showCondition is set to true, show the fields to create condition.
+        When showCondition is set to false, close the fields and clear the stored 
+        state values of those field
+     */
     showCondition(){
         if(this.state.showCondition){
             this.setState({
@@ -217,12 +228,15 @@ class LogicComponent extends Component{
                 showAction: false,
                 showActionGroup: false
             });
-
+            // Create list of condition group this conditions can belong to
             this.getAllGroup();
         }
     }
 
-    // Show field to create a new action
+    /* When showAction is set to true, show the fields to create action.
+        When showAction is set to false, close the fields and clear the stored 
+        state values of those field
+     */
     showAction(){
         if(this.state.showAction){
             this.setState({
@@ -244,11 +258,14 @@ class LogicComponent extends Component{
                 showAction: true,
                 showActionGroup: false
             });
-
+            // Create list of condition groups that this action can belong to
             this.getAllGroup();
         }
     }
 
+    // Edit the logic of the node.
+    // Is this really the correct name for it? I find it confusing 
+    // between the logic component and a node logic.
     showEditLogic(){
         if(this.state.showEditLogic){
             this.setState({ showEditLogic: false});
@@ -264,7 +281,8 @@ class LogicComponent extends Component{
             else if(this.props.selectedNodeID.includes("end")){
                 nodes = this.props.endNode;
             }
-    
+            
+            // Find the current logic selected for this node
             nodes.forEach((n) => {
                 if(n.uid == this.props.selectedNodeID){
                     var a = [];
@@ -290,14 +308,16 @@ class LogicComponent extends Component{
                 showConditionGroup: false,
                 showCondition: false,
                 showAction: false,
-                showActionGroup: false
+                showActionGroup: false,
+                showUpdateLogic: false,
             });
-
-
-    
         }
     }
 
+    // Change showUpdateLogic to false/true which 
+    // depend on current value of showUpdateLogic.
+    // When change showUpdateLogic to true, show list 
+    // of dropdowns used to edit the logic components
     showUpdateLogic(){
         if(this.state.showUpdateLogic){
             this.setState({ showUpdateLogic: false });
@@ -314,11 +334,15 @@ class LogicComponent extends Component{
         }
     }
 
+    /* Show fields to edit condition group and get the default value for those fields.
+    Default value are the previous value the user entered for the selected condition group.
+    This occur when showConditionGroup is set to true. Otherwise, those fields are close  */
     showEditConditionGroup(){
         if(this.state.showConditionGroup){
             this.setState({ showConditionGroup: false });
         }
         else{
+            // Get the selected condition group
             var selected = this.state.selectedGroupUpdateValue;
             if(selected !== null){
                 var pass = [];
@@ -360,12 +384,15 @@ class LogicComponent extends Component{
         }
     }
 
-    // Show the action group to be update
+    /* Show fields to edit action group and get the default value for those fields.
+    Default value are the previous value the user entered for the selected action group.
+    This occur when showActionGroup is set to true. Otherwise, those fields are close  */
     showEditActionGroup(){
         if(this.state.showActionGroup){
             this.setState({ showActionGroup: false });
         }
         else{
+            // Get the selected action group 
             var selected = this.state.selectedActionGroupUpdateValue;
             if(selected !== null){
 
@@ -383,13 +410,18 @@ class LogicComponent extends Component{
         }
     }
 
-    // Show the condition to be update with the current data
+    /* Show fields to edit condition and get the default value for those fields.
+    Default value are the previous value the user entered for the selected condition.
+    This occur when showCondition is set to true. Otherwise, those fields are close  */
     showEditCondition(){
         if(this.state.showCondition){
             this.setState({ showCondition: false });
         }
         else{
+            // Get the selected condition
             var selected = this.state.selectedConditionUpdateValue;
+            
+            // Create the defualt option of the check field
             if(selected !== null){
                 var cond;
                 var c = selected[1].check; 
@@ -409,8 +441,8 @@ class LogicComponent extends Component{
                     case "e<v":
                         cond = [{value: c, label: "<"}];
                         break;
-
                 }
+
                 // Get all group to display in dropdown when editing condition
                 this.getAllGroup();
 
@@ -434,13 +466,14 @@ class LogicComponent extends Component{
                     entityName: selected[1].encon_name,
                     containerName: selected[1].nodecon_name,
                     cond: selected[1].check
-
                  });
             }
         }
     }
 
-    // Show the action to be updated
+    /* Show fields to edit action and get the default value for those fields.
+    Default value are the previous value the user entered for the selected action.
+    This occur when showAction is set to true. Otherwise, those fields are close  */
     showEditAction(){
         if(this.state.showAction){
             this.setState({ showAction: false });
@@ -497,75 +530,111 @@ class LogicComponent extends Component{
         }
     }
 
-    onChange(e){
-
-        this.setState({[e.target.name]: e.target.value});
-           
+    // Close all of the fields that create/edit the logic component
+    // Called when the cancel button is clicked.
+    closeField(){
+        this.setState({
+            showAction: false,
+            showEditLogic:false,
+            showConditionGroup: false,
+            showCondition: false,
+            showActionGroup: false,
+        });
     }
 
+    // Change the state's value when user change the value in the field
+    // The field are give a name which is the same as the statement
+    onChange(e){
+        this.setState({[e.target.name]: e.target.value});
+    }
+
+    // Change the cond value when it's field change.
+    // It's field is a dropdown menu with each option beign a dict
+    // ex. {value: ..., label: ...}, the label is what the user see
     handleCond(e){
         this.setState({ cond : e.value });
     }
 
+    // Change the action value when it's field change.
+    // Action are take, give, add, subtract, and multiple
+    // It's field is a dropdown menu with each option beign a dict
+    // ex. {value: ..., label: ...}, the label is what the user see
     handleAction(e){
         this.setState({ action : e.value });
     }
 
-    // Stored the selected pass path and name
+    // Handle the change of the selected pass path.
+    // The field is a dropdown menu where user can select multiple paths
+    // So e is a list of dict
+    // ex. {value: ..., label: ...}, the label is what the user see
     handlePass(e){
         var path = [];
         var name = [];
 
+        // Only loop through the list when at least one path is selected
+        // e is null when no path is selected
         if(e != null){
-
             e.forEach((a) => {
                 console.log(a);
                 path.push(a.value);
                 name.push(a.label);
             });
-    
         }
+
         this.setState({ 
             passPath : path,
             passName: name
          });
     }
 
-    // Store the selected fail path and name
+    // Handle the change of the selected fail path.
+    // The field is a dropdown menu where user can select multiple paths
+    // So e is a list of dict
+    // ex. {value: ..., label: ...}, the label is what the user see
     handleFail(e){
         var path = [];
         var name = [];
+        // e is only null when no path is selected
         if(e != null){
             e.forEach((a) => {
                 path.push(a.value);
                 name.push(a.label);
             });
-    
         }
+
         this.setState({ 
             failPath : path,
             failName: name
          });
     }
 
-    // Change selected group
+    // This field is a dropdown so e is dict {value: ..., label: ...}
+    // When creating condition/action/action group, user need to select 
+    // a condition group to belong to. This func handle the user change in condition group.
     handleSelectedGroup(e){
         this.setState({ groupSelected: e.value });
     }
 
+    // This field is a dropdown so e is dict {value: ..., label: ...}
+    // When creating condition/action, user need to select an entity container to 
+    // compare/do an action to. This func handle the user change in entity container.
     handleEntitySelected(e){
         this.setState({ entityName: e.value });
     }
 
+    // This field is a dropdown so e is dict {value: ..., label: ...}
+    // When creating condition/action, user need to select an container container to 
+    // compare/do an action to. This func handle the user change in container container.
     handleContainerSelected(e){
         this.setState({ containerName: e.value });
     }
 
+    // Handle change in logic, logic can be BOOL, RAND, ALPHA_SEQ
     handleEditLogic(e){
         this.setState({ logic: e.value });
     }
 
-    // Handle the selected part of logic for update
+    // Change the state that will hold the selected condition group for update
     handleUpdateGroup(e){
         this.setState({ 
             selectedGroupUpdateValue: e.value,
@@ -573,6 +642,7 @@ class LogicComponent extends Component{
         })
     }
 
+    // Change the state that will hold the selected action group for update
     handleUpdateActionGroup(e){
         this.setState({ 
             selectedActionGroupUpdateValue: e.value,
@@ -580,6 +650,7 @@ class LogicComponent extends Component{
         })
     }
 
+    // Change the state that will hold the selected condition for update
     handleUpdateCondition(e){
         this.setState({ 
             selectedConditionUpdateValue: e.value,
@@ -587,6 +658,7 @@ class LogicComponent extends Component{
         })
     }
 
+    // Change the state that will hold the selected action group for update
     handleUpdateAction(e){
         this.setState({ 
             selectedActionUpdateValue: e.value,
@@ -596,10 +668,11 @@ class LogicComponent extends Component{
 
     // Create the condition group
     createGroup(){
-
+        // Create the condition group by passing the data to a functioon in App.js
         this.props.createConditionGroup(this.props.selectedNodeID, this.state.groupName,
             this.state.passPath, this.state.passName, this.state.failPath, this.state.failName);
         
+        // Close the fields 
         this.showConditionGroup();
     }
 
@@ -622,13 +695,17 @@ class LogicComponent extends Component{
             }
         });
 
+        // Create the action group if action group's name is not "" and the selected 
+        // condition group do not have an action group
         if(this.state.actionGroupName !== "" && !existed){
             this.props.createActionGroup(this.props.selectedNodeID, 
                 this.state.groupSelected, this.state.actionGroupName);
             
+            // Close the action group field
             this.showActionGroup();
         }
         else{
+            // Show the error message
             if(this.state.actionGroupName == ""){
                 this.setState({ showActionGroupErrorMessage: "Name"});
             }
@@ -640,7 +717,7 @@ class LogicComponent extends Component{
 
     // Create a condition
     createCondition(){
-
+        // Call function from App.js to create condition
         this.props.createCondition(this.props.selectedNodeID, this.state.groupSelected,
             this.state.conditionName, this.state.entityName, this.state.containerName,
             this.state.cond, this.state.condVal);
@@ -649,34 +726,38 @@ class LogicComponent extends Component{
         this.showCondition();
     }
 
+    // Create an action
     createAction(){
+        // Call function from App.js to create action
         this.props.createAction(this.props.selectedNodeID, this.state.groupSelected,
             this.state.actionName, this.state.entityName, this.state.containerName,
             this.state.action, this.state.actionVal, this.state.actionGroupName);
 
-        // Make the input field for the condition to close
+        // Make the input field for the action to close
         this.showAction();
     }
 
-    // Submit Edit
+    // Submit edit logic, the logic are BOOL, RAND, ALPHA_SEQ
     submitEditLogic(){
+        // Func from App.js
         this.props.submitEditLogic(this.props.selectedNodeID, this.state.logic);
-        
     }
 
-    // Edit the logic group
+    // Edit the logic condition group
     editGroup(){
-
+        // Func from App.js
         this.props.editConditionGroup(this.props.selectedNodeID, this.state.groupName,
             this.state.passPath, this.state.passName, this.state.failPath, this.state.failName, 
             this.state.selectedGroupUpdateValue);
         
+        //Close the edit condition group field
         this.showEditConditionGroup();
     }
 
     //Edit the action group
     editActionGroup(){
         if(this.state.actionGroupName !== ""){
+            // Func from App.js
             this.props.editActionGroup(this.props.selectedNodeID, 
                 this.state.actionGroupName, this.state.selectedActionGroupUpdateValue);
             
@@ -687,8 +768,9 @@ class LogicComponent extends Component{
         }
     }
 
-    // Edit condition 
+    // Edit a the selected condition 
     editCondition(){
+        // Func from App.js
         this.props.editCondition(this.props.selectedNodeID, this.state.groupSelected,
             this.state.conditionName, this.state.entityName, this.state.containerName,
             this.state.cond, this.state.condVal, this.state.selectedConditionUpdateValue);
@@ -697,42 +779,41 @@ class LogicComponent extends Component{
         this.showEditCondition();
     }
 
-    // Edit Action
+    // Edit the selected action
     editAction(){
+        // Func from App.js
         this.props.editAction(this.props.selectedNodeID, this.state.groupSelected,
             this.state.actionName, this.state.entityName, this.state.containerName,
             this.state.action, this.state.actionVal, this.state.actionGroupName,
             this.state.selectedActionUpdateValue);
 
-        // Make the input field for the condition to close
+        // Make the input field for the action to close
         this.showEditAction();
     }
 
     render(){
-        var resource = [{ value: "", label: "" }]
-        this.props.containers.forEach((container) => {
-            if(container.selectedNode == this.props.selectedNodeID){
-                resource.push({ value: container.uid, label: container.resource });
-            }
-        }); 
         
-
-        var cond = [{ value: "", label: "" },
-                    { value: "e==v", label: "=" },
+        // Create list of comparison operation for condition part of logic obj
+        // Used in dropdown
+        var cond = [{ value: "e==v", label: "=" },
                     { value: "e>=v", label: ">=" },
                     { value: "e>v", label: ">" },
                     { value: "e<=v", label: "<=" },
                     { value: "e<v", label: "<" }]
 
-        var action = [{ value: "", label: "" },
-                      { value: "ADD", label: "Add" },
+        // Create list of action for the action part of logic obj
+        // Used in dropdown
+        var action = [{ value: "ADD", label: "Add" },
                       { value: "SUB", label: "Subtract" },
                       { value: "GIVE", label: "Give" },
                       { value: "TAKE", label: "Take" },
                       { value: "MULTIPLE", label: "Multiple" }]
 
-        var path = [{ value: "", label: "" }]
+        // Create list of nodes that entities at this selected node can go
+        // Used in dropdown
+        var path = []
         this.props.arrows.forEach((arrow) => {
+            // check if current path come from the selected node
             if(arrow.from == this.props.selectedNodeID){
                 var toType= arrow.to.substr(0, arrow.to.indexOf('-')); 
                 var lst = []
@@ -752,34 +833,43 @@ class LogicComponent extends Component{
                     default:
                         console.log("Selected is not a node")
                 }
+
+                // Create element of the dropdown
                 lst.forEach((node) => {
                     if(node.uid == arrow.to){
                         path.push({ value: node.uid, label: node.name });
+                        // value is the uid and label(which the user see) is name of node
                     }
                 });
 
             }
         });
 
-        var lstContainer = [{ value: "", label: "" }]
+        // Create list of container that this node have
+        // Used in dropdown
+        var lstContainer = []
         this.props.containers.forEach((c) => {
             if(c.selectedNode == this.props.selectedNodeID){
                 lstContainer.push({value: c.name, label: c.name});
             }
         });
 
-        var lstEntity = [{ value: "", label: "" }]
+        // Create list of container that entities may have by looking at all start node 
+        // and getting their container. Used in dropdown
+        var lstEntity = []
         this.props.startNode.forEach((s) => {
             s.containers.forEach((c) => {
                 lstEntity.push({value: c, label: c});
             })
         });
 
+        // List of logic, used in dropdown
         var logic = [{value: "BOOL", label: "BOOL"},
                     {value: "RAND", label: "RAND"},
                     {value: "ALPHA_SEQ", label: "APLHA_SEQ"}];
 
 
+        // Dropsdown for the edit option 
         var lstGroup = [];
         var lstCondition = [];
         var lstActionGroup = [];
@@ -824,12 +914,14 @@ class LogicComponent extends Component{
             
         })
 
+        // Set width of the dropdown
         const customStyle = {
             valueContainer: () => ({
                 width: 100
             })
         }
 
+        // html for creating/editing condition group
         var conditionGroupContent = 
             <div>
                 <label class="label">Group Name:
@@ -843,6 +935,7 @@ class LogicComponent extends Component{
             {/*this needs to be the UID not the NAME*/}
                 {!(this.state.showUpdateLogic) ? 
                     <div>
+                        {/* html for creating condition group */}
                         <label>Pass Path:
                             <Select
                             isMulti
@@ -861,12 +954,10 @@ class LogicComponent extends Component{
                             onChange={this.handleFail}
                             />
                         </label>
-                        <button type="button" class="button btn btn-secondary" onClick={this.createGroup}>
-                            Create Group
-                        </button>
                     </div>
                 :
                     <div>
+                        {/* html for editing condition group */}
                         <label>Pass Path:
                             <Select
                             defaultValue={this.state.defaultPassPath}
@@ -887,13 +978,33 @@ class LogicComponent extends Component{
                             onChange={this.handleFail}
                             />
                         </label>
+                    </div>
+                }
+                {!(this.state.showUpdateLogic) ? 
+                    <div>
+                        {/* html for creating condition group */}
+                        <button type="button" class="button btn btn-secondary" onClick={this.createGroup}>
+                            Create Group
+                        </button>
+                        <button type="button" class="button btn btn-secondary" onClick={this.closeField}>
+                            Cancel
+                        </button>
+                    </div>
+                :
+                    <div>
+                        {/* html for editing condition group */}
                         <button type="button" class="button btn btn-secondary" onClick={this.editGroup}>
                             Edit Group
                         </button>
+                        <button type="button" class="button btn btn-secondary" onClick={this.closeField}>
+                            Cancel
+                        </button>
                     </div>
+
                 }
             </div>
 
+        // html for creating/editing action group
         var actionGroupContent = 
             <div>
                 {!(this.state.showUpdateLogic) ? 
@@ -924,6 +1035,9 @@ class LogicComponent extends Component{
                         <button type="button" class="button btn btn-secondary" onClick={this.createActionGroup}>
                             Create Action Group
                         </button>
+                        <button type="button" class="button btn btn-secondary" onClick={this.closeField}>
+                            Cancel
+                        </button>
                     </div>
                 :
                     <div>
@@ -931,16 +1045,20 @@ class LogicComponent extends Component{
                         <button type="button" class="button btn btn-secondary" onClick={this.editActionGroup}>
                             Edit Action Group
                         </button>
+                        <button type="button" class="button btn btn-secondary" onClick={this.closeField}>
+                            Cancel
+                        </button>
                     </div>
                 }
             </div>
 
+        // html for creating/editing condition
         var conditionContent = 
             <div>
-
                 <label>Select Group:
                     {!(this.state.showUpdateLogic) ?
                         <div>
+                            {/* create condition */}
                             <Select
                             styles={customStyle}
                             options={this.state.lstGroup}
@@ -950,6 +1068,7 @@ class LogicComponent extends Component{
                         </div>
                     :
                         <div>
+                            {/* edit condition */}
                             <Select
                             defaultValue={this.state.defaultSelectedGroup}
                             styles={customStyle}
@@ -971,6 +1090,7 @@ class LogicComponent extends Component{
                 </label>
                 {!(this.state.showUpdateLogic) ?
                     <div>
+                        {/* create condition */}
                         <label>Entity Name:
                             <Select
                             styles={customStyle}
@@ -998,6 +1118,7 @@ class LogicComponent extends Component{
                     </div>
                 :
                     <div>
+                        {/* edit condition */}
                         <label>Entity Name:
                             <Select
                             defaultValue={this.state.defaultEntity}
@@ -1038,17 +1159,30 @@ class LogicComponent extends Component{
                 </label>
 
                 {!(this.state.showUpdateLogic) ? 
-                    <button type="button" class="button btn btn-secondary" onClick={this.createCondition}>
-                        Create Condition
-                    </button>
+                    <div>
+                        {/* create condition */}
+                        <button type="button" class="button btn btn-secondary" onClick={this.createCondition}>
+                            Create Condition
+                        </button>
+                        <button type="button" class="button btn btn-secondary" onClick={this.closeField}>
+                            Cancel
+                        </button>
+                    </div>
                 :
-                    <button type="button" class="button btn btn-secondary" onClick={this.editCondition}>
-                        Edit Condition
-                    </button>
-
+                    <div>
+                        {/* edit condition */}
+                        <button type="button" class="button btn btn-secondary" onClick={this.editCondition}>
+                            Edit Condition
+                        </button>
+                        <button type="button" class="button btn btn-secondary" onClick={this.closeField}>
+                            Cancel
+                        </button>
+                    </div>
                 }
+                
             </div>
 
+        // html create/edit action
         var actionContent = 
             <div>
                 <label>Select Group:
@@ -1079,6 +1213,7 @@ class LogicComponent extends Component{
                 </label>
                 {!(this.state.showUpdateLogic) ? 
                     <div>
+                        {/* create action */}
                         <label>Entity Name:
                             <Select
                             styles={customStyle}
@@ -1106,6 +1241,7 @@ class LogicComponent extends Component{
                     </div>
                 :
                     <div>
+                        {/* edit action */}
                         <label>Entity Name:
                             <Select
                             defaultValue={this.state.defaultEntity}
@@ -1144,35 +1280,56 @@ class LogicComponent extends Component{
                         onChange={this.onChange} />
                 </label>
 
-                {!(this.state.showUpdateLogic) ? 
-                    <button type="button" class="button btn btn-secondary" onClick={this.createAction}>
-                        Create Action
-                    </button>
+                {!(this.state.showUpdateLogic) ?
+                    <div> 
+                        {/* create action */}
+                        <button type="button" class="button btn btn-secondary" onClick={this.createAction}>
+                            Create Action
+                        </button>
+                        <button type="button" class="button btn btn-secondary" onClick={this.closeField}>
+                            Cancel
+                        </button>
+                    </div>
                 :
-                    <button type="button" class="button btn btn-secondary" onClick={this.editAction}>
-                        Edit Action
-                    </button>    
+                    <div>
+                        {/* edit action */}
+                        <button type="button" class="button btn btn-secondary" onClick={this.editAction}>
+                            Edit Action
+                        </button>
+                        <button type="button" class="button btn btn-secondary" onClick={this.closeField}>
+                            Cancel
+                        </button>    
+                    </div>
                 }
-                
             </div>
 
+        // html to edit the logic option
         var editLogic = 
         <div>
-            <h3>Edit Logic</h3>
-            <label>Select Group:
-                <Select
-                defaultValue={this.state.defaultLogic}
-                styles={customStyle}
-                options={logic}
-                name="logic"
-                onChange={this.handleEditLogic}
-                />
-            </label>
-            <button type="button" class="button btn btn-secondary" onClick={this.submitEditLogic}>
-                Submit Edit
-            </button>
+            <div>
+                <h3>Edit Logic</h3>
+                <label>Select Group:
+                    <Select
+                    defaultValue={this.state.defaultLogic}
+                    styles={customStyle}
+                    options={logic}
+                    name="logic"
+                    onChange={this.handleEditLogic}
+                    />
+                </label>
+            </div>
+            <div>
+                <button type="button" class="button btn btn-secondary" onClick={this.submitEditLogic}>
+                    Submit Edit
+                </button>
+                <button type="button" class="button btn btn-secondary" onClick={this.closeField}>
+                    Cancel
+                </button>
+            </div>
         </div>
 
+        // html to edit the different component of the logic obj: 
+        // condition group, action group, condition, action
         var updateLogicContent =
             <div>
                 <div>
@@ -1231,16 +1388,18 @@ class LogicComponent extends Component{
 
         return(
             <div>
-                {/* Only show the add logic button if node don't already have a logic */}
-                {this.state.showLogic ? <div></div>
+                {/* Only show the add logic obj button if node don't already have a logic obj */}
+                {this.props.logicExist ? 
+                    <div></div>
                 :
-                <div class="container logic" style={{padding: '10px'}}>
-                    <button type="button" class="button btn btn-primary" onClick={this.showAddLogic} >
-                        Add Logic
-                    </button>
-                </div>}
+                    <div class="container logic" style={{padding: '10px'}}>
+                        <button type="button" class="button btn btn-primary" onClick={this.showAddLogic} >
+                            Add Logic
+                        </button>
+                    </div>
+                }
 
-                {this.state.showLogic ? 
+                {(this.state.showLogic || this.props.logicExist) ? 
                 <div>
                     <button type="button" class="button btn btn-secondary" onClick={this.showEditLogic} >
                         Edit Logic
@@ -1263,6 +1422,7 @@ class LogicComponent extends Component{
                 </div>
                 : <div></div>}
 
+                {/* show dropdown to edit the logic obj's part */}
                 {this.state.showUpdateLogic ? 
                     <div>
                         {updateLogicContent}
@@ -1271,34 +1431,41 @@ class LogicComponent extends Component{
                     <div></div>
                 }
 
-                {this.state.showConditionGroup ? 
-                <div>
-                    <h3>Condition Group</h3>
-                    {conditionGroupContent}
-                </div> 
-                : <div></div>}
+                {/* show fields of condition group if showConditionGroup is true */}
+                {this.state.showConditionGroup &&
+                    <div>
+                        <h3>Condition Group</h3>
+                        {conditionGroupContent}
+                    </div> 
+                }
                 
-                {this.state.showCondition ? 
-                <div>
-                    <h3>Condition</h3>
-                    {conditionContent}
-                </div>
-                : <div></div>}
+                {/* show fields of condition if showCondition is true */}
+                {this.state.showCondition &&
+                    <div>
+                        <h3>Condition</h3>
+                        {conditionContent}
+                    </div>
+                }
                 
-                {this.state.showAction ? 
-                <div>
-                    <h3>Action</h3>
-                    {actionContent}
-                </div>
-                : <div></div>}
+                {/* show fields of action if showAction is true */}
+                {this.state.showAction && 
+                    <div>
+                        <h3>Action</h3>
+                        {actionContent}
+                    </div>
+                }
                 
-                {this.state.showActionGroup ? 
-                <div>                 
-                    <h3>Action Group</h3>
-                    {actionGroupContent}
-                </div> 
-                : <div></div>}
-                {this.state.showEditLogic ? editLogic : <div></div>}
+                {/* show fields of action group if showActionGroup is true */}
+                {this.state.showActionGroup && 
+                    <div>                 
+                        <h3>Action Group</h3>
+                        {actionGroupContent}
+                    </div>
+                }
+
+                {/* show fields to edit logic if showEditLogic is true */}
+                {this.state.showEditLogic && editLogic}
+                
             </div>
         )
     }

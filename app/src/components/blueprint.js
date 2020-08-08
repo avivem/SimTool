@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
 import Popup from "reactjs-popup";
 
-
+/* BlueprintPopup will be called in the App.js */
+/* Used to add a blueprint - which can be applied to multiple node */
+// The props openBlue control the opening of the popup, this prop come from App.js
+// but it is changed in the navigationbar.js
 class BlueprintPopUp extends Component{
     constructor(props){
         super(props);
@@ -30,12 +33,13 @@ class BlueprintPopUp extends Component{
         this.addBlueprint = this.addBlueprint.bind(this);
     }
 
+    // Change state
     onChange(e){
-        // console.log(e.target)
         this.setState({ [e.target.name]: e.target.value })
     }
 
-    // change for distribution
+    // change for distribution state since field is a dropdown
+    // e is {value: ..., label: ...}, label is what the user see in the dropdown
     changeDist(e){
         this.setState({
             distribution: e.target.value,
@@ -61,13 +65,17 @@ class BlueprintPopUp extends Component{
             this.props.addBlueprint(specName, dist, resource, loc, scale, max, init, capacity, value);
             this.closeBlueprintPopup();
 
-            this.state.value = -1;
-            this.state.capacity = 0;
+            this.setState({
+                value: -1,
+                capacity: 0,
+                showErrorMessage: false,
+            });
         }else{
             this.setState({showErrorMessage: true});
         }
     }
 
+    // Close the popup of adding the blueprint and reset all of the field
     closeBlueprintPopup(){
         this.setState({
             specName: "",
