@@ -228,13 +228,21 @@ class App extends Component{
 
      switch(type){
        case "Start Node":
-         // need to change startNode array
-         this.state.startNode[0].name = change.startname;
-         this.state.startNode[0].entity_name = change.entity_name;
-         this.state.startNode[0].dist = change.dist;
-         this.state.startNode[0].loc = change.loc;
-         this.state.startNode[0].scale = change.scale;
-         this.state.startNode[0].limit = change.limit;
+         //update the state that store this node         
+         var lst = this.state.startNode;
+         lst.forEach((n) => {
+           if(uid == n.uid){
+            n.name = change.startname;
+            n.entity_name = change.entity_name;
+            n.dist = change.dist;
+            n.loc = change.loc;
+            n.scale = change.scale;
+            n.limit = change.limit;
+           }
+         });
+
+         this.setState({ startNode: lst });
+
 
          // request options to send in post request- START NODE
          const requestOptionsStart = {
@@ -272,19 +280,17 @@ class App extends Component{
 
        case "Station Node":
 
-         // do a for each to grab correct basic node
-         var station = this.state.stationNode[0];
-         for(var x in this.state.stationNode){
-             var uid = this.state.stationNode[x].uid;
+         //update the state that store this node
+         var lst = this.state.stationNode;
+         lst.forEach((n) => {
+           if(uid == n.uid){
+            n.name = change.stationname;
+            n.capacity = change.capacity;
+            n.time_func = change.time_func;              
+           }
+         });
 
-
-             if(uid== this.state.targetId){
-                 station = this.state.stationNode[x];
-             }
-          }
-          station.name = change.stationname;
-          station.capacity = change.capacity;
-          station.time_func = change.time_func; 
+         this.setState({ stationNode: lst });
 
          // console.log(this.state.stationNode);
 
@@ -317,8 +323,16 @@ class App extends Component{
          break;
 
         case "End Node":
-         this.state.endNode[0].name = change.endname;
+          //update the state that store this node
+          var lst = this.state.endNode;
+          lst.forEach((n) => {
+            if(uid == n.uid){
+              n.name = change.endname;
+            }
+          })
 
+          this.setState({ endNode: lst});
+          
          // request options to send in post request- END NODE
          // placeholder values
          const requestOptionsEnd = {
