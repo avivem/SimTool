@@ -1413,25 +1413,31 @@ class LogicComponent extends Component{
                 }
 
                 {(this.state.showLogic || this.props.logicExist) ? 
-                <div>
-                    <button type="button" class="button btn btn-secondary" onClick={this.showEditLogic} >
-                        Edit Logic
-                    </button>
-                    <button type="button" class="button btn btn-secondary" onClick={this.showConditionGroup} >
-                        Add Condition Group
-                    </button>
-                    <button type="button" class="button btn btn-secondary" onClick={this.showActionGroup} >
-                        Add Action Group 
-                    </button>
-                    <button type="button" class="button btn btn-secondary" onClick={this.showCondition} >
-                        Add Condition 
-                    </button>
-                    <button type="button" class="button btn btn-secondary" onClick={this.showAction} >
-                        Add Action
-                    </button>
-                    <button type="button" class="button btn btn-secondary" onClick={this.showUpdateLogic} >
-                        Update Logic
-                    </button>
+                <div class="container">
+                    <div class="container " style={{padding: '10px'}}>
+                        <button type="button" class="button btn btn-secondary" onClick={this.showEditLogic} >
+                            Edit Logic
+                        </button>
+                        <button type="button" class="button btn btn-secondary" onClick={this.showUpdateLogic} >
+                            Update Logic
+                        </button>
+                    </div>
+                    <div class="container" style={{padding: '10px'}}>
+                        <button type="button" class="button btn btn-secondary" onClick={this.showConditionGroup} >
+                            Add Condition Group
+                        </button>
+                        <button type="button" class="button btn btn-secondary" onClick={this.showCondition} >
+                            Add Condition 
+                        </button>
+                    </div>
+                    <div class="container" style={{padding: '10px'}}>
+                        <button type="button" class="button btn btn-secondary" onClick={this.showActionGroup} >
+                            Add Action Group 
+                        </button>
+                        <button type="button" class="button btn btn-secondary" onClick={this.showAction} >
+                            Add Action
+                        </button>
+                    </div>
                 </div>
                 : <div></div>}
 

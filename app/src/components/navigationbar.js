@@ -24,7 +24,7 @@ class Navigation extends Component{
     constructor(props){
       super(props);
       this.state = {
-        runTime: 1000,
+        runTime: 20000,
         openNode: false,
         openNodeField: false,
         openData: false,
@@ -172,7 +172,11 @@ class Navigation extends Component{
 
           // Change the infinity obj to infinity string
           gotUser = gotUser.replace(/Infinity/g, "\"Infinity\"");
+          gotUser = gotUser.replace(/NaN/g, "\"NaN\"");
+          gotUser = gotUser.replace(/null/g, "\"null\"");
+
           var data = JSON.parse(gotUser);
+
 
           this.setState({
             log: data[0],
