@@ -5,7 +5,13 @@ import Tabs from 'react-bootstrap/Tabs'
 import Tab from 'react-bootstrap/Tab'
 import LogicComponent from './logicComponent';
 
-
+// This is called in App.js
+/* Have 3 part:
+    - Node Data - user can view & edit the node data(this is the information 
+        entered by the user when node was created)
+    - Container - user can view & add container from the blueprint
+    - Logic - user can edit the logic when node was make and create/edit the logic obj,
+        logic obj have condition group, action group, condition, action*/
 class UpdatePopUp extends Component{
     constructor(props){
         super(props);
@@ -63,15 +69,17 @@ class UpdatePopUp extends Component{
         this.deleteContainer = this.deleteContainer.bind(this);
     }
 
+    // Change state
     onChange(e){
-        // console.log(e.target)
         this.setState({ [e.target.name]: e.target.value })
     }
     
-    // Handle submit data of the interaction
+    // Handle submit data to update the node data
     applyChanges(type,uid){
+        // Call func from App.js to update data stored in state
         this.props.handleChangeNode(this.state,uid,type);
      //   this.onButtonContainer();
+        // Make fields disappear
         this.onButtonUpdate();
     }
 
@@ -93,6 +101,7 @@ class UpdatePopUp extends Component{
     //     this.onButtonContainer();
     // }
 
+    // Close the update popup
     closeUpdatePopup(){
         this.setState({
             showErrorMessage: false,
@@ -103,6 +112,7 @@ class UpdatePopUp extends Component{
         this.props.closeUpdatePopup();
     }
 
+    // Make the fields to update data disappear/appear
     onButtonUpdate = () => {
         if(this.state.showMessageUP == false){
             this.setState({showMessageUP: true});
@@ -111,6 +121,7 @@ class UpdatePopUp extends Component{
         }
     };
 
+    // Make the dropdown to apply blueprint to appear
     onButtonContainer = () => {
         if(this.state.showMessageCont== false){
             this.setState({
@@ -128,17 +139,16 @@ class UpdatePopUp extends Component{
         }   
     };
 
-    // Should save a spec uid
+    // Change state of the selected blueprint
+    // e.value is the spec(blueprint) uid
     handleSpec(e){
         this.setState({ selectedBlueprint: e.value });
     }
 
+    // Use the selected blueprint to create a container for this node
     useBlueprintMakeContainer(){
-        // what is this doing?
-        // This find the blueprint that is being applied 
+        // Find the blueprint that is being applied 
         // and pass it to the function
-        // This can occur in the App.js but would need to pass 
-        // the this.state.selectedBlueprint instead of spec
         var spec = {};
         this.props.specs.forEach((s) => {
             if(s.uid == this.state.selectedBlueprint){
@@ -147,12 +157,14 @@ class UpdatePopUp extends Component{
         });
         var node = {lst: [this.props.selectedNodeID]};
 
-        // Make Container from Blueprint
+        // Make Container from Blueprint using func from App.js
         this.props.useBlueprintMakeContainer(spec, node);
+        
+        // Make fields disappear
         this.onButtonContainer();
     }
 
-    // Store the current selected container
+    // Store the dict of the current selected container
     selectedContainer(e){
         var container;
         this.props.containers.forEach((c) => {
@@ -163,13 +175,15 @@ class UpdatePopUp extends Component{
         this.setState({ selectedContainer: container });
     }
 
-    // Show selected container data
+    // Show the selected container's data
     viewContainer(){
         this.setState({ showContainer: true });
         
     }
 
+    // Delete the selected container from the state and backend
     deleteContainer(){
+        // Call func from App.js to delete
         this.props.deleteContainer(this.state.selectedContainer.uid);
         this.setState({ 
             showContainer: false,
@@ -200,9 +214,9 @@ class UpdatePopUp extends Component{
             }
         });
 
+        // html for dropdown to view/delete/add container
         var viewDeleteContainer = 
             <div class="container">
-
                 <Select
                 styles={customStyle}
                 options={lstContainer}
@@ -229,6 +243,7 @@ class UpdatePopUp extends Component{
 
                 {this.state.showContainer &&
                 <div>
+                    {/* For viewing the container's data */}
                     <p>Container Name: {this.state.selectedContainer.name}</p>
                     <p>Resource: {this.state.selectedContainer.resource}</p>
                     <p>Loc: {this.state.selectedContainer.loc}</p>
@@ -261,7 +276,7 @@ class UpdatePopUp extends Component{
             </div>
 
         // Container field for when distribution is CONSTANT
-        var containerConstant = 
+/*        var containerConstant = 
             <div>
                 <label class="label">Value: </label> 
                 <input 
@@ -279,9 +294,9 @@ class UpdatePopUp extends Component{
                     style={{width: '150px'}}
                     onChange={this.onChange} />
             </div>
-
+*/
         // Container field for when distribution is not CONSTANT
-        var containerNotConstant = 
+    /*    var containerNotConstant = 
             <div>
                 <label class="label">Loc: </label> 
                 <input 
@@ -307,13 +322,7 @@ class UpdatePopUp extends Component{
                     style={{width: '150px'}}
                     onChange={this.onChange} />
             </div>
-
-        // Content for adding container
-        var applyBlueprint=
-        <div> 
-            {/* Add a blueprint to the node */}
-            {addBlueprint} 
-        </div>
+*/
 
         // commented out- html to create a blueprint and container
         var containerContent = 
@@ -356,9 +365,10 @@ class UpdatePopUp extends Component{
                 */}
             </div>
 
-        // Find if this node have a logic already created
+        // Find if this node have a logic obj already created
+        // It will be pass to logicComponent.js 
         var logicExist = false;
-        // Show the logic button if logic already existed for this node
+        // Show the add logic button if logic already existed for this node
         this.props.logics.forEach((l) => {
             if(l.applyTo == this.props.selectedNodeID){
                 logicExist = true;
@@ -373,11 +383,10 @@ class UpdatePopUp extends Component{
         // variable to hold settings html for specific node
         let SettingsContent;
 
+        // Find the selected node
         var endNode;
         var startNode;
         var station;
-
-        // Find the selected node
         switch(type){
             case "start":
                 this.props.startNode.forEach((n) => {
@@ -410,6 +419,7 @@ class UpdatePopUp extends Component{
                         <h2>Settings for {endNode.name}</h2>
                         <Tabs defaultActiveKey="content" transition={false} id="noanim-tab">
                             <Tab eventKey="content" title="Node Content">
+                                <h3>{endNode.name} Detail</h3>
                                 <p>Node Name: {endNode.name}</p>
 
                                 <div class="container">
@@ -444,7 +454,7 @@ class UpdatePopUp extends Component{
                         <h2>Settings for {startNode.name}</h2>
                         <Tabs defaultActiveKey="content" transition={false} id="noanim-tab">
                             <Tab eventKey="content" title="Node Content">
-
+                                <h3>{startNode.name} Detail</h3>
                                 <p>Node Name: {startNode.name}</p>
                                 <p>Entity Name: {startNode.entity_name}</p>
                                 <p>Generation Function dist: {startNode.dist}</p>
@@ -524,20 +534,30 @@ class UpdatePopUp extends Component{
                                 
                                 <div>
                                     <label>
-                                        <h3>Containers: </h3>
+                                        <h3>Containers </h3>
+                                        <p>Container is a holder for a specific type of resource. It can 
+                                            hold up to a specific quantity or be of unlimited size.</p> 
+                                        <p>Any station or entity can hold a container.</p>
+                                        <p>View/Delete Container: </p>
                                         {viewDeleteContainer}
                                     </label>
                                 </div>
                                 {/*when container button clicked, show html*/}
                                 {this.state.showMessageCont &&  
                                     <div>
+                                        {/* containerContent is currently commented out.
+                                        It purpose was to allow the user to manually create 
+                                        a container for the selected node */}
                                         {containerContent}
-                                        {applyBlueprint}
+                                        {addBlueprint}
                                     </div>
                                 }
                             </Tab>
                             <Tab eventKey="logic" title="Logic">
-                                {/*when logic button clicked, show html*/}
+                                {/* Show html to add logic obj. 
+                                If logic obj already existed, allow user to create/edit
+                                condition group, action group, action, condition. Also
+                                to edit the node logic*/}
                                 <LogicComponent
                                 logicExist={logicExist}
                                 selectedNodeID={this.props.selectedNodeID}
@@ -558,7 +578,7 @@ class UpdatePopUp extends Component{
                                 editCondition={this.props.editCondition}
                                 editAction={this.props.editAction}
                                 submitEditLogic={this.props.submitEditLogic} /> 
-                                {logic}
+                             
                             </Tab>
                         </Tabs> 
                     </div>
@@ -579,6 +599,7 @@ class UpdatePopUp extends Component{
                             <h2>Settings for {station.name}</h2>
                             <Tabs defaultActiveKey="content" transition={false} id="noanim-tab">
                                 <Tab eventKey="content" title="Node Content">
+                                    <h3>{station.name} Detail</h3>
                                     <table>
                                         <tr>
                                             <td><p>Node Name: {station.name}</p></td>
@@ -638,20 +659,30 @@ class UpdatePopUp extends Component{
                                 <Tab eventKey="container" title="Container">
                                     <div>
                                         <label>
-                                            <h3>Containers: </h3>
+                                            <h3>Containers </h3>
+                                            <p>Container is a holder for a specific type of resource. It can 
+                                            hold up to a specific quantity or be of unlimited size.</p> 
+                                            <p>Any station or entity can hold a container.</p>
+                                            <p>View/Delete Container: </p>
                                             {viewDeleteContainer}
                                         </label>
                                     </div>
                                     {/*when contianer button clicked, show html*/}
                                     {this.state.showMessageCont &&  
                                         <div>
+                                            {/* containerContent is currently commented out.
+                                            It purpose was to allow the user to manually create 
+                                            a container for the selected node */}
                                             {containerContent}
-                                            {applyBlueprint}
+                                            {addBlueprint}
                                         </div>
                                     }
                                 </Tab>
                                 <Tab eventKey="logic" title="Logic">
-                                    {/*when logic button clicked, show html*/}
+                                    {/* Show html to add logic obj. 
+                                    If logic obj already existed, allow user to create/edit
+                                    condition group, action group, action, condition. Also
+                                    to edit the node logic*/}
                                     <LogicComponent
                                     logicExist={logicExist}
                                     selectedNodeID={this.props.selectedNodeID}
@@ -672,7 +703,6 @@ class UpdatePopUp extends Component{
                                     editCondition={this.props.editCondition}
                                     editAction={this.props.editAction}
                                     submitEditLogic={this.props.submitEditLogic} /> 
-                                    {logic}
                                 </Tab>
                             </Tabs>
                         </div>

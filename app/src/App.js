@@ -9,7 +9,9 @@ import UpdatePopUp from './components/update'
 
 import SpecSelectPopup from './components/SpecSelectPopup';
 
-
+// Main component that connect all of the other components like popup,
+// sidebar, navigation bar, canvas. All functions that modified the 
+// state of nodes, logic, arrows, containers, blueprint are in this component.
 class App extends Component{
   constructor(props){
     super(props);
@@ -32,11 +34,6 @@ class App extends Component{
       createArrow: false,
       removeMode: false,
       clearMode: false,
-
-      // images corresponding to eacg node
-      imageStart: null,
-      imageStation: null,
-      imageEnd: null,
 
       // arrays for saved states
       savedStart: [],
@@ -96,7 +93,6 @@ class App extends Component{
     this.handleResetSim = this.handleResetSim.bind(this);
     
     // image upolad
-    this.handleImageUpload = this.handleImageUpload.bind(this);
     this.incrNumLoadedImage = this.incrNumLoadedImage.bind(this);
 
     // handle saving anf loading
@@ -558,31 +554,7 @@ class App extends Component{
     console.log("Simulation has been reset.")
   }
 
-  //Handle upload image
-  handleImageUpload(nodeType, image){
-    switch(nodeType){
-      case "start":
-        this.setState({
-          imageStart: image
-        });
-        break;
 
-      case "station":
-        this.setState({
-          imageStation: image
-        });
-        break;
-
-      case "end":
-        this.setState({
-          imageEnd: image
-        });
-        break;
-
-      default:
-        break;
-    }
-  }
 
   // Save the current model
   handleSave(){
@@ -713,7 +685,7 @@ class App extends Component{
   handleBackendLoadNodes(node){
     console.log("Back end load");
     if(node.uid.includes("start")){
-      
+      //Create start node on backend
       const requestOptionsStart = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -762,6 +734,7 @@ class App extends Component{
 
     }
     else if(node.uid.includes("station")){
+      //Create station node on backend
       const requestOptionsBasic = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -808,6 +781,7 @@ class App extends Component{
       }
     }
     else if(node.uid.includes("end")){
+      //Create end node on backend
       const requestOptionsEnd = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1069,7 +1043,7 @@ class App extends Component{
   }
 
 
-  // Add interaction/resource to list
+  // Add blueprint to the state that hold all of the blueprint and send it to backend
   addBlueprint(specName, dist, resource, loc, scale, max, init, capacity){
     var lst = this.state.specs;
     lst.push({
@@ -1183,6 +1157,7 @@ class App extends Component{
   }
 
   // Add a new container
+  // Currently, the code that use this func is commented out. The code is in update.js
   submitContainer(selectedNode, name, resource, loc, scale, dist, capacity, init){
     // TODO: can just call addBlueprint and useBlueprintMakeContainer
     var lst = this.state.containers;
@@ -1281,7 +1256,7 @@ class App extends Component{
     console.log(containers);
   }
 
-  // Open interaction popup
+  // Open blueprint popup
   openBlueprintPopup(){
     this.setState({
         openBlue: true,
@@ -1289,32 +1264,35 @@ class App extends Component{
     console.log("Open blueprint Popup");
   }
 
-  // close interaction popup
+  // close blueprint popup
   closeBlueprintPopup(){
       this.setState({
           openBlue: false
       });
-      console.log("Close spec Popup");
+      console.log("Close blueprint Popup");
   }
 
-  // Open interaction popup
+  // Open update popup
   openUpdatePopup(n){
     this.setState({
         openUpdate: true,
         selectedNodeID: n
     });
-    console.log("Open Interactive Popup");
+    console.log("Open update Popup");
+    console.log(n);
   }
 
-  // Open interaction popup
+  // close update popup
   closeUpdatePopup(){
       this.setState({
           openUpdate: false
       });
-      console.log("Close Interactive Popup");
+      console.log("Close update Popup");
   }
 
-  // This is passed to the sidebarr which is called when a spec is clicked on, the spec is the selected spec
+  // This is passed to the sidebar which is called when a blueprint 
+  // is clicked on, the blueprint is the selected spec
+  // Used to open the popup for the blueprint clicked on the sidebar
   openSpecSelectPopup(spec){
     this.setState({
       openSpecSelect: true,
@@ -1324,7 +1302,9 @@ class App extends Component{
     console.log("open spec select")
   }
   
-  // Close the popup to select start node to apply the selected spec to, called in t he SoecSelectPopup.js
+  // Close the popup that allow user to select start/station node to apply the
+  // selected spec to, called in the SpecSelectPopup.js. Popup also allow
+  // user to edit the blueprint. 
   closeSpecSelectPopup(){
     this.setState({
       openSpecSelect: false,
@@ -1468,7 +1448,8 @@ class App extends Component{
   }
 
   // Add the condition group which will include the conditions and actions
-  // passOath/failPath  - array of nodes UID
+  // selectedNodeID - uid of the selected node
+  // passPath/failPath  - array of nodes UID
   // passName/failName - array of string of nodes Name 
   // Ex: where passName[1] would be name for node at passNode[1]
   createConditionGroup(selectedNodeID, groupName, passPath, passName, failPath, failName){
@@ -1513,7 +1494,7 @@ class App extends Component{
 
     console.log(condGroup);
 
-    /**fetch to api tos set container*/
+    /**fetch to api tos set condition group*/
     fetch('http://127.0.0.1:5000/api/node/logic/cond_group/', condGroup).then(res => res.json()).then(gotUser => {
         console.log(gotUser);
 
@@ -1523,13 +1504,15 @@ class App extends Component{
 
   }
 
-  // Add a condition to the group with the groupName
+  // Add a condition to the condition group that have the name groupName
   createCondition(selectedNodeID, groupName, name, entityName, nodeContainerName, check, val){
 
     var lst = this.state.logics;
     lst.forEach((l) => {
-      if(l.applyTo == selectedNodeID){
+      // find logic of selected node
+      if(l.applyTo == selectedNodeID){ 
         l.conditionsActionsGroup.forEach((group) => {
+          // find condition group with the give name groupName
           if(group.name == groupName){
             // Add new condition to group
             group.conditions.push({
@@ -1574,12 +1557,14 @@ class App extends Component{
     });
   }
 
-  // Create Action group
+  // Create Action group 
   createActionGroup(selectedNodeID, conditionGroupName, actionGroupName){
     var lst = this.state.logics;
     lst.forEach((l) => {
+      // find logic object of the selected node
       if(l.applyTo == selectedNodeID){
         l.conditionsActionsGroup.forEach((group) => {
+          // find condition group with the name conditionGroupName
           if(group.name == conditionGroupName){
             // Add new condition to group
             group.actionGroup.name = actionGroupName;
@@ -1675,8 +1660,10 @@ class App extends Component{
     var oldName = oldGroup.name;
 
     lst.forEach((l) => {
+      // find logic obj of the selected node
       if(l.applyTo == selectedNodeID){
         l.conditionsActionsGroup.forEach((group) => {
+          // find the condition group with the old group name
           if(group.name == oldName){
             group.name = groupName;
             group.pass_paths = passPath;
@@ -1690,9 +1677,6 @@ class App extends Component{
     });
 
     this.setState({ logics: lst });
-    console.log(lst);
-
-
   }
   
   // Update to the action group
@@ -1702,8 +1686,10 @@ class App extends Component{
     var oldName = oldActionGroup[0];
 
     lst.forEach((l) => {
+      // find logic obj of the selected node
       if(l.applyTo == selectedNodeID){
         l.conditionsActionsGroup.forEach((group) => {
+          // find condition group with the old group name
           if(group.name == oldName){
             group.actionGroup.name = groupName;
           }
@@ -1722,14 +1708,21 @@ class App extends Component{
     var lst = this.state.logics;
     var oldGroupName = oldCondition[0];
 
+    // When editing condition, user can change the condition group it belong to.
+    // If condition group change, then need to remove condition from old group then add
+    // new condition to the new condition group.
+    // If condition group did not change, then find the old condition and modify it.
     if(groupName != oldGroupName){
       // Remove condition from this group
       lst.forEach((l) => {
+        // find logic obj of the selected node
         if(l.applyTo == selectedNodeID){
           l.conditionsActionsGroup.forEach((group) => {
+            // find condition group with the old group name
             if(group.name == oldGroupName){
               var condLst = [];
               group.conditions.forEach((c) => {
+                // Remove the changed condition
                 if(c.name !== oldCondition[1].name){
                   condLst.push(c);
                 }
@@ -1739,10 +1732,12 @@ class App extends Component{
           });
         }
       });
-      // Move update condition to new group
+      // Make the new condition in new group
       lst.forEach((l) => {
+        // find logic obj of the selected node
         if(l.applyTo == selectedNodeID){
           l.conditionsActionsGroup.forEach((group) => {
+          // find condition group with the old group name
             if(group.name == groupName){
               group.conditions.push({
                 name: name,
@@ -1760,10 +1755,13 @@ class App extends Component{
     else{
       // Condition remain in same group, just value are changed
       lst.forEach((l) => {
+        // find logic obj of the selected node
         if(l.applyTo == selectedNodeID){
           l.conditionsActionsGroup.forEach((group) => {
+            // find condition group with the old group name
             if(group.name == groupName){
               group.conditions.forEach((c) => {
+                // Find the old condition to modify
                 if(c.name == oldCondition[1].name){
                   c.name = name;
                   c.encon_name = entityName;
@@ -1788,18 +1786,23 @@ class App extends Component{
   editAction(selectedNodeID, groupName, name, entityName, nodeContainerName, op, val, agn, oldAction){
     var lst = this.state.logics;
     var oldGroupName = oldAction[0];
-
+    
+    // When editing action, user can change the condition group it belong to.
+    // If condition group change, then need to remove action from old group then add
+    // new action to the new condition group.
+    // If condition group did not change, then find the old action and modify it.
     if(groupName != oldGroupName){
-      console.log("Path 1");
-      console.log(groupName)
-      console.log(oldGroupName)
+
       // Remove condition from this group
       lst.forEach((l) => {
+        // find logic obj of the selected node
         if(l.applyTo == selectedNodeID){
           l.conditionsActionsGroup.forEach((group) => {
+            // find condition group with the old group name
             if(group.name == oldGroupName){
               var lstAction = [];
-              group.actionGroup.actions.forEach((a) => {  
+              group.actionGroup.actions.forEach((a) => {
+                // Remove the changed action
                 if(a.name != oldAction[1].name){
                   lstAction.push(a);
                 }
@@ -1810,10 +1813,12 @@ class App extends Component{
         }
       });
 
-      // Move action to new group
+      // Create action in new group
       lst.forEach((l) => {
+        // find logic obj of the selected node
         if(l.applyTo == selectedNodeID){
           l.conditionsActionsGroup.forEach((group) => {
+            // find condition group with the old group name
             if(group.name == groupName){
               // Add action to group
               group.actionGroup.actions.push({
@@ -1830,12 +1835,14 @@ class App extends Component{
     }
     else{
       // Action remain in same group, just data are changed
-      console.log("Path 2")
       lst.forEach((l) => {
+        // find logic object of selected node
         if(l.applyTo == selectedNodeID){
           l.conditionsActionsGroup.forEach((group) => {
+            // find condition group with the old group name
             if(group.name == oldGroupName){
               group.actionGroup.actions.forEach((a) => {  
+                // Change old action value
                 if(a.name == oldAction[1].name){
                   a.name = name;
                   a.encon_name = entityName;
@@ -1900,7 +1907,6 @@ class App extends Component{
             handleReset={this.handleReset} 
             handleClearMode={this.handleClearMode}
             handleResetSim={this.handleResetSim}
-            handleImageUpload={this.handleImageUpload}
             handleSave={this.handleSave}
             handleLoadFromFile={this.handleLoadFromFile}
             updateMode={this.state.updateMode}
@@ -1931,10 +1937,6 @@ class App extends Component{
             clearMode={this.state.clearMode}
             handleClearMode={this.handleClearMode}
             handleResetSim={this.handleResetSim}
-
-            imageStart={this.state.imageStart}
-            imageStation={this.state.imageStation}
-            imageEnd={this.state.imageEnd}
 
             handleLoad={this.handleLoad}
             loadMode={this.state.loadMode}

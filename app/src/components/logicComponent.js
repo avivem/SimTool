@@ -1388,6 +1388,19 @@ class LogicComponent extends Component{
 
         return(
             <div>
+                <div>
+                    <h3>Logics</h3>
+                    <p>Logic control the behavior of each point in the simulation using condition and action.</p>
+                    <p>Each point have one logic object, within each logic object:</p>
+                    <ul>
+                        <li>Condition Group - A group of conditions that decide what path an entities would take. 
+                            Logic object can have as many condition group as they want.</li>
+                        <li>Action Group - A group of actions that is executed when entities reach this point 
+                            and meet the condition set forth. Each condition group have one action group </li>
+                        <li>Condition - A condition is a requirement to decided where entities should go</li>
+                        <li>Action - An action move resources between containers. They belong to an action group</li>
+                    </ul>
+                </div>
                 {/* Only show the add logic obj button if node don't already have a logic obj */}
                 {this.props.logicExist ? 
                     <div></div>

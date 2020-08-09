@@ -17,7 +17,8 @@ import SpecSideBar from './SpecSideBar';
 const mql = window.matchMedia(`(min-width: 800px)`);
 
 /* Canvas is called in App.js */
-/* This component is the area where the nodes are added to build the simulation */
+/* This component is the area where the nodes are added to build the simulation.
+    It is also connected with what happen when a node is clicked. Ex. update/remove/arrow creation */
 class Canvas extends Component{
     constructor(props){
         super(props);
@@ -368,6 +369,7 @@ class Canvas extends Component{
                             // This include the node data, containers, and logic components.
                             // Call a function in App.js
                             this.props.openUpdatePopup(target.uid);
+                            console.log(target.uid);
                         }
                         
                     });
@@ -474,7 +476,8 @@ class Canvas extends Component{
                             else{
                                 /*Open popup for the node to change the node data, 
                                   container, logic components */
-                                this.props.openUpdatePopup(target.uid);
+                                t.props.openUpdatePopup(target.uid);
+                                console.log(target.uid);
                             }        
                         });
                         layer.batchDraw();

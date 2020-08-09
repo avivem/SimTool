@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import Popup from "reactjs-popup";
 
-
+// Called in the App.js
+// This create a popup that allow the user to create a blueprint(spec)
 class BlueprintPopUp extends Component{
     constructor(props){
         super(props);
@@ -29,19 +30,21 @@ class BlueprintPopUp extends Component{
         this.closeSpecPopup = this.closeSpecPopup.bind(this);
     }
 
+    // Change state
     onChange(e){
-        // console.log(e.target)
         this.setState({ [e.target.name]: e.target.value })
     }
 
     // change for distribution
+    // e is {value: ..., label: ...}
     changeDist(e){
         this.setState({
             distribution: e.target.value,
         });
     }
 
-     // Handle submit data of the interaction
+     // Handle submit data of the blueprint(spec)
+     // Create new blueprint by calling a func in App.js
     submitInteraction(){
         var specName = this.state.specName;
         var resource = this.state.resourceName;
@@ -49,23 +52,26 @@ class BlueprintPopUp extends Component{
  //       var upper = parseInt(this.state.upperAmount);
 
         // these are not being set
-        var dist = this.state.distribution;
+        var dist =  this.state.distribution;
         var loc = parseInt(this.state.loc);
         var scale = parseInt(this.state.scale);
         var max = parseInt(this.state.maxAmount);
         var capacity = parseInt(this.state.capacity);
         var init = parseInt(this.state.value);
         if(max >= loc){
+            // Create blueprint if max value is greater than the mean
             this.props.addBlueprint(specName, dist, resource, loc, scale, max, init, capacity);
             this.closeSpecPopup();
             this.state.value = -1;
             this.state.capacity = 0;
         }
         else{
+            // Show error message
             this.setState({showErrorMessage: true});
         }
     }
 
+    // Close the popup and reset all state that hold the fields' value
     closeSpecPopup(){
         this.setState({
             specName: "",
@@ -82,6 +88,7 @@ class BlueprintPopUp extends Component{
     }
 
     render(){
+        // Content of popup when the distribution is Constant
         let contentConstant =
             <div className="container input-group">        
                 <label className="label">Optional Value: </label> 
@@ -100,6 +107,7 @@ class BlueprintPopUp extends Component{
                     onChange={this.onChange} />
             </div>
 
+        // Content of popup when the distribution is not Constant
         let content =
                 <div className="container input-group">        
                     <label className="label">Scale: </label> 
