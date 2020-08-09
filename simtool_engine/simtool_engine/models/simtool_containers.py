@@ -1,3 +1,15 @@
+""" simtool_containers.py defines Container classes which allow us to store
+amounts of resources (e.g. water, food, energy, tables), and associate them with
+specific entities / nodes.
+
+BasicContainerBlueprint defines a blueprint for a specific type of container.
+
+BasicContainer defines a simple container that can hold limited or infinite
+levels of a specific resource.
+
+Written by Aviv Elazar-Mittelman, July 2020.
+"""
+
 import simpy
 import random
 import scipy.stats as stats
@@ -5,6 +17,8 @@ import uuid
 import math
 
 class BasicContainerBlueprint(object):
+    """ BasicContainerBlueprint provides a 
+    """
     def __init__(self,name, resource, init = {'init' : 0}, capacity=float('inf'), uid=None):
         self.name = name
         self.resource = resource
