@@ -2,6 +2,10 @@ import React, { Component } from 'react';
 import Popup from "reactjs-popup";
 import Select from 'react-select';
 
+// Called in the App.js
+// Popup for when the blueprint on the sidebar is clicked
+// User can edit the selected blueprint and apply this blueprint to
+// start/station node.
 class SpecSelectPopup extends Component{
     constructor(props) {
         super(props);
@@ -37,8 +41,8 @@ class SpecSelectPopup extends Component{
         this.submitEdit = this.submitEdit.bind(this);
     }
 
+    // Change state
     onChange(e){
-        // console.log(e.target)
         this.setState({ [e.target.name]: e.target.value })
     }
 
@@ -49,7 +53,8 @@ class SpecSelectPopup extends Component{
         });
     }
 
-    // Handle change for the dropdown for nodes to apply to
+    // Handle change for the dropdown for nodes to apply to.
+    // lst is an array of node uid that this blueprint is apply to.
     handleChange(e){
         var lst = [];
         if( e != null){
@@ -63,19 +68,24 @@ class SpecSelectPopup extends Component{
         })
     }
 
-    // add blueprint
+    // Use the blueprint to make the container for all of the selected
+    // nodes in this.state.selected by calling func in App.js
     addSelectedSpec(){
         var nodes = {lst: this.state.selected};
         this.props.useBlueprintMakeContainer(this.props.selectedSpec, nodes);
         this.props.closeSpecSelectPopup();
     }
 
+    // Show the fields used to add blueprint with the default value
+    // being the selected blueprint. The fields is for the user to change
+    // to update the blueprint.
     showEditSpec(){
         if(this.state.showEditSpec){
             this.setState({showEditSpec: false});
         }
         else{
-            // Show field to edit specs
+            // Show field to edit specs and set those fields default value to current
+            // blueprint's value
             var spec = this.props.selectedSpec;
             this.setState({
                 showErrorMessage: false,
@@ -83,7 +93,7 @@ class SpecSelectPopup extends Component{
                 specName: spec.name,
                 resourceName: spec.resource,
                 distribution: spec.distribution,
-                maxAmount: spec.maxAmount,
+                maxAmount: spec.capacity,
                 scale: spec.scale,
                 loc: spec.loc,
                 constantValue: spec.init
@@ -91,7 +101,8 @@ class SpecSelectPopup extends Component{
         }
     }
 
-    // Edit the blueprint
+    // Submit the new data of the blueprint by calling a func
+    // in App.js.
     submitEdit(){
         var specName = this.state.specName;
         var resource = this.state.resourceName;
