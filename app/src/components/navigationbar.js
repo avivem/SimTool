@@ -7,14 +7,26 @@ import EndImage from "../image/end-circle.png";
 
 // import './css/popup.css';
 
-
+// Component will be called in App.js
+/* Have the following buttons to do:
+  - Add node
+  - Add arrow
+  - Add blueprint
+  - Clear everything
+  - Save nodes, arrows, blueprints, containers as a file
+  - Load the saved file
+  - Iteration field that allow user to decide how long to run
+      and the Run button
+  - Summary 
+  - Reset
+*/
 class Navigation extends Component{
     constructor(props){
       super(props);
       this.state = {
         runTime: 1000,
         openNode: false,
-        openImageOption: false,
+        openNodeField: false,
         openData: false,
         imageFile: null,
         addNodeType: "",
@@ -50,8 +62,7 @@ class Navigation extends Component{
       this.closePopupNode = this.closePopupNode.bind(this);
       this.openPopupData = this.openPopupData.bind(this);
       this.closePopupData = this.closePopupData.bind(this);
-      this.openPopupImage = this.openPopupImage.bind(this);
-      this.closePopupImage = this.closePopupImage.bind(this);
+      this.closePopupNodeData = this.closePopupNodeData.bind(this);
       this.handleRun = this.handleRun.bind(this);
 
 
@@ -67,9 +78,8 @@ class Navigation extends Component{
       this.handleResetSim = this.handleResetSim.bind(this);
 
       this.handleImageUpload = this.handleImageUpload.bind(this);
-      this.handleSubmitImage = this.handleSubmitImage.bind(this);
-      this.handleCancelImage = this.handleCancelImage.bind(this);
-      this.handleDefaultImage = this.handleDefaultImage.bind(this);
+      this.handleSubmitNewNode = this.handleSubmitNewNode.bind(this);
+      this.handleCancelNewNode = this.handleCancelNewNode.bind(this);
 
       this.onChange = this.onChange.bind(this);
 
@@ -84,6 +94,7 @@ class Navigation extends Component{
       this.showInformation = this.showInformation.bind(this);
     }
 
+    // Change state
     onChange(e){
       this.setState({ [e.target.name]: e.target.value })
     }
@@ -104,7 +115,6 @@ class Navigation extends Component{
     closePopupNode(){
       this.setState({
         openNode: false,
-        
       });
       console.log("Close Popup");
     }
@@ -118,7 +128,7 @@ class Navigation extends Component{
       console.log("Open Popup Data");
     }
 
-    // Close popup for changing data
+    // Close the popup that show the data/summary of simulation
     closePopupData(){
       this.setState({
         openData: false,
@@ -127,18 +137,11 @@ class Navigation extends Component{
       console.log("Close Popup");
     }
 
-    // Open popup for uploading image
-    openPopupImage(){
+    // Close the popup that show the fields to enter new node's data and image
+    // Need to reset all of the state that are those fields' value
+    closePopupNodeData(){
       this.setState({
-        openImageOption: true
-      });
-      console.log("Open Popup Data");
-    }
-
-    // Close popup for uploading image
-    closePopupImage(){
-      this.setState({
-        openImageOption: false,
+        openNodeField: false,
         imageFile: null,
         addNodeType: "",
         imageFile: null,
@@ -167,6 +170,7 @@ class Navigation extends Component{
           // Reset the summaryContent since new run
           // this.setState({ summaryContent: '' });
 
+          // Change the infinity obj to infinity string
           gotUser = gotUser.replace(/Infinity/g, "\"Infinity\"");
           var data = JSON.parse(gotUser);
 
@@ -176,8 +180,9 @@ class Navigation extends Component{
         
           data = data[1];
           console.log(data);
-          var endnode = data["End Nodes"];
 
+          // Create summary of end nodes
+          var endnode = data["End Nodes"];
           var endInfo = [<h3>End Nodes</h3>];
           for(var key in endnode){
             endInfo.push(<div>
@@ -186,7 +191,7 @@ class Navigation extends Component{
             </div>)
           }
           
-          
+          // Create summary of start nodes
           var startnode = data["Starting Nodes"];
           var startInfo = [<h3>Start Nodes</h3>];
           for(var key in startnode){
@@ -195,7 +200,7 @@ class Navigation extends Component{
             </div>)
           }
           
-          
+          // Create summary of station nodes
           var stationnode = data["Station Nodes"];
           console.log(data["Station Nodes"]);
           var stationInfo = [<h3>Station Nodes</h3>];
@@ -213,6 +218,7 @@ class Navigation extends Component{
             }
           }
           
+          // Create summary of runs
           var runInfo = data["run_info"];
           var averageWaitTime = runInfo["avg_entity_duration_by_start"];
           var infoTimeSpend = [];
@@ -220,6 +226,7 @@ class Navigation extends Component{
             infoTimeSpend.push(<p>{key} : {averageWaitTime[key]}</p>);
           }
           
+          // html for the summary that appear when the Data button is clicked
           var summaryContent = 
             <div>
               <p>Simulation Runtime: {runInfo["sim_end_time"]}</p>
@@ -242,6 +249,7 @@ class Navigation extends Component{
 
     } 
 
+    // Change the state that hold the value of how long the simulation should run
     handleChangeTime(e){
       var iter = parseInt(e.target.value, 10);
       if(!isNaN(iter)){
@@ -258,7 +266,7 @@ class Navigation extends Component{
     addStart(){
       this.setState({
         openNode: false,
-        openImageOption: true,
+        openNodeField: true,
         addNodeType: "start"
       });
     }
@@ -267,7 +275,7 @@ class Navigation extends Component{
     addStation(){
       this.setState({
         openNode: false,
-        openImageOption: true,
+        openNodeField: true,
         addNodeType: "station"
       });
     }
@@ -276,7 +284,7 @@ class Navigation extends Component{
     addEnd(){
       this.setState({
         openNode: false,
-        openImageOption: true,
+        openNodeField: true,
         addNodeType: "end"
       });
     }
@@ -299,6 +307,8 @@ class Navigation extends Component{
           updateButtonColor: "#2cbebe",
         });
       }
+
+      //Call the func in App.js to change state of arrow mode to true
       this.props.addArrowMode();  
 
     }
@@ -322,11 +332,11 @@ class Navigation extends Component{
 
         });
       }
-
+      //Call the func in App.js to change state of remove mode to true
       this.props.handleRemoveMode();
     }
 
-    // Clear canvas
+    // Clear canvas meaning nodes, blueprint, containers, arrows, logic are all remove
     handleClearMode(){
       this.props.handleClearMode(true);
     }
@@ -346,23 +356,20 @@ class Navigation extends Component{
       }
     }
 
-    // Submit image upload and add node
-    handleSubmitImage(){
+    // Create the new node with the data entered by passing it to a func
+    // in the App.js
+    handleSubmitNewNode(){
 
       switch(this.state.addNodeType){
         case "start":
-          this.props.handleImageUpload("start", this.state.imageFile)
-
           this.props.handleAddNode("start",this.state);
           break;
       
         case "station":
-          this.props.handleImageUpload("station", this.state.imageFile)
           this.props.handleAddNode("station",this.state);
           break;
     
         case "end":
-          this.props.handleImageUpload("end", this.state.imageFile)
           this.props.handleAddNode("end",this.state);
           break;
 
@@ -371,7 +378,7 @@ class Navigation extends Component{
       }
 
       this.setState({
-        openImageOption: false,
+        openNodeField: false,
         addNodeType: "",
         startname: '',
         stationname: '',
@@ -387,51 +394,30 @@ class Navigation extends Component{
 
     }
 
-    // Cancel upload
-    handleCancelImage(){
+    // Cancel creating new node
+    handleCancelNewNode(){
       this.setState({
         openNode: true,
-        openImageOption: false,
+        openNodeField: false,
         imageFile: null,
         addNodeType: ""
       });
-      console.log("Cancel upload");
+      console.log("Cancel creating new node");
     }
 
-    // default image
-    handleDefaultImage(){
-      this.setState({
-        openImageOption: false,
-      });
-
-      switch(this.state.addNodeType){
-        case "start":
-          this.props.handleAddNode("start",this.state, null);
-          break;
-      
-        case "station":
-          this.props.handleAddNode("station",this.state, null);
-          break;
-    
-        case "end":
-          this.props.handleAddNode("end",this.state, null);
-          break;
-
-        default:
-          break;
-      }
-    }
-
-    // Save the current model
+    // Save the current model as a .json file
     handleSave(){
+      // Call func in App.js
       this.props.handleSave();
     }
 
-    // Open the popup to look for savd model
+    // Open the popup to look for saved model on current computer
     openLoad(){
       this.setState({ openPopupLoad: true})
     }
 
+    // Close popup that help with looking for the saved model
+    // Reset saved
     closeLoad(){
       this.setState({ 
         openPopupLoad: false,
@@ -439,6 +425,7 @@ class Navigation extends Component{
       })
     }
 
+    // Handle changing uploaded save model file 
     handleLoadModel(e){
       if(e.target.files[0] !== undefined){
         this.setState({
@@ -448,7 +435,8 @@ class Navigation extends Component{
       }
     }
 
-    // Submit the loaded file
+    // Submit the loaded file and let it be process by a func
+    // in App.js to load the model (render the nodes/arrows/blueprints...)
     submitLoad(){
       if(this.state.loadedFile !== null){
         this.props.handleLoadFromFile(this.state.loadedFile);
@@ -456,19 +444,24 @@ class Navigation extends Component{
       }
     }
 
+    // Open popup for creating blueprint
     openBlueprintPopup(){
       this.setState({
         arrowButtonColor: "#2cbebe",
         removeButtonColor: "#ff0000",
         actionButtonColor: "#2cbebe",
       })
-
+      // Cancel creating arrow and removing mode
       this.props.handleReset();
+
+      //Open the popup to create blueprint
       this.props.openBlueprintPopup()
     }
 
     // Show the type of information
     showInformation(){
+      // displayType let the user know what  type of data 
+      // they will see after clicking the button connected with this func 
       if(this.state.displayType == "Summary"){
         this.setState({ displayType: "Data" });
       }
@@ -479,8 +472,7 @@ class Navigation extends Component{
 
     render(){
         let content;
-        // console.log(this.state)
-        // determine content in popup
+        // determine content in popup to create a node
         if(this.state.addNodeType == "end"){
             content =   <div class="container">
                         <label class="label">Name:
@@ -650,7 +642,7 @@ class Navigation extends Component{
           </div>
 
           <div>
-            {/*Popup for user to select node to add*/}
+            {/*Popup for user to select what type of node to add*/}
             <Popup 
             open={this.state.openNode} 
             closeOnDocumentClick 
@@ -686,7 +678,7 @@ class Navigation extends Component{
           </div>
           
           <div>
-            {/*Popup for log */}
+            {/*Popup for log/data/summary after the simulation is run */}
             <Popup 
             open={this.state.openData} 
             closeOnDocumentClick 
@@ -711,8 +703,8 @@ class Navigation extends Component{
           </div>
 
           <div>
-            {/*Popup for uploading image */}
-            <Popup open={this.state.openImageOption} closeOnDocumentClick onClose={this.closePopupImage}>
+            {/*Popup for uploading image and node's data */}
+            <Popup open={this.state.openNodeField} closeOnDocumentClick onClose={this.closePopupNodeData}>
               <div class="container" style={{padding: '10px'}}>
                 <h3>Add {this.state.addNodeType.charAt(0).toUpperCase() + this.state.addNodeType.slice(1)} Node </h3>
         
@@ -724,14 +716,15 @@ class Navigation extends Component{
                 
               </div>
               <div class="container" style={{padding: '10px'}}>
-                <button type="button" class="button btn btn-primary" onClick={this.handleSubmitImage}>Submit</button>
+                <button type="button" class="button btn btn-primary" onClick={this.handleSubmitNewNode}>Submit</button>
 
-                <button type="button" class="button btn btn-primary" style={{floar: 'left'}} onClick={this.handleCancelImage}>Cancel</button>
+                <button type="button" class="button btn btn-primary" style={{floar: 'left'}} onClick={this.handleCancelNewNode}>Cancel</button>
               </div>
             </Popup>
 
           </div>
           <div>
+            {/* Popup to load a json file(a saved simulation)  */}
             <Popup open={this.state.openPopupLoad} closeOnDocumentClick onClose={this.closeLoad}>
               <div>
                 <h3>Load the saved model:</h3>

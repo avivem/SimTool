@@ -33,11 +33,6 @@ class App extends Component{
       removeMode: false,
       clearMode: false,
 
-      // images corresponding to eacg node
-      imageStart: null,
-      imageStation: null,
-      imageEnd: null,
-
       // arrays for saved states
       savedStart: [],
       savedStation: [],
@@ -96,7 +91,6 @@ class App extends Component{
     this.handleResetSim = this.handleResetSim.bind(this);
     
     // image upolad
-    this.handleImageUpload = this.handleImageUpload.bind(this);
     this.incrNumLoadedImage = this.incrNumLoadedImage.bind(this);
 
     // handle saving anf loading
@@ -558,31 +552,7 @@ class App extends Component{
     console.log("Simulation has been reset.")
   }
 
-  //Handle upload image
-  handleImageUpload(nodeType, image){
-    switch(nodeType){
-      case "start":
-        this.setState({
-          imageStart: image
-        });
-        break;
 
-      case "station":
-        this.setState({
-          imageStation: image
-        });
-        break;
-
-      case "end":
-        this.setState({
-          imageEnd: image
-        });
-        break;
-
-      default:
-        break;
-    }
-  }
 
   // Save the current model
   handleSave(){
@@ -1304,6 +1274,7 @@ class App extends Component{
         selectedNodeID: n
     });
     console.log("Open Interactive Popup");
+    console.log(n);
   }
 
   // Open interaction popup
@@ -1900,7 +1871,6 @@ class App extends Component{
             handleReset={this.handleReset} 
             handleClearMode={this.handleClearMode}
             handleResetSim={this.handleResetSim}
-            handleImageUpload={this.handleImageUpload}
             handleSave={this.handleSave}
             handleLoadFromFile={this.handleLoadFromFile}
             updateMode={this.state.updateMode}
@@ -1931,10 +1901,6 @@ class App extends Component{
             clearMode={this.state.clearMode}
             handleClearMode={this.handleClearMode}
             handleResetSim={this.handleResetSim}
-
-            imageStart={this.state.imageStart}
-            imageStation={this.state.imageStation}
-            imageEnd={this.state.imageEnd}
 
             handleLoad={this.handleLoad}
             loadMode={this.state.loadMode}

@@ -369,6 +369,7 @@ class Canvas extends Component{
                             // This include the node data, containers, and logic components.
                             // Call a function in App.js
                             this.props.openUpdatePopup(target.uid);
+                            console.log(target.uid);
                         }
                         
                     });
@@ -475,7 +476,8 @@ class Canvas extends Component{
                             else{
                                 /*Open popup for the node to change the node data, 
                                   container, logic components */
-                                this.props.openUpdatePopup(target.uid);
+                                t.props.openUpdatePopup(target.uid);
+                                console.log(target.uid);
                             }        
                         });
                         layer.batchDraw();

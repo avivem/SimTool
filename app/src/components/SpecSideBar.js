@@ -14,8 +14,8 @@ class SpecSideBar extends Component{
         
     }
     
+    /** create the stage and layer when page is first loaded */
     componentDidMount(){
-        /** create the stage and layer when page is first loaded */
 
         var width = 200;
         var height = window.innerHeight;
@@ -44,6 +44,7 @@ class SpecSideBar extends Component{
         });
     }
 
+    // Create the blueprint(spec) when new one is added or when it is loaded from a file
     componentDidUpdate(prevProps, prevState){
         var layer = this.state.layer;
 
@@ -178,8 +179,7 @@ class SpecSideBar extends Component{
     
 
     render() {
-       
-
+    
         return (
             <div id="sidebar-container" />
        
