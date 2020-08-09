@@ -419,6 +419,7 @@ class UpdatePopUp extends Component{
                         <h2>Settings for {endNode.name}</h2>
                         <Tabs defaultActiveKey="content" transition={false} id="noanim-tab">
                             <Tab eventKey="content" title="Node Content">
+                                <h3>{endNode.name} Detail</h3>
                                 <p>Node Name: {endNode.name}</p>
 
                                 <div class="container">
@@ -453,7 +454,7 @@ class UpdatePopUp extends Component{
                         <h2>Settings for {startNode.name}</h2>
                         <Tabs defaultActiveKey="content" transition={false} id="noanim-tab">
                             <Tab eventKey="content" title="Node Content">
-
+                                <h3>{startNode.name} Detail</h3>
                                 <p>Node Name: {startNode.name}</p>
                                 <p>Entity Name: {startNode.entity_name}</p>
                                 <p>Generation Function dist: {startNode.dist}</p>
@@ -533,7 +534,11 @@ class UpdatePopUp extends Component{
                                 
                                 <div>
                                     <label>
-                                        <h3>Containers: </h3>
+                                        <h3>Containers </h3>
+                                        <p>Container is a holder for a specific type of resource. It can 
+                                            hold up to a specific quantity or be of unlimited size.</p> 
+                                        <p>Any station or entity can hold a container.</p>
+                                        <p>View/Delete Container: </p>
                                         {viewDeleteContainer}
                                     </label>
                                 </div>
@@ -594,6 +599,7 @@ class UpdatePopUp extends Component{
                             <h2>Settings for {station.name}</h2>
                             <Tabs defaultActiveKey="content" transition={false} id="noanim-tab">
                                 <Tab eventKey="content" title="Node Content">
+                                    <h3>{station.name} Detail</h3>
                                     <table>
                                         <tr>
                                             <td><p>Node Name: {station.name}</p></td>
@@ -653,7 +659,11 @@ class UpdatePopUp extends Component{
                                 <Tab eventKey="container" title="Container">
                                     <div>
                                         <label>
-                                            <h3>Containers: </h3>
+                                            <h3>Containers </h3>
+                                            <p>Container is a holder for a specific type of resource. It can 
+                                            hold up to a specific quantity or be of unlimited size.</p> 
+                                            <p>Any station or entity can hold a container.</p>
+                                            <p>View/Delete Container: </p>
                                             {viewDeleteContainer}
                                         </label>
                                     </div>

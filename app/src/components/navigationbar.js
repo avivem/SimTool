@@ -242,8 +242,7 @@ class Navigation extends Component{
           this.setState({
             summaryContent: summaryContent
           });
-  
-        console.log(this.state.summaryContent);
+          this.openPopupData();
         }).catch(console.log)
 
 
