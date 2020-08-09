@@ -145,6 +145,8 @@ class StartingPoint(Node):
             "high : <highest possible value>
         }
         
+    These are based on the rvs function of probability distributions in
+    scipy.stats
     """
     def __init__(self,env,name, entity_name,generation, limit=float('inf'),uid=None):
         super().__init__(env=env, name=name, uid=uid)
@@ -257,7 +259,10 @@ class StartingPoint(Node):
 
 #TODO: add probability based time_func
 class BasicComponent(Node):
-    """ BasicComponent represents "stations" in our simulation. 
+    """ BasicComponent represents "stations" in our simulation. Entities are
+    able to visit stations and request to interact with them. stattions can
+    interact with a specific number of entities at a time. Decisions about
+    interactions are stored in the Logic reference.
     """
     def __init__(self,env, name, capacity, time_func, uid=None):
         super().__init__(env = env, name = name, uid = uid)
@@ -365,6 +370,9 @@ class BasicComponent(Node):
 
 #Collection point for entities that have travelled through the system.
 class EndingPoint(Node):
+    """ EndingPoint represents a single collection point where entities finish 
+    their trip through the system.
+    """
     def __init__(self,env,name, uid=None):
         super().__init__(env=env,name=name, uid=uid)
     def __str__(self):

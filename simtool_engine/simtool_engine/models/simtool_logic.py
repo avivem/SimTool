@@ -1,21 +1,49 @@
+""" simtool_logic.py contains the Logic class, which represents the conditons
+and actions a station can take when interacting with an entity.
+
+Written by Aviv Elazar-Mittelman, July 2020
+"""
+
 import collections
 import simpy
 import operator
 
 class Logic(object):
+    """ Every Node (except EndingPoints) have a reference to a Logic object
+    which dictates how the node behaves when interacting with an entity.
+
+    Logic in StartingNodes is used solely for deciding which path selection
+    method should be used (e.g. RAND, ALPHA_SEQ).
+
+    Logic in Station Nodes (BasicComponent) also have Conditions and Actions
+    which allow the node to exchange resources and direct nodes based on
+    resource levels or their names. Multiple ConditionGroups can be created,
+    each having their own set of Actions.
+    """
+
+    #Named tuple class for returning actions and choice of paths.
     ResultTuple = collections.namedtuple('Result', ['action_groups','paths'])
     def __init__(self, split_policy):
         self.condition_groups = {}
         self.split_policy = split_policy
 
+    #Check if no conditions.
     def noconds(self):
         return len(self.condition_groups) == 0
 
     class ActionGroup(object):
+        """ ActionGroup holds a group of Action objects. Belongs to a single
+        ConditionGroup.
+        """
         def __init__(self):
             self.actions = {}
         
         class Action(object):
+            """ An Action object represents a single action that should take
+            place given the associated ConditionGroup returns True. An Action
+            can transfer resources between containers, or simply alter the level
+            of an entity's containers.
+            """
             def __init__(self, name, encon_name, nodecon_name, op, val):
                 self.name = name
                 self.encon_name = encon_name
@@ -45,6 +73,12 @@ class Logic(object):
             }
 
     class ConditionGroup(object):
+        """ ConditionGroup holds multiple Conditions. A ConditionGroup can be
+        configured to return true if at least one Condition returns true, or if
+        all return true. Each ConditionGroup has a list of paths for success and
+        failure that are added to the final paths after all conditions are 
+        checked.
+        """
         PASS = 1000
         FAIL = 2000
         def __init__(self, name, pass_paths, fail_paths):

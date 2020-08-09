@@ -1,9 +1,22 @@
+""" simtool_entities.py contains the BasicFlowEntity class represents the
+entities that flow through the system. 
+
+Written by Aviv Elazar-Mittelman, July 2020
+"""
+
 import simpy
 import logging
 
 evnt_logger = logging.getLogger('evnt_logger')
 
 class BasicFlowEntity(object):
+    """ BasicFlowEntity represents a thing (e.g. a person, a material) going
+    through a process (e.g. going to the bank, food production line, etc...).
+    Entities behave like people in a library: They enter the graph, talk to each
+    node they visit, and follow the instructions given in response.
+    """
+
+    #The currently supported operations.
     op_map = {
         "GIVE" : "Given",
         "TAKE" : "Taken",
@@ -18,7 +31,7 @@ class BasicFlowEntity(object):
         self.name = name
         self.currentLoc = currentLoc
         self.containers = {}
-        self.resource_behaviors = resource_behaviors
+        self.resource_behaviors = resource_behaviors #not currently used.
         self.travel_path = []
         self.start_time = start_time
         self.end_time = None
@@ -30,6 +43,8 @@ class BasicFlowEntity(object):
     def __repr__(self):
         return f'{self.name}: {self.containers}'
 
+    #Add a container to the entity, currently used during entity creation.
+    #Could possibly be used to give entities containers at nodes.
     def add_container(self, container):
         self.containers[container.name] = container
 
@@ -63,8 +78,6 @@ class BasicFlowEntity(object):
                     elif ac.op == "SUB":
                         evnt_logger.info(f"\t {self.currentLoc} has added {ac.val} {encon.resource} to {encon}",extra={"sim_time":self.env.now})
                         yield encon.con.get(ac.val)
-                    """ elif ac.op == "MULT":
-                        yield encon.con.put(encon.con.level*ac.val) """
                 
 
     def resources_snapshot(self):
@@ -88,9 +101,6 @@ class BasicFlowEntity(object):
                 self.currentLoc.entities.add(self)
                 self.currentLoc = next_dir
 
-        #if not self.start.name in self.currentLoc.entities:
-        #    self.currentLoc.entities[self.start.name] = []
-        #self.currentLoc.entities[self.start.name].append(self)
         self.currentLoc.entities.add(self)
         self.travel_path.append(str(self.currentLoc))
         self.end_time = self.env.now
