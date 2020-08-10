@@ -17,7 +17,11 @@ import uuid
 import math
 
 class BasicContainerBlueprint(object):
-    """ BasicContainerBlueprint provides a 
+    """ BasicContainerBlueprint provides a template for creating containers.
+    (Think of binding this in JavaScript). They have all the same info that
+    containers store but do not have an owner. To use a container based on
+    a blueprint, the build method can be used to create a new container and
+    assign it to an owner.
     """
     def __init__(self,name, resource, init = {'init' : 0}, capacity=float('inf'), uid=None):
         self.name = name
@@ -45,12 +49,21 @@ class BasicContainerBlueprint(object):
 #Wrapper for SimPy containers that allow us to differentiate between types of resources and
 #identifies the owner for a container.
 class BasicContainer(object):
+    """ BasicContainer is a wrapper around SimPy Containers that lets us define
+    holders for specific types of resources (e.g. water, food, a material, etc...)
+    and assign them to an owner. The idea is to only allow interactions between
+    containers of the same type of resource (e.g. transferring money from a person's
+    wallet to a cash register). The initial level of the container can be defined
+    using a probability distribution.
+    """
     def __init__(self, env, name, owner, resource,init = {'init' : 0}, capacity = float('inf'),uid=None, blueprint=None):
         if uid is None:
             self.uid = uuid.uuid4().hex
         else:
             self.uid = uid
 
+        #backup init for serialization
+        self._init_bak = init
         if not 'dist' in init:
             if init['init'] == 'inf':
                 init = math.inf
@@ -99,9 +112,9 @@ class BasicContainer(object):
         return {
             "name" : self.name,
             "uid" : self.uid,
-            "owner" : self.owner.uid,
+            "owner" : self.owner,
             "resource" : self.resource,
-            "init" : self.init,
+            "init" : self._init_bak,
             "capacity" : self.capacity,
             "blueprint" : self.blueprint
         }

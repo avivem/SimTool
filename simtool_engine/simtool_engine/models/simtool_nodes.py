@@ -208,7 +208,7 @@ class StartingPoint(Node):
             "generation" : self.generation,
             "limit" : self.limit,
             "dirto" : list({x.uid for x,_ in self.directed_to.items()}),
-            "blueprints" : list({name:x.serialize() for name,x in self.blueprints.items()}.values()),
+            "blueprints" : list([x.uid for name,x in self.blueprints.items()]),
             "logic" : self.logic.serialize()
         }
 
@@ -362,8 +362,8 @@ class BasicComponent(Node):
             "capacity" : self.capacity,
             "time_func" : self.time_func,
             "dirto" : list({x.uid for x,_ in self.directed_to.items()}),
-            "blueprints" : list({x.uid for _,x in self.containers.items() if x.blueprint != None}),
-            "containers" : list({x.serialize() for _,x in self.containers.items() if x.blueprint == None}),
+            "blueprints" : list([x.uid for _,x in self.containers.items() if x.blueprint != None]),
+            "containers" : list([x.serialize() for _,x in self.containers.items() if x.blueprint == None]),
             "logic" : self.logic.serialize()
         }
 

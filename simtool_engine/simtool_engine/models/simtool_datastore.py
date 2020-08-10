@@ -1,3 +1,10 @@
+""" simtool_datastore.py contains the DataStore class, which provides
+a functions for creating and managing simulations in a method similar
+to the HTTP requests.
+
+Written by Aviv Elazar-Mittelman, July 2020
+"""
+
 import simpy
 import collections
 import numpy as np
@@ -11,6 +18,21 @@ from simtool_engine.models.simtool_logic import Logic
 from simtool_engine.models.simtool_containers import BasicContainer, BasicContainerBlueprint
 
 class DataStore():
+	""" DataStore is a simulation manager that can handle a single simulation per
+	DataStore object. The methods take String inputs to be functionally equivalent
+	to the HTTP requests made by the GUI. DataStore lets you create, run, and view
+	results of simulations without touching any of the inner classes.
+
+	Many of the functions take a parameter <inputs>. **inputs in a function call
+	means that Python is expecting a dict, and will attempt to unpack it to use
+	as parameters. Please refer to the appropriate files to find the correct
+	parameters (e.g. simtool_nodes for functions dealing with nodes.)
+
+	It is reccomended to attempt an example using the internal classes directly
+	before playing with DataStore to gain an understanding of the different concepts.
+	"""
+
+	#enums representing node types. Values are arbitrary.
 	START = 1000
 	STATION = 2000
 	END = 3000
@@ -24,26 +46,27 @@ class DataStore():
 		self.runs = []
 		self.start_time = 0
 		self.end_time = None
-		self.env = simpy.Environment(start)
-		""" self.save = {
-			"nodes" : {},
-			"containers" : {},
-			"blueprints" : {},
-			"dirto" : {},
-			"logic" : {},
-			"last_run" : None
-		} """
+		self.env = simpy.Environment(start) #Create env with given start time.
 
 		#Set up logging.
+
+		## NOTE: at the moment, loggers are hardcoded, so attempts to run multiple
+		## 		 simulations at the same time will lead to mixed output. To resolve this,
+		## 	   	 will need to dynamically create loggers and pass logger names to inner
+		## 		 classes.
+
 		self.strStream = io.StringIO()
 		self.data_logger = logging.getLogger("data_logger")
 		self.evnt_logger = logging.getLogger("evnt_logger")
 		self.data_logger.setLevel(logging.INFO)
 		self.evnt_logger.setLevel(logging.INFO)
 
+		#DataStore messages are of the format: <date and time>:: <msg>
 		self.data_formatter = logging.Formatter('<%(asctime)s>:: %(message)s')
+		#Messages from events are of teh format: [sim_time]:: <msg>
 		self.evnt_formatter = logging.Formatter('[%(sim_time)s]:: %(message)s')
 
+		#Messages are directed to stdout and to two IOStreams.
 		self.data_out_handler = logging.StreamHandler(sys.stdout)
 		self.data_str_handler = logging.StreamHandler(self.strStream)
 
@@ -68,12 +91,15 @@ class DataStore():
 		self.evnt_logger.addHandler(self.evnt_out_handler)
 		self.evnt_logger.addHandler(self.evnt_str_handler)
 
+	#Disable console messages to reduce spam.
 	def disable_evnt_console(self):
 		self.evnt_logger.removeHandler(self.evnt_str_handler)
 	
+	#Opposite of above command.
 	def enable_evnt_console(self):
 		self.evnt_logger.addHandler(self.evnt_str_handler)
 
+	#Replace environment with a new one in all objects.
 	def new_env(self, start = 0):
 		self.env = simpy.Environment(start)
 		self.end_time = None
@@ -212,6 +238,8 @@ class DataStore():
 		else:
 			return self.nodes[owner_uid].containers[name]
 
+	#Method for adding a blueprint to a Starting Node. The blueprint will be used to
+	#create containers for entities.
 	def add_blueprint(self, node_uid, blueprint):
 		self.does_node_exist(node_uid)
 		if not blueprint in self.blueprints:
@@ -221,12 +249,14 @@ class DataStore():
 		node.add_blueprint(bp)
 		return f"Blueprint {bp.name}:{blueprint} has been added to {node.name}:{node_uid}"
 	
+	#Method for creating a container directly without a blueprint and assigning to a station node.
 	def create_container(self, owner_uid, inputs):
 		self.does_node_exist(owner_uid)
 		node = self.nodes[owner_uid]
 		con = node.add_container(inputs)
 		return f"Container {con.name} added to {self.nodes[owner_uid].name}:{owner_uid}"
 
+	#Method for creating a container using an existing blueprint and assigning to a station node.
 	def create_container_bp(self, owner_uid, bp):
 		self.does_node_exist(owner_uid)
 		if not bp in self.blueprints:
@@ -255,12 +285,15 @@ class DataStore():
 			del self.nodes[owner_uid][name]
 		return f"Container {con.name} of {self.nodes[owner_uid].name}:{owner_uid} has been deleted."
 
+	#Create/Replace the default logic object with the specified split policy.
+	#Currently supporting "RAND" and "ALPHA_SEQ".
 	def create_logic(self, uid, opt):
 		self.does_node_exist(uid)
 		node = self.nodes[uid]
 		node.create_logic(opt)
 		return f"Logic for node {node.name}:{uid} has been created with option: {opt}"
 
+	#Replace with new logic that just chooses paths randomly.
 	def delete_logic(self, uid):
 		self.does_node_exist(uid)
 		node = self.nodes[uid]
@@ -287,6 +320,8 @@ class DataStore():
 		node.delete_condition_group(name)
 		return f"Condition Group {name} has been removed from {node.name}:{node_uid}"
 
+	#By default, condition groups are set to AND, meaning all conditions must be True to execute associated
+	#actions. This function flips the state between AND and OR, where at least one condition must be True.
 	def flip_condition_group_cond_type(self, node_uid, name):
 		self.does_node_exist(node_uid)
 		node = self.nodes[node_uid]
@@ -345,6 +380,8 @@ class DataStore():
 		else:
 			return node.logic.condition_groups[cond_group].action_group.keys()
 
+	#Each ConditionGroup can have one action group. All actions are executed sequentially if the
+	#ConditionGroup evaluates to True.
 	def create_action_group(self, node_uid, cond_group):
 		self.does_node_exist(node_uid)
 		node = self.nodes[node_uid]
@@ -409,6 +446,7 @@ class DataStore():
 			node.logic.condition_groups[cond_group].action_group.remove_action(name)
 			return f"Action {action.name} has been removed from Condition Group {cond_group} of {node.name}:{node_uid}"\
 	
+	#Get Summary info about the last run. Finds most common path traversed, in general, and by end node.
 	def summary(self):
 		if self.end_time == None:
 			raise ValueError("Please run the simulation at least once.")
@@ -431,6 +469,8 @@ class DataStore():
 		}
 		return to_ret
 
+	#The serialize method returns a JSON object with info about nodes, containers, blueprints, and logic
+	#In order to allow for saving a process to a file.
 	def serialize(self):
 		return {
 			"starts" : {x.uid:x.serialize() for _,x in self.starts.items()},
@@ -439,16 +479,19 @@ class DataStore():
 			"blueprints" : {uid:blueprint.serialize() for uid,blueprint in self.blueprints.items()}
 		}
 
-	""" def deserialize(self, save):
+	def deserialize(self, save):
 		#First, clean the system.
 		self.clean()
 		starts = save["starts"]
 		stations = save["stations"]
 		ends = save["ends"]
+		nodes = dict(starts)
+		nodes.update(stations)
+		nodes.update(ends)
 		blueprints = save["blueprints"]
 
 		#Create the base nodes.
-		for uid,node in starts:
+		for uid,node in starts.items():
 			inputs = {
 				"name" : node["name"],
 				"entity_name" : node["entity_name"],
@@ -458,17 +501,16 @@ class DataStore():
 			}
 			self.create_node(DataStore.START,inputs)
 		
-		for uid,node in stations:
+		for uid,node in stations.items():
 			inputs = {
 				"name" : node["name"],
 				"capacity" : node["capacity"],
 				"time_func" : node["time_func"],
-				"generation" : node["generation"],
 				"uid" : node["uid"]
 			}
 			self.create_node(DataStore.STATION,inputs)
 
-		for uid,node in ends:
+		for uid,node in ends.items():
 			inputs = {
 				"name" : node["name"],
 				"uid" : node["uid"]
@@ -477,21 +519,14 @@ class DataStore():
 
 		#Now, direct nodes to proper places.
 
-		for uid,node in starts:
-			for to in node["dirto"]:
-				self.set_directed_to(uid,to)
-		
-		for uid,node in stations:
-			for to in node["dirto"]:
-				self.set_directed_to(uid,to)
-
-		for uid,node in ends:
-			for to in node["dirto"]:
-				self.set_directed_to(uid,to)
+		for uid, node in nodes.items():
+			if "dirto" in node:
+				for to in node["dirto"]:
+					self.set_directed_to(uid,to)
 
 		#Create blueprints:
 
-		for uid,bp in blueprints:
+		for uid,bp in blueprints.items():
 			inputs = {
 				"capacity" : bp["capacity"],
 				"init" : bp["init"],
@@ -503,18 +538,47 @@ class DataStore():
 
 		#Create containers based on blueprints.
 
-		for uid,node in starts:
+		for uid,node in starts.items():
 			for bp in node["blueprints"]:
 				self.add_blueprint(uid,bp)
 		
-		for uid,node in stations:
+		for uid,node in stations.items():
 			for bp in node["blueprints"]:
 				self.create_container_bp(uid,bp)
 
-		#Create containers  """
+		#Create containers
 
-	
+		for uid, node in stations.items():
+			for con in node["containers"]:
+				self.create_container(uid,con)
 
+		#Now load logic.
+
+		for uid, node in starts.items():
+			self.create_logic(uid,node["logic"]["split_policy"])
+
+		for uid, node in stations.items():
+			self.create_logic(uid,node["logic"]["split_policy"])
+
+		for uid, node in stations.items():
+			if len(node["logic"]["cond_groups"]) > 0:
+				for name, group in node["logic"]["cond_groups"].items():
+					pp = group["pass_paths"]
+					fp = group["fail_paths"]
+					self.create_condition_group(uid,name,pp,fp)
+
+					for cond_name, condition in group["conditions"].items():
+						self.add_condition(uid,name,condition)
+					
+					if not group["action_group"] == None:
+						self.create_action_group(uid,name)
+						for act_name, action in group["action_group"]["actions"].items():
+							self.add_action(uid,name,action)
+
+
+	#The run method is what starts the simulation. It takes an optional until parameter that tells when
+	#to stop the simulation. If all events finish before the given time, the simulation will end
+	#immediately.
 	def run(self, until=20000):
 		if len(self.starts) == 0:
 			raise ValueError("Please create at least one starting node.")

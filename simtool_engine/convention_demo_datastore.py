@@ -223,6 +223,21 @@ give_ticket = {
 }
 ds.add_action("tb", "Conditions",give_ticket)
 
-(log, summary) = ds.run(30000)
+(log, summary) = ds.run(3000)
 
-pprint(summary)
+print("First run successful")
+
+save = ds.serialize()
+
+pprint(save)
+
+ds.clean()
+
+print("DataStore Cleaned")
+
+pprint(ds.serialize())
+print()
+
+ds.deserialize(save)
+
+pprint(ds.serialize())

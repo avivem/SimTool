@@ -171,9 +171,10 @@ class Logic(object):
         def serialize(self):
             return {
                 "name" : self.name,
-                "pass_paths" : [x.name for x in self.pass_paths],
-                "fail_paths" : [x.name for x in self.fail_paths],
-                "conditions" : {name:condition.serialize() for name,condition in self.conditions.items()}
+                "pass_paths" : [x.uid for x in self.pass_paths],
+                "fail_paths" : [x.uid for x in self.fail_paths],
+                "conditions" : {name:condition.serialize() for name,condition in self.conditions.items()},
+                "action_group" : self.action_group.serialize() if self.action_group != None else None
             }
     
     def create_condition_group(self, name, pass_paths, fail_paths):
