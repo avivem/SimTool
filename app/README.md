@@ -4,14 +4,14 @@
 
 1. Download npm
 
-	npm init
+	> npm init
 
 2. Install React
 
-	npm install --save react
+	> npm install --save react
 
 3. Run the application
 
-	npm start
+	> npm start
 
 Details on how to use the app at SimTool/README.md
