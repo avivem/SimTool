@@ -1,6 +1,6 @@
-README
+## README
 
-Set up local environment
+### Set up local environment
 
 1. Virtual Environment
 
