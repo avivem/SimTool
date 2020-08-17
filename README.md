@@ -4,4 +4,4 @@ SimTool is an open-source web app that allows anyone to explore discrete event s
 
 Example Demo of App
 
-![alt text](https://github.com/avivem/SimTool/blob/master/conventionex?raw=true)
+![alt text](https://github.com/avivem/SimTool/blob/master/conventionex.png?raw=true)
