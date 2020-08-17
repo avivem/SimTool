@@ -1,4 +1,4 @@
-## SimTool
+# SimTool
 
 SimTool is an open-source discrete-event simulation tool built for small organizations and businesses to simulate potential scenarios in their workflows and make meaningful decisions.
 
