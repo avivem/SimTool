@@ -92,6 +92,8 @@ class Navigation extends Component{
       this.openBlueprintPopup = this.openBlueprintPopup.bind(this);
 
       this.showInformation = this.showInformation.bind(this);
+
+      this.handleStepper = this.handleStepper.bind(this);
     }
 
     // Change state
@@ -473,6 +475,21 @@ class Navigation extends Component{
       }
     }
 
+    // Handle the stepping through the model
+    handleStepper(){
+      var stepLst = this.props.stepLst;
+      var stepPos = this.props.stepperPos;
+
+      // Make the step list when list is empty or finish stepping through old list
+      if(stepLst.length == 0 || (stepLst.length == stepPos + 1)){
+        this.props.makeStepperLst();
+        this.props.stepper();
+      }
+      else if(!this.props.stepCommand){
+        this.props.stepper();
+      }
+    }
+
     render(){
         let content;
         // determine content in popup to create a node
@@ -624,6 +641,9 @@ class Navigation extends Component{
               </li>
               <li class="col-sm-1 nav-item active">
                 <button type="button" class="nav-link button btn btn-success" style={{width: '50px'}} onClick={this.handleRun}>Run</button>
+              </li>
+              <li class="col-sm-1 nav-item active">
+                <button type="button" class="nav-link button btn btn-success" style={{width: '50px'}} onClick={this.handleStepper}>Stepper</button>
               </li>
               <li class="col-sm-1 nav-item active">
                 <button type="button" class="nav-link button btn btn-info" style={{width: '50px'}} onClick={this.openPopupData}>Data</button>

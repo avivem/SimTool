@@ -66,6 +66,12 @@ class App extends Component{
       updateMode: true,
 
       selectedNodeID: "",
+
+      // variable to determine the stepping through the model
+      stepperPos: -1,
+      stepLst: [],
+      stepOldLst: [],
+      stepCommand: false,
     }
 
     // numImage keep track of current number of image in model
@@ -138,6 +144,10 @@ class App extends Component{
 
     // This logic is a field in the nodes
     this.submitEditLogic = this.submitEditLogic.bind(this);
+
+    // function for stepper
+    this.makeStepperLst = this.makeStepperLst.bind(this);
+    this.stepper = this.stepper.bind(this);
   }
 
   /* Add node, determine what node to add by checking nodeType
@@ -527,7 +537,11 @@ class App extends Component{
         stationNode: [],
         endNode: [],
         containers: [],
-        specs: []
+        specs: [],
+        stepperPos: -1,
+        stepLst: [],
+        stepOldLst: [],
+        stepCommand: false,
       });
 
       const requestClean = {
@@ -1906,6 +1920,54 @@ class App extends Component{
     }
   }
 
+  // Create a list of node the stepper will go through 
+  makeStepperLst(){
+    // Save the previous list, will be use to clear mark on the canvas
+    var currentStepLst = this.state.stepLst;
+    this.setState({ stepOldLst: currentStepLst });
+
+    // Make the new list
+    var start = this.state.startNode;
+    var current = start[Math.floor(Math.random() * start.length)].uid;
+    var paths = this.state.arrows;
+    var lst = [current];
+    // make the step list
+    while(!current.includes("end")){
+      var findNext = "";
+      paths.forEach((p) => {
+        if(p.from == current){
+          findNext = p.to;
+        }
+      });
+      lst.push(findNext);
+      current = findNext;
+    }
+
+    this.setState({ 
+      stepLst: lst,
+      stepperPos: -1,
+    });
+  }
+
+  // Use to tell the stepper to go forward
+  stepper(){
+    var cmd = this.state.stepCommand;
+    if(!cmd && this.state.stepLst.length !== 0){
+      // do the step
+      cmd = true;
+      this.setState((state) => ({
+        stepperPos: state.stepperPos + 1 
+      }));
+    }
+    else{
+      // Step is done
+      cmd = false;
+    }
+
+    this.setState({ stepCommand: cmd });
+
+  }
+
   render(){
     return (
       <div className="App">
@@ -1925,7 +1987,14 @@ class App extends Component{
             handleLoadFromFile={this.handleLoadFromFile}
             updateMode={this.state.updateMode}
             handleContainer={this.handleContainer} 
-            openBlueprintPopup={this.openBlueprintPopup}/>
+            openBlueprintPopup={this.openBlueprintPopup}
+
+            makeStepperLst={this.makeStepperLst}
+            stepper={this.stepper}
+            stepperPos={this.state.stepperPos}
+            stepLst={this.state.stepLst}
+            stepCommand={this.state.stepCommand}
+            />
         </div>
 
         {/* Canvas */}
@@ -1967,6 +2036,12 @@ class App extends Component{
             specs={this.state.specs}
             openSpecSelectPopup={this.openSpecSelectPopup}
             deleteSpec={this.deleteSpec}
+
+            stepper={this.stepper}
+            stepperPos={this.state.stepperPos}
+            stepLst={this.state.stepLst}
+            stepOldLst={this.state.stepOldLst}
+            stepCommand={this.state.stepCommand}
             />
         </div>
 

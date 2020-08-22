@@ -578,6 +578,67 @@ class Canvas extends Component{
             // Call func in App.js to clear the api
             this.props.handleClearMode();
         }
+
+        // Stepper through the model
+        // Red node is the current node
+        // Green node is the path that travel through
+        if(this.props.stepCommand){
+            var pos = this.props.stepperPos;
+            var current = this.props.stepLst[pos];
+            var oldLst = this.props.stepOldLst;
+            if(pos === 0){
+                var i;
+                var n;
+                // Clear the model if this is not the first time the stepper is run
+                for (i = 0; i < oldLst.length; i++) {
+                    n = layer.findOne('#' + oldLst[i]);
+                    n.stroke("black");
+                    n.strokeWidth(5);
+                    if(i !== 0){
+                        var p = layer.findOne('#' + oldLst[i - 1]);
+                        n.stroke("black");
+                        n.strokeWidth(5);
+                        this.props.arrows.forEach((a) => {
+                            if(a.to == oldLst[i] && a.from == oldLst[i - 1]){
+                                var arrow = layer.findOne('#' + a.uid);
+                                arrow.stroke("black");
+                                arrow.fill("black");
+                                console.log("Reset Arrow")
+                            }
+                        })
+                    }
+                }
+
+                // First step in the stepper
+                n = layer.findOne('#' + current);
+                n.stroke("red");
+                n.strokeWidth(8);
+                
+            }
+            else{
+                var previous = this.props.stepLst[pos - 1]
+                var currentNode = layer.findOne('#' + current);
+                var previousNode = layer.findOne('#' + previous);
+                currentNode.stroke("red");
+                currentNode.strokeWidth(8);
+                previousNode.stroke("green");
+                previousNode.strokeWidth(8);
+
+                // Change the path's color between the the current and previous node
+                this.props.arrows.forEach((a) => {
+                    if(a.to == current && a.from == previous){
+                        var arrow = layer.findOne('#' + a.uid);
+                        arrow.stroke("green");
+                        arrow.fill("green");
+                    }
+                });
+            }
+
+            // Confirm that step is done
+            this.props.stepper();
+
+            layer.batchDraw();
+        }
     }
 
     render(){
