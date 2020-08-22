@@ -582,11 +582,8 @@ class App extends Component{
     console.log("Simulation has been reset.")
   }
 
-
-
   // Save the current model
   handleSave(){
-
     var lst1 = this.state.startNode;
     var lst2 = this.state.stationNode;
     var lst3 = this.state.endNode;
@@ -712,6 +709,8 @@ class App extends Component{
   // Also used for regular adding node
   handleBackendLoadNodes(node){
     console.log("Back end load");
+
+    // if a start node is created
     if(node.uid.includes("start")){
       //Create start node on backend
       const requestOptionsStart = {
@@ -742,6 +741,7 @@ class App extends Component{
       });
 
 
+      // change this to work for start nodes with other split_policy types
       const requestOptionsStartLogic = {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -760,7 +760,7 @@ class App extends Component{
           console.log("Error on add Start Logic");
       });
 
-    }
+    }// if a station node is created
     else if(node.uid.includes("station")){
       //Create station node on backend
       const requestOptionsBasic = {
@@ -788,6 +788,7 @@ class App extends Component{
 
       console.log(node.logic);
 
+      // change so logic can be changed to other than BOOL
       if(node.logic != "NONE"){
         const requestOptionsStartLogic = {
           method: 'PUT',
@@ -807,7 +808,7 @@ class App extends Component{
             console.log("Error on add Start Logic");
         });
       }
-    }
+    }//create end node
     else if(node.uid.includes("end")){
       //Create end node on backend
       const requestOptionsEnd = {
@@ -830,7 +831,7 @@ class App extends Component{
       }).catch(function() {
           console.log("Error on add End Node");
       });
-    }
+    }//invalid
     else{
       console.log("Invalid node being send to back end")
     }
@@ -1082,15 +1083,17 @@ class App extends Component{
       loc: loc,
       scale: scale,
       capacity: (dist == "CONSTANT" ? capacity : max),
-  //constantValue: constantValue,
+      //constantValue: constantValue,
       init: init
     });
 
     var addcontainerspec;
+    // constant distribution
     if(dist == "CONSTANT"){
+      // if capacity is zero
       if(capacity == 0){
+        // if init is not chosen -infinity
         if(init == -1){
-          console.log("ticket");
           addcontainerspec = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1104,6 +1107,7 @@ class App extends Component{
               uid: "spec-" + this.state.count
             })
           };
+        // else- defined init
         }else{
           console.log("rev");
           addcontainerspec = {
@@ -1122,7 +1126,7 @@ class App extends Component{
         }
 
       }else{
-        console.log("attendee");
+      // max capacity and init
         addcontainerspec = {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1139,6 +1143,7 @@ class App extends Component{
         };
       }
     }else{
+      // not a constant distrivution
       addcontainerspec = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1457,6 +1462,8 @@ class App extends Component{
     });
 
     this.setState({ specs: specs });
+
+    // fetch to delete spec
   }
 
 
@@ -1705,6 +1712,8 @@ class App extends Component{
     });
 
     this.setState({ logics: lst });
+
+    // fetch to edit cond
   }
   
   // Update to the action group
@@ -1727,6 +1736,8 @@ class App extends Component{
 
     this.setState({ logics: lst});
     console.log(lst);
+
+    // fetch to edit action
 
   }
 
@@ -1807,6 +1818,8 @@ class App extends Component{
 
     this.setState({ logics: lst });
     console.log(lst);
+
+    // fetch to edit cond
   }
 
   // Update to the action
@@ -1887,6 +1900,8 @@ class App extends Component{
 
     this.setState({ logics: lst });
     console.log(lst);
+
+    // fetch to edit action
   }
 
 
