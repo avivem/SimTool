@@ -16,6 +16,7 @@ import pprint
 from simtool_engine.models.simtool_nodes import StartingPoint, BasicComponent, EndingPoint
 from simtool_engine.models.simtool_logic import Logic
 from simtool_engine.models.simtool_containers import BasicContainer, BasicContainerBlueprint
+from simtool_engine.models.simtool_logging import SimToolLogging
 
 class DataStore():
 	""" DataStore is a simulation manager that can handle a single simulation per
@@ -55,49 +56,12 @@ class DataStore():
 		## 	   	 will need to dynamically create loggers and pass logger names to inner
 		## 		 classes.
 
-		self.strStream = io.StringIO()
-		self.data_logger = logging.getLogger("data_logger")
-		self.evnt_logger = logging.getLogger("evnt_logger")
-		self.data_logger.setLevel(logging.INFO)
-		self.evnt_logger.setLevel(logging.INFO)
 
-		#DataStore messages are of the format: <date and time>:: <msg>
-		self.data_formatter = logging.Formatter('<%(asctime)s>:: %(message)s')
-		#Messages from events are of teh format: [sim_time]:: <msg>
-		self.evnt_formatter = logging.Formatter('[%(sim_time)s]:: %(message)s')
+		self.data_logger = SimToolLogging.getDataLog()
+		self.evnt_logger = SimToolLogging.getEventLog()
+		self.strStream = SimToolLogging.getStrStream()
 
-		#Messages are directed to stdout and to two IOStreams.
-		self.data_out_handler = logging.StreamHandler(sys.stdout)
-		self.data_str_handler = logging.StreamHandler(self.strStream)
-
-		self.evnt_out_handler = logging.StreamHandler(sys.stdout)
-		self.evnt_str_handler = logging.StreamHandler(self.strStream)
-
-		self.data_out_handler.setLevel(logging.INFO)
-		self.data_str_handler.setLevel(logging.INFO)
-
-		self.evnt_out_handler.setLevel(logging.INFO)
-		self.evnt_str_handler.setLevel(logging.INFO)
-
-		self.data_out_handler.setFormatter(self.data_formatter)
-		self.data_str_handler.setFormatter(self.data_formatter)
-
-		self.evnt_out_handler.setFormatter(self.evnt_formatter)
-		self.evnt_str_handler.setFormatter(self.evnt_formatter)
-
-		self.data_logger.addHandler(self.data_out_handler)
-		self.data_logger.addHandler(self.data_str_handler)
-
-		self.evnt_logger.addHandler(self.evnt_out_handler)
-		self.evnt_logger.addHandler(self.evnt_str_handler)
-
-	#Disable console messages to reduce spam.
-	def disable_evnt_console(self):
-		self.evnt_logger.removeHandler(self.evnt_str_handler)
 	
-	#Opposite of above command.
-	def enable_evnt_console(self):
-		self.evnt_logger.addHandler(self.evnt_str_handler)
 
 	#Replace environment with a new one in all objects.
 	def new_env(self, start = 0):

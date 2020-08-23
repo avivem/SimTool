@@ -6,8 +6,9 @@ Written by Aviv Elazar-Mittelman, July 2020
 
 import simpy
 import logging
+from simtool_engine.models.simtool_logging import SimToolLogging
 
-evnt_logger = logging.getLogger('evnt_logger')
+evnt_logger = SimToolLogging.getEventLog()
 
 class BasicFlowEntity(object):
     """ BasicFlowEntity represents a thing (e.g. a person, a material) going

@@ -22,12 +22,17 @@ import logging
 from simtool_engine.models.simtool_entities import BasicFlowEntity
 from simtool_engine.models.simtool_logic import Logic
 from simtool_engine.models.simtool_containers import BasicContainer, BasicContainerBlueprint
+from simtool_engine.models.simtool_logging import SimToolLogging
 import random
 import scipy.stats as stats
 import numpy as np
 
-# Get reference to the event logger so that nodes can output correct logs.
-evnt_logger = logging.getLogger('evnt_logger')
+# Get reference to the loggers so that nodes can output correct logs.
+evnt_logger = SimToolLogging.getEventLog()
+evnt_logger_machine = SimToolLogging.getEventLogMachine()
+data_logger = SimToolLogging.getDataLog()
+data_logger_machine = SimToolLogging.getDataLogMachine()
+
 
 
 class Node(object):
