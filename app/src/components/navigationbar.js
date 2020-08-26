@@ -5,6 +5,8 @@ import StartImage from "../image/start-circle.png";
 import StationImage from "../image/station-circle.png";
 import EndImage from "../image/end-circle.png";
 
+import { store } from 'react-notifications-component';
+
 // import './css/popup.css';
 
 // Component will be called in App.js
@@ -169,6 +171,20 @@ class Navigation extends Component{
       fetch(url).then(res => res.text()).then(gotUser => {
           console.log("Finish Running");
 
+          store.addNotification({
+            title: "Finish Running",
+            message: " ",
+            type: "success",
+            insert: "top",
+            container: "bottom-right",
+            animationIn: ["animated", "fadeIn"],
+            animationOut: ["animated", "fadeOut"],
+            dismiss: {
+              duration: 5000,
+              onScreen: true
+            }
+          });
+
           // Reset the summaryContent since new run
           // this.setState({ summaryContent: '' });
 
@@ -249,7 +265,23 @@ class Navigation extends Component{
             summaryContent: summaryContent
           });
           this.openPopupData();
-        }).catch(console.log)
+        }).catch( err => {
+          console.log("Error on Run")
+
+          store.addNotification({
+            title: "Error on Run",
+            message: " ",
+            type: "danger",
+            insert: "top",
+            container: "bottom-right",
+            animationIn: ["animated", "fadeIn"],
+            animationOut: ["animated", "fadeOut"],
+            dismiss: {
+              duration: 5000,
+              onScreen: true
+            }
+          });
+        })
 
 
     } 
@@ -296,7 +328,22 @@ class Navigation extends Component{
 
     // Change to add arrow mode
     addArrowMode(){
+      // this change of color not important anymore- buttons dont change
       if(this.props.createArrowMode){
+        store.addNotification({
+            title: "Arrow Mode Off",
+            message: " ",
+            type: "warning",
+            insert: "top",
+            container: "bottom-right",
+            animationIn: ["animated", "fadeIn"],
+            animationOut: ["animated", "fadeOut"],
+            dismiss: {
+              duration: 5000,
+              onScreen: true
+            }
+        });
+
         this.setState({
           actionButtonColor: "#2cbebe",
           arrowButtonColor: "#2cbebe",
@@ -305,6 +352,19 @@ class Navigation extends Component{
         });
       }
       else{
+        store.addNotification({
+            title: "Arrow Mode On",
+            message: " ",
+            type: "success",
+            insert: "top",
+            container: "bottom-right",
+            animationIn: ["animated", "fadeIn"],
+            animationOut: ["animated", "fadeOut"],
+            dismiss: {
+              duration: 5000,
+              onScreen: true
+            }
+        });
         this.setState({
           actionButtonColor: "#2cbebe",
           arrowButtonColor: "#1e8080",
@@ -344,6 +404,20 @@ class Navigation extends Component{
     // Clear canvas meaning nodes, blueprint, containers, arrows, logic are all remove
     handleClearMode(){
       this.props.handleClearMode(true);
+
+      store.addNotification({
+        title: "Canvas Cleared",
+        message: " ",
+        type: "info",
+        insert: "top",
+        container: "bottom-right",
+        animationIn: ["animated", "fadeIn"],
+        animationOut: ["animated", "fadeOut"],
+        dismiss: {
+          duration: 2500,
+          onScreen: true
+        }
+      });
     }
 
     //Reset Simulation
@@ -414,6 +488,20 @@ class Navigation extends Component{
     handleSave(){
       // Call func in App.js
       this.props.handleSave();
+
+      store.addNotification({
+          title: "Canvas Saved",
+          message: " ",
+          type: "default",
+          insert: "top",
+          container: "bottom-right",
+          animationIn: ["animated", "fadeIn"],
+          animationOut: ["animated", "fadeOut"],
+          dismiss: {
+            duration: 5000,
+            onScreen: true
+          }
+      });
     }
 
     // Open the popup to look for saved model on current computer
@@ -559,7 +647,6 @@ class Navigation extends Component{
                         </label>
                         <label class="label">Logic:
                           <select name="logic" class="form-control" onChange={this.onChange}>
-                            <option value="NONE"></option>
                             <option value="NONE">NONE</option>
                             <option value="BOOL">BOOL</option>
                             <option value="RAND">RAND</option>
@@ -600,7 +687,6 @@ class Navigation extends Component{
                         </label>
                         <label class="label">Logic:
                           <select name="logic" class="form-control" onChange={this.onChange}>
-                            <option value="NONE"></option>
                             <option value="NONE">NONE</option>
                             <option value="BOOL">BOOL</option>
                             <option value="RAND">RAND</option>
@@ -706,7 +792,8 @@ class Navigation extends Component{
             open={this.state.openData} 
             closeOnDocumentClick 
             onClose={this.closePopupData}
-            contentStyle={{height: 400, overflow: "auto"}}>
+            contentStyle={{height: 400, overflow: "auto"}} 
+            >
               {this.state.displayType == "Data" && 
               <div>
                 <h3 style={{textAlign: "center"}}>Data</h3>

@@ -9,6 +9,11 @@ import UpdatePopUp from './components/update'
 
 import SpecSelectPopup from './components/SpecSelectPopup';
 
+import ReactNotification from 'react-notifications-component'
+import 'react-notifications-component/dist/theme.css'
+
+import { store } from 'react-notifications-component';
+
 // Main component that connect all of the other components like popup,
 // sidebar, navigation bar, canvas. All functions that modified the 
 // state of nodes, logic, arrows, containers, blueprint are in this component.
@@ -733,34 +738,77 @@ class App extends Component{
       console.log(requestOptionsStart);
 
       /**fetch to api */
-      fetch('http://127.0.0.1:5000/api/node/', requestOptionsStart).then(res => res.json()).then(gotUser => {
+      fetch('http://127.0.0.1:5000/api/node/', requestOptionsStart).then(gotUser => {
           console.log(gotUser);
 
       }).catch(function() {
           console.log("Error on add Start Node");
+
+          store.addNotification({
+            title: "Error on add Start Node",
+            message: " ",
+            type: "danger",
+            insert: "top",
+            container: "bottom-right",
+            animationIn: ["animated", "fadeIn"],
+            animationOut: ["animated", "fadeOut"],
+            dismiss: {
+              duration: 5000,
+              onScreen: true
+            }
+          });
       });
 
 
-      // change this to work for start nodes with other split_policy types
+      // can start nodes have to have logic? ie. NONE
       const requestOptionsStartLogic = {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           owner: node.uid,
-          split_policy: "RAND"
+          split_policy: node.logic
         })
       };
 
       console.log(requestOptionsStartLogic);
 
-      fetch('http://127.0.0.1:5000/api/node/logic/', requestOptionsStartLogic).then(res => res.json()).then(gotUser => {
+      fetch('http://127.0.0.1:5000/api/node/logic/', requestOptionsStartLogic).then(gotUser => {
           console.log(gotUser);
+
+          store.addNotification({
+            title: "Start Node Added Successfully",
+            message: " ",
+            type: "success",
+            insert: "top",
+            container: "bottom-right",
+            animationIn: ["animated", "fadeIn"],
+            animationOut: ["animated", "fadeOut"],
+            dismiss: {
+              duration: 5000,
+              onScreen: true
+            }
+          });
 
       }).catch(function() {
           console.log("Error on add Start Logic");
+
+          store.addNotification({
+            title: "Error on add Start Node",
+            message: " ",
+            type: "danger",
+            insert: "top",
+            container: "bottom-right",
+            animationIn: ["animated", "fadeIn"],
+            animationOut: ["animated", "fadeOut"],
+            dismiss: {
+              duration: 5000,
+              onScreen: true
+            }
+          });
       });
 
-    }// if a station node is created
+    }
+    // if a station node is created
     else if(node.uid.includes("station")){
       //Create station node on backend
       const requestOptionsBasic = {
@@ -768,7 +816,7 @@ class App extends Component{
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           type: 'STATION',
-          // Change the name value to this.state.name to refer to user input
+          
           name: node.name,
           capacity: parseInt(node.capacity),
           time_func: parseInt(node.time_func),
@@ -779,43 +827,98 @@ class App extends Component{
       console.log(requestOptionsBasic);
 
       /**fetch to api */
-      fetch('http://127.0.0.1:5000/api/node/', requestOptionsBasic).then(res => res.json()).then(gotUser => {
+      fetch('http://127.0.0.1:5000/api/node/', requestOptionsBasic).then(gotUser => {
           console.log(gotUser);
 
       }).catch(function() {
           console.log("Error on add Basic Node");
+
+          store.addNotification({
+            title: "Error on add Station Node",
+            message: " ",
+            type: "danger",
+            insert: "top",
+            container: "bottom-right",
+            animationIn: ["animated", "fadeIn"],
+            animationOut: ["animated", "fadeOut"],
+            dismiss: {
+              duration: 5000,
+              onScreen: true
+            }
+          });
       });
 
-      console.log(node.logic);
-
-      // change so logic can be changed to other than BOOL
+      // create logic if needed
       if(node.logic != "NONE"){
+        console.log(node.logic);
         const requestOptionsStartLogic = {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             owner: node.uid,
-            split_policy: "BOOL"
+            split_policy: node.logic
           })
         };
 
         console.log(requestOptionsStartLogic);
 
-        fetch('http://127.0.0.1:5000/api/node/logic/', requestOptionsStartLogic).then(res => res.json()).then(gotUser => {
+        fetch('http://127.0.0.1:5000/api/node/logic/', requestOptionsStartLogic).then(gotUser => {
             console.log(gotUser);
 
+            store.addNotification({
+              title: "Station Node Added Successfully",
+              message: " ",
+              type: "success",
+              insert: "top",
+              container: "bottom-right",
+              animationIn: ["animated", "fadeIn"],
+              animationOut: ["animated", "fadeOut"],
+              dismiss: {
+                duration: 5000,
+                onScreen: true
+              }
+            });
+
         }).catch(function() {
-            console.log("Error on add Start Logic");
+            console.log("Error on add Station Logic");
+
+          store.addNotification({
+            title: "Error on add Station Node",
+            message: " ",
+            type: "danger",
+            insert: "top",
+            container: "bottom-right",
+            animationIn: ["animated", "fadeIn"],
+            animationOut: ["animated", "fadeOut"],
+            dismiss: {
+              duration: 5000,
+              onScreen: true
+            }
+          });
         });
+      }else{
+          store.addNotification({
+              title: "Station Node Added Successfully",
+              message: " ",
+              type: "success",
+              insert: "top",
+              container: "bottom-right",
+              animationIn: ["animated", "fadeIn"],
+              animationOut: ["animated", "fadeOut"],
+              dismiss: {
+                duration: 5000,
+                onScreen: true
+              }
+          });
       }
-    }//create end node
+    }
+    // if an end node is created
     else if(node.uid.includes("end")){
       //Create end node on backend
       const requestOptionsEnd = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          // Change the name value to this.state.name to refer to user input
           name: node.name,
           type: "END",
           uid: node.uid
@@ -825,12 +928,41 @@ class App extends Component{
       console.log(requestOptionsEnd);
 
       /**fetch to api */
-      fetch('http://127.0.0.1:5000/api/node/', requestOptionsEnd).then(res => res.json()).then(gotUser => {
+      fetch('http://127.0.0.1:5000/api/node/', requestOptionsEnd).then(gotUser => {
           console.log(gotUser);
+
+        store.addNotification({
+          title: "End Node Added Successfully",
+          message: " ",
+          type: "success",
+          insert: "top",
+          container: "bottom-right",
+          animationIn: ["animated", "fadeIn"],
+          animationOut: ["animated", "fadeOut"],
+          dismiss: {
+            duration: 5000,
+            onScreen: true
+          }
+        });
 
       }).catch(function() {
           console.log("Error on add End Node");
+
+          store.addNotification({
+            title: "Error on add End Node",
+            message: " ",
+            type: "danger",
+            insert: "top",
+            container: "bottom-right",
+            animationIn: ["animated", "fadeIn"],
+            animationOut: ["animated", "fadeOut"],
+            dismiss: {
+              duration: 5000,
+              onScreen: true
+            }
+          });
       });
+
     }//invalid
     else{
       console.log("Invalid node being send to back end")
@@ -920,9 +1052,23 @@ class App extends Component{
         };  
       }
 
-      /**fetch to api tos set container*/
-      fetch('http://127.0.0.1:5000/api/container/blueprint/', addcontainerspec).then(res => res.json()).then(gotUser => {
+      /**fetch to api to set container*/
+      fetch('http://127.0.0.1:5000/api/container/blueprint/', addcontainerspec).then(gotUser => {
         console.log(gotUser);
+
+        store.addNotification({
+            title: "Continer Added Successfully",
+            message: " ",
+            type: "success",
+            insert: "top",
+            container: "bottom-right",
+            animationIn: ["animated", "fadeIn"],
+            animationOut: ["animated", "fadeOut"],
+            dismiss: {
+              duration: 5000,
+              onScreen: true
+            }
+        });
 
       }).catch(function() {
           console.log("Error on add Contaier");
@@ -938,7 +1084,7 @@ class App extends Component{
 
     // Make the container
     containers.forEach((c) => {
-      //TODO: THIS WILL NOT WORK IF THE CONTAINER WAS NOT MAKE FROM A BLUEPRINT
+      //TODO: THIS WILL NOT WORK IF THE CONTAINER WAS NOT MADE FROM A BLUEPRINT
       //c.fromBluePrint can be No or something spec/blueprint uid
       
       const addcontainer = {
@@ -951,8 +1097,22 @@ class App extends Component{
         })
       };
 
-      fetch('http://127.0.0.1:5000/api/node/container/', addcontainer).then(res => res.json()).then(gotUser => {
+      fetch('http://127.0.0.1:5000/api/node/container/', addcontainer).then(gotUser => {
         console.log(gotUser);
+
+        //   store.addNotification({
+        //     title: "Arrow Mode On",
+        //     message: " ",
+        //     type: "success",
+        //     insert: "top",
+        //     container: "bottom-right",
+        //     animationIn: ["animated", "fadeIn"],
+        //     animationOut: ["animated", "fadeOut"],
+        //     dismiss: {
+        //       duration: 5000,
+        //       onScreen: true
+        //     }
+        // });
 
       }).catch(function() {
           console.log("Error on add container from spec");
@@ -982,12 +1142,41 @@ class App extends Component{
             fail_paths: condGroup.fail_paths
           })
         };
-        /**fetch to api tos set container*/
-        fetch('http://127.0.0.1:5000/api/node/logic/cond_group/', data).then(res => res.json()).then(gotUser => {
+        /**fetch to api tos set condition group*/
+        fetch('http://127.0.0.1:5000/api/node/logic/cond_group/', data).then(gotUser => {
           console.log(gotUser);
+
+          store.addNotification({
+              title: "Condition Group Successfully Added",
+              message: " ",
+              type: "success",
+              insert: "top",
+              container: "bottom-right",
+              animationIn: ["animated", "fadeIn"],
+              animationOut: ["animated", "fadeOut"],
+              dismiss: {
+                duration: 5000,
+                onScreen: true
+              }
+          });
 
         }).catch(function() {
             console.log("Error on add condition group");
+
+
+            store.addNotification({
+                title: "Error on Adding Condition Group",
+                message: " ",
+                type: "danger",
+                insert: "top",
+                container: "bottom-right",
+                animationIn: ["animated", "fadeIn"],
+                animationOut: ["animated", "fadeOut"],
+                dismiss: {
+                  duration: 5000,
+                  onScreen: true
+                }
+          });
         });
 
         // Create action group
@@ -1002,12 +1191,40 @@ class App extends Component{
           })
         };
 
-        /**fetch to api tos set container*/
-        fetch('http://127.0.0.1:5000/api/node/logic/cond_group/action_group/', actGroup).then(res => res.json()).then(gotUser => {
+        /**fetch to api tos set action group*/
+        fetch('http://127.0.0.1:5000/api/node/logic/cond_group/action_group/', actGroup).then(gotUser => {
           console.log(gotUser);
+
+          store.addNotification({
+              title: "Action Group Successfully Added",
+              message: " ",
+              type: "success",
+              insert: "top",
+              container: "bottom-right",
+              animationIn: ["animated", "fadeIn"],
+              animationOut: ["animated", "fadeOut"],
+              dismiss: {
+                duration: 5000,
+                onScreen: true
+              }
+          });
 
         }).catch(function() {
             console.log("Error on add condition group");
+
+            store.addNotification({
+                title: "Error on Adding Action Group",
+                message: " ",
+                type: "danger",
+                insert: "top",
+                container: "bottom-right",
+                animationIn: ["animated", "fadeIn"],
+                animationOut: ["animated", "fadeOut"],
+                dismiss: {
+                  duration: 5000,
+                  onScreen: true
+                }
+            });
         });
       });
 
@@ -1030,12 +1247,41 @@ class App extends Component{
             })
           };
 
-          /**fetch to api tos set container*/
-          fetch('http://127.0.0.1:5000/api/node/logic/cond_group/condition/', cond).then(res => res.json()).then(gotUser => {
+          /**fetch to api tos set condition*/
+          fetch('http://127.0.0.1:5000/api/node/logic/cond_group/condition/', cond).then(gotUser => {
             console.log(gotUser);
 
+
+            store.addNotification({
+                title: "Condition Successfully Added",
+                message: " ",
+                type: "success",
+                insert: "top",
+                container: "bottom-right",
+                animationIn: ["animated", "fadeIn"],
+                animationOut: ["animated", "fadeOut"],
+                dismiss: {
+                  duration: 5000,
+                  onScreen: true
+                }
+            });
+
           }).catch(function() {
-            console.log("Error on add condition group");
+            console.log("Error on add condition");
+
+            store.addNotification({
+                title: "Error on Adding Condition",
+                message: " ",
+                type: "danger",
+                insert: "top",
+                container: "bottom-right",
+                animationIn: ["animated", "fadeIn"],
+                animationOut: ["animated", "fadeOut"],
+                dismiss: {
+                  duration: 5000,
+                  onScreen: true
+                }
+            });
           });
 
         });
@@ -1058,11 +1304,39 @@ class App extends Component{
           };
 
           /**fetch to api tos set container*/
-          fetch('http://127.0.0.1:5000/api/node/logic/cond_group/action_group/action/', action).then(res => res.json()).then(gotUser => {
+          fetch('http://127.0.0.1:5000/api/node/logic/cond_group/action_group/action/', action).then(gotUser => {
             console.log(gotUser);
 
+            store.addNotification({
+                title: "Action Successfully Added",
+                message: " ",
+                type: "success",
+                insert: "top",
+                container: "bottom-right",
+                animationIn: ["animated", "fadeIn"],
+                animationOut: ["animated", "fadeOut"],
+                dismiss: {
+                  duration: 5000,
+                  onScreen: true
+                }
+            });
+
           }).catch(function() {
-            console.log("Error on add condition group");
+            console.log("Error on add action");
+
+            store.addNotification({
+                title: "Error on Adding Action",
+                message: " ",
+                type: "danger",
+                insert: "top",
+                container: "bottom-right",
+                animationIn: ["animated", "fadeIn"],
+                animationOut: ["animated", "fadeOut"],
+                dismiss: {
+                  duration: 5000,
+                  onScreen: true
+                }
+            });
           });
 
         });
@@ -1165,11 +1439,39 @@ class App extends Component{
     console.log(addcontainerspec);
 
     /**fetch to api tos set container*/
-    fetch('http://127.0.0.1:5000/api/blueprint/', addcontainerspec).then(res => res.json()).then(gotUser => {
+    fetch('http://127.0.0.1:5000/api/blueprint/', addcontainerspec).then(gotUser => {
         console.log(gotUser);
+
+        store.addNotification({
+            title: "Blueprint Added Successfully",
+            message: " ",
+            type: "success",
+            insert: "top",
+            container: "bottom-right",
+            animationIn: ["animated", "fadeIn"],
+            animationOut: ["animated", "fadeOut"],
+            dismiss: {
+              duration: 5000,
+              onScreen: true
+            }
+        });
 
     }).catch(function() {
         console.log("Error on add Contaier");
+
+        store.addNotification({
+            title: "Error on Adding Blueprint",
+            message: " ",
+            type: "danger",
+            insert: "top",
+            container: "bottom-right",
+            animationIn: ["animated", "fadeIn"],
+            animationOut: ["animated", "fadeOut"],
+            dismiss: {
+              duration: 5000,
+              onScreen: true
+            }
+        });
     });
 
     this.setState((state) => ({
@@ -1987,6 +2289,7 @@ class App extends Component{
     return (
       <div className="App">
 
+        <ReactNotification />
         {/* Navigation Bar */}
         <div className="head">
           <Navigation 

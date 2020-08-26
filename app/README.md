@@ -15,3 +15,7 @@
 	> npm start
 
 Details on how to use the app at SimTool/README.md
+
+css packages
+
+npm install react-notifications-component
