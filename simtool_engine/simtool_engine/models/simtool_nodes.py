@@ -23,6 +23,7 @@ from simtool_engine.models.simtool_entities import BasicFlowEntity
 from simtool_engine.models.simtool_logic import Logic
 from simtool_engine.models.simtool_containers import BasicContainer, BasicContainerBlueprint
 from simtool_engine.models.simtool_logging import SimToolLogging
+from simtool_engine.models.simtool_events import SimtoolEvent
 import random
 import scipy.stats as stats
 import numpy as np
@@ -56,6 +57,7 @@ class Node(object):
         self.name = name
         self.logic= Logic("RAND")
         self.entities = set()
+        self.action = env.process(self.run())
 
         # Achieve an ordered set using a dict and .keys, may not be needed
         # Could possibly switch to just using set() and sorting when needed.
@@ -94,6 +96,8 @@ class Node(object):
     def update(self, args):
         for k,v in args.items():
             setattr(self, k, v)
+        if 'env' in args:
+            self.env.process(self.run())
 
     # Each Node should implement this.
     def serialize(self):
@@ -118,6 +122,9 @@ class Node(object):
 
     def summary(self):
         pass
+
+    def run(self):
+        yield self.env.timeout(0)
 
 
 class StartingPoint(Node):
@@ -159,17 +166,15 @@ class StartingPoint(Node):
         self.generation = generation
         self.directed_to = None
         # Convert limit to 0-based.
-        self.limit = limit -1
+        self.limit = limit
         self.count = 0
         self.blueprints = {}
-        self.action = env.process(self.run())
+        
 
     def update(self, args):
         for k,v in args.items():
             setattr(self, k, v)
         #If new env passed in, reprocess.
-        if 'env' in args:
-            self.env.process(self.run())
         
     def __str__(self):
         return self.name
@@ -222,8 +227,9 @@ class StartingPoint(Node):
     #run handles entity creation and sets them up to continue running
     #independently.
     def run(self):
-        evnt_logger.info(f'\t {self} starting entity generation',extra={'sim_time':self.env.now})
+        #evnt_logger.info(f'\t {self} starting entity generation',extra={'sim_time':self.env.now})
 
+        yield SimtoolEvent.EventStartEntityGeneration(self.env,self)
         #Optimize later using class references.
         while self.count < self.limit:
 
@@ -239,7 +245,8 @@ class StartingPoint(Node):
 
             yield self.env.timeout(tymeout)
 
-            entity = BasicFlowEntity(self.env,self.env.now,f'{self.entity_name} {self.count}',self,self.next_dir())
+            ndir = self.next_dir()
+            entity = BasicFlowEntity(self.env,self.env.now,f'{self.entity_name} {self.count}',self,ndir)
             self.entities.add(entity)
             if len(self.blueprints) > 0:
 
@@ -248,9 +255,9 @@ class StartingPoint(Node):
                     entity.add_container(con)
 
             self.env.process(entity.run())
-            evnt_logger.info(f'\t {entity} has left {self}',extra={'sim_time':self.env.now})
+            yield SimtoolEvent.EventEntityCreated(self.env,self,entity)
             self.count += 1
-        evnt_logger.info(f'\t {self} ending entity generation',extra={'sim_time':self.env.now})
+        yield SimtoolEvent.EventEndEntityGeneration(self.env, self)
 
     def summary(self):
         return {
@@ -323,7 +330,8 @@ class BasicComponent(Node):
             pathlist = [x for x in self.directed_to if x in paths]
             #pprint.pprint(pathlist, sys.stderr)
             next_ind = random.randint(0, len(pathlist)-1)
-            evnt_logger.info(f'\t {entity} Going to {pathlist[next_ind]}', extra = {"sim_time":self.env.now})
+            #evnt_logger.info(f'\t {entity} Going to {pathlist[next_ind]}', extra = {"sim_time":self.env.now})
+            SimtoolEvent.EventEntityNextPathDecided(self.env,entity,pathlist[next_ind])
             return (pathlist[next_ind], action_groups)          
         
         try:
@@ -334,7 +342,7 @@ class BasicComponent(Node):
     #Returns a timeout event which represents the amount of time a component
     #needs to do it's thing.
     def interact(self, entity):
-        evnt_logger.info(f'\t {entity} is now interacting with {self}',extra={'sim_time':self.env.now})
+        SimtoolEvent.EventEntityNodeInteraction(self.env,entity,self)
         return (self.env.timeout(self.time_func),self.next_dir(entity))
 
     def reset(self):
