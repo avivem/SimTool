@@ -412,12 +412,17 @@ class DataStore():
 	
 	#Get Summary info about the last run. Finds most common path traversed, in general, and by end node.
 	def summary(self):
-		if self.end_time == None:
-			raise ValueError("Please run the simulation at least once.")
+		""" if self.end_time == None:
+			raise ValueError("Please run the simulation at least once.") """
 		start_nodes = {k:v.summary() for k,v in self.starts.items()}
 		station_nodes = {k:v.summary() for k,v in self.stations.items()}
 		end_nodes = {k:v.summary() for k,v in self.ends.items()}
 		avgbystart = {k:np.mean([e.end_time-e.start_time for e in v.entities if e.end_time != None]) for k,v in self.starts.items()}
+		most_common_path_to_end = collections.Counter(tuple(e.summary()['travelled path']) for name,start in self.starts.items() for e in start.entities).most_common(1)
+		if len(most_common_path_to_end) == 0:
+			most_common_path_to_end = None
+		else:
+			most_common_path_to_end = most_common_path_to_end[0]
 		to_ret = {
 			"run_info" : {
 				"sim_start_time" : self.start_time,
@@ -425,7 +430,7 @@ class DataStore():
 				"num_spawned_entities" : sum([1 for name,start in self.starts.items() for e in start.entities]),
 				"num_completed_entities" : sum([1 for name,end in self.ends.items() for e in end.entities]),
 				"avg_entity_duration_by_start" : avgbystart,
-				"most_common_path" : collections.Counter(tuple(e.summary()['travelled path']) for name,start in self.starts.items() for e in start.entities).most_common(1)[0]
+				"most_common_path_to_end" : most_common_path_to_end
 			},
 			"Starting Nodes" : start_nodes,
 			"Station Nodes" : station_nodes,
@@ -561,6 +566,41 @@ class DataStore():
 			self.last_run = self.strStream.getvalue().split('\n')
 			self.runs.append(self.last_run)
 			return (self.last_run, self.summary())
+
+	def step2(self, amount = 1):
+		do = True
+		while do:
+			#print(self.env.peek())
+			if self.env.peek() == math.inf:
+				return "No more events"
+			else :
+				#Store current stream location.
+				loc = self.strStream.tell()
+				self.env.step()
+				self.strStream.seek(loc)
+				new_output = self.strStream.read().split('\n')[:-1]
+				if not all('' == s for s in new_output):
+					do = False
+		return [new_output, self.summary()]
+
+	#Step through n events and return summaries after each step.
+	def step(self, amount = 1):
+		output = []
+		for count in range(amount):
+			do = True
+			while do:
+				if self.env.peek() == math.inf:
+					return ""
+				else:
+					loc = self.strStream.tell()
+					self.env.step()
+					self.strStream.seek(loc)
+					curr = self.strStream.read().split('\n')[:-1]
+					if not all('' == s for s in curr):
+						do = False
+			output.extend([curr,self.summary()])
+		return output
+
 
 	def reset(self, start = 0):
 		self.new_env(start)

@@ -12,6 +12,11 @@ def run(until=30000):
         abort(400, f"Please choose a run time past {until} or restart the simulation.")
     return jsonify(app.ds.run(until))
 
+@app.route('/api/step/<int:amount>/', methods=["GET"])
+@app.route('/api/step/', methods=["GET"])
+def step(amount=1):
+    return jsonify(app.ds.step(amount))
+
 @app.route('/api/run/summary/', methods=["GET"])
 def route_summary():
     try:
