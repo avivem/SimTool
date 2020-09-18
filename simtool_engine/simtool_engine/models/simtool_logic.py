@@ -88,43 +88,78 @@ class Logic(object):
             self.AND = True
             self.conditions = {}
             self.action_group = None
+
+        """ Conditions allow for comparing Entities and various other things.
+        They return a boolean value corresponding to the result of the condition.
+        The following types of conditions are supported:
+        
+            -   Entity Container vs Set Value
+                --  Compare the value of an entity's container to a set value.
+
+            -   Entity Container vs Node Container
+                --  Compare the value of an entity's container to the value of
+                    a container in the node of the same type.
+
+            -   Entity name      vs Set Value
+                --  Compare the name of the entity to a certain string.
+
+            -   Node Container   vs Set Value
+                --  Compare the value of a node's container to a set value.
+        """
         class Condition(object):
             op_map = {
-                "e>=v" : operator.ge,
-                "e>v"  : operator.gt,
-                "e<=v" : operator.le,
-                "e<v"  : operator.lt,
-                "e==v" : operator.eq,
+                ">=" : operator.ge,
+                ">"  : operator.gt,
+                "<=" : operator.le,
+                "<"  : operator.lt,
+                "==" : operator.eq,
             }
-            def __init__(self, name, encon_name, nodecon_name, op, val, names=False):
+
+            def __init__(self, name, encon_name, nodecon_name, mode, op, val):
                 self.name = name
                 self.encon_name = encon_name
                 self.nodecon_name = nodecon_name
+                self.mode = mode
                 self.op = op
+                self.op_func = self.op_map[op]
                 self.val = val
-                self.names = names
                 
 
             def eval(self, entity, node):
-                op = self.op_map[self.op]
-                try:
-                    encon = entity.containers[self.encon_name]
-                    nodecon = node.containers[self.nodecon_name]
-                except KeyError:
-                    return False
-                if not self.names:
-                    return op(encon.con.level,self.val)
-                else:
-                    return op(encon.name, nodecon.name)
+
+                if self.mode == "entity_value":
+                    try:
+                        encon = entity.containers[self.encon_name]
+                    except KeyError:
+                        return False
+                    return self.op_func(encon.con.level,self.val)
+                elif self.mode == "entity_node":
+                    try:
+                        encon = entity.containers[self.encon_name]
+                        nodecon = node.containers[self.nodecon_name]
+                    except KeyError:
+                        return False
+                    if not encon.resource == nodecon.resource:
+                        return False
+                    else:
+                        return self.op_func(encon.con.level,nodecon.con.level)
+                elif self.mode == "entity_name":
+                    return self.op_func(entity.name,self.val)
+                elif self.mode == "node_value":
+                    try:
+                        nodecon = node.containers[self.nodecon_name]
+                    except KeyError:
+                        return False
+                    return self.op_func(nodecon.con.level,self.val)
 
             def serialize(self):
                 return {
                     "name": self.name,
                     "encon_name": self.encon_name,
                     "nodecon_name": self.nodecon_name,
+                    "mode" : self.mode,
                     "op": self.op,
                     "val": self.val,
-                    "names": False
                 }
 
         def addPath(self, uid, opt):
@@ -139,8 +174,8 @@ class Logic(object):
             else:
                 self.fail_paths.remove(uid)
 
-        def add_condition(self, name, encon_name, nodecon_name, op, val, names=False):
-            self.conditions[name] = self.Condition(name, encon_name, nodecon_name, op, val, names)
+        def add_condition(self, name, encon_name, nodecon_name, mode, op, val):
+            self.conditions[name] = self.Condition(name, encon_name, nodecon_name, mode, op, val)
             return self.conditions[name]
 
         def remove_condition(self,name):

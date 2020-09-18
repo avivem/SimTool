@@ -200,8 +200,9 @@ ds.create_condition_group("tb", "Conditions", ["end1"], ["end2"])
 have_enough_money = {
     "name" : "Have Enough Money",
     "encon_name" : "Wallet",
-    "nodecon_name" : "Revenue", 
-    "op" : "e>=v",
+    "nodecon_name" : "Revenue",
+    "mode" : "entity_value", 
+    "op" : ">=",
     "val" : 18
 }
 ds.add_condition("tb", "Conditions", have_enough_money)
@@ -223,10 +224,10 @@ give_ticket = {
 }
 ds.add_action("tb", "Conditions",give_ticket)
 
-""" (log, summary) = ds.run(3000)
+(log, summary) = ds.run(3000)
 
 print("First run successful")
 
 save = ds.serialize()
 
-pprint(save) """
+pprint(save)

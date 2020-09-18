@@ -586,7 +586,7 @@ class DataStore():
 	#Step through n events and return summaries after each step.
 	def step(self, amount = 1):
 		output = []
-		for count in range(amount):
+		for _ in range(amount):
 			do = True
 			while do:
 				if self.env.peek() == math.inf:
@@ -598,7 +598,8 @@ class DataStore():
 					curr = self.strStream.read().split('\n')[:-1]
 					if not all('' == s for s in curr):
 						do = False
-			output.extend([curr,self.summary()])
+			output.append(curr[0])
+		output.append(self.summary())
 		return output
 
 
