@@ -1,5 +1,5 @@
 import simpy
-from simtool_engine.models.simtool_logging import SimToolLogging
+from simtool_engine.util.simtool_logging import SimToolLogging
 
 evnt_logger = SimToolLogging.getEventLog()
 evnt_logger_machine = SimToolLogging.getEventLogMachine()
@@ -7,22 +7,21 @@ data_logger = SimToolLogging.getDataLog()
 data_logger_machine = SimToolLogging.getDataLogMachine()
 
 class SimtoolEvent(object):
-    
-    class EventStartEntityGeneration(simpy.events.Timeout):
+    class StartEntityGeneration(simpy.events.Timeout):
         def __init__(self, env, start):
             self.start = start
             self.env = env
             super().__init__(env,0) #Use timeout event with delay of 0 since it is automatically triggered.
             evnt_logger.info(f'\t {start} starting entity generation',extra={'sim_time':env.now})
 
-    class EventEndEntityGeneration(simpy.events.Timeout):
+    class EndEntityGeneration(simpy.events.Timeout):
         def __init__(self, env, start):
             self.start = start
             self.env = env
             super().__init__(env,0) #Use timeout event with delay of 0 since it is automatically triggered.
             evnt_logger.info(f'\t {start} ending entity generation',extra={'sim_time':env.now})
 
-    class EventEntityCreated(simpy.events.Timeout):
+    class EntityCreated(simpy.events.Timeout):
         def __init__(self, env, start, entity):
             self.start = start
             self.entity = entity
@@ -30,7 +29,7 @@ class SimtoolEvent(object):
             super().__init__(env,0)
             evnt_logger.info(f'\t {entity} has left {start}',extra={'sim_time':env.now})
 
-    class EventEntityEnded(simpy.events.Timeout):
+    class EntityEnded(simpy.events.Timeout):
         def __init__(self, env, entity, end):
             self.env = env
             self.entity = entity
@@ -38,7 +37,7 @@ class SimtoolEvent(object):
             super().__init__(env,0)
             evnt_logger.info(f'\t {entity} has reached endpoint {end}.',extra={'sim_time':env.now})
 
-    class EventEntityNextPathDecided(simpy.events.Timeout):
+    class EntityNextPathDecided(simpy.events.Timeout):
         def __init__(self, env, entity, ndir):
             self.env = env
             self.ndir = ndir
@@ -46,7 +45,7 @@ class SimtoolEvent(object):
             super().__init__(env,0)
             evnt_logger.info(f'\t {entity} Going to {ndir}', extra = {"sim_time":env.now})
 
-    class EventEntityNodeInteraction(simpy.events.Timeout):
+    class EntityNodeInteraction(simpy.events.Timeout):
         def __init__(self,env,entity,node):
             self.env = env
             self.entity = entity
@@ -54,7 +53,7 @@ class SimtoolEvent(object):
             super().__init__(env,0)
             evnt_logger.info(f'\t {entity} is now interacting with {node}',extra={'sim_time':env.now})
 
-    class EventEntityContainerAction(simpy.events.Timeout):
+    class EntityContainerAction(simpy.events.Timeout):
         def __init__(self,env,entity,action,currentLoc,val,encon,nodecon=None):
             self.env = env
             self.entity = entity

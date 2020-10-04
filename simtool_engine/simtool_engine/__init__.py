@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_cors import CORS, cross_origin
-from simtool_engine.models.simtool_datastore import DataStore
+from simtool_engine.services import DataStore
 from waitress import serve
 import threading
 

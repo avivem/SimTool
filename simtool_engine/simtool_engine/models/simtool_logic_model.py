@@ -1,4 +1,4 @@
-""" simtool_logic.py contains the Logic class, which represents the conditons
+""" simtool_logic_model.py contains the Logic class, which represents the conditons
 and actions a station can take when interacting with an entity.
 
 Written by Aviv Elazar-Mittelman, July 2020
@@ -44,24 +44,24 @@ class Logic(object):
             can transfer resources between containers, or simply alter the level
             of an entity's containers.
             """
-            def __init__(self, name, encon_name, nodecon_name, op, val):
+            def __init__(self, name, con1_name, con2_name, op, val):
                 self.name = name
-                self.encon_name = encon_name
-                self.nodecon_name = nodecon_name
+                self.con1_name = con1_name
+                self.con2_name = con2_name
                 self.op = op
                 self.val = val
             
             def serialize(self):
                 return {
                     "name" : self.name,
-                    "encon_name" : self.encon_name,
-                    "nodecon_name" : self.nodecon_name,
+                    "con1_name" : self.con1_name,
+                    "con2_name" : self.con2_name,
                     "op" : self.op,
                     "val" : self.val
                 }
         
-        def add_action(self, name, encon_name, nodecon_name, op, val):
-            self.actions[name] = self.Action(name, encon_name, nodecon_name, op, val)
+        def add_action(self, name, con1_name, con2_name, op, val):
+            self.actions[name] = self.Action(name, con1_name, con2_name, op, val)
             return self.actions[name]
         
         def remove_action(self, name):
@@ -92,7 +92,7 @@ class Logic(object):
         """ Conditions allow for comparing Entities and various other things.
         They return a boolean value corresponding to the result of the condition.
         The following types of conditions are supported:
-        
+
             -   Entity Container vs Set Value
                 --  Compare the value of an entity's container to a set value.
 
@@ -115,10 +115,10 @@ class Logic(object):
                 "==" : operator.eq,
             }
 
-            def __init__(self, name, encon_name, nodecon_name, mode, op, val):
+            def __init__(self, name, con1_name, con2_name, mode, op, val):
                 self.name = name
-                self.encon_name = encon_name
-                self.nodecon_name = nodecon_name
+                self.con1_name = con1_name
+                self.con2_name = con2_name
                 self.mode = mode
                 self.op = op
                 self.op_func = self.op_map[op]
@@ -129,14 +129,14 @@ class Logic(object):
 
                 if self.mode == "entity_value":
                     try:
-                        encon = entity.containers[self.encon_name]
+                        encon = entity.containers[self.con1_name]
                     except KeyError:
                         return False
                     return self.op_func(encon.con.level,self.val)
                 elif self.mode == "entity_node":
                     try:
-                        encon = entity.containers[self.encon_name]
-                        nodecon = node.containers[self.nodecon_name]
+                        encon = entity.containers[self.con1_name]
+                        nodecon = node.containers[self.con2_name]
                     except KeyError:
                         return False
                     if not encon.resource == nodecon.resource:
@@ -147,16 +147,30 @@ class Logic(object):
                     return self.op_func(entity.name,self.val)
                 elif self.mode == "node_value":
                     try:
-                        nodecon = node.containers[self.nodecon_name]
+                        nodecon = node.containers[self.con2_name]
                     except KeyError:
                         return False
                     return self.op_func(nodecon.con.level,self.val)
+                elif self.mode == "entity_entity":
+                    try:
+                        encon1 = entity.containers[self.con1_name]
+                        encon2 = entity.containers[self.con2_name]
+                    except KeyError:
+                        return False
+                    return self.op_func(encon1.level, encon2.level)
+                elif self.mode == "node_node":
+                    try:
+                        node1 = node.containers[self.con1_name]
+                        node2 = node.containers[self.con2_name]
+                    except KeyError:
+                        return False
+                    return self.op_func(node1.level, node2.level)
 
             def serialize(self):
                 return {
                     "name": self.name,
-                    "encon_name": self.encon_name,
-                    "nodecon_name": self.nodecon_name,
+                    "con1_name": self.con1_name,
+                    "con2_name": self.con2_name,
                     "mode" : self.mode,
                     "op": self.op,
                     "val": self.val,
@@ -174,8 +188,8 @@ class Logic(object):
             else:
                 self.fail_paths.remove(uid)
 
-        def add_condition(self, name, encon_name, nodecon_name, mode, op, val):
-            self.conditions[name] = self.Condition(name, encon_name, nodecon_name, mode, op, val)
+        def add_condition(self, name, con1_name, con2_name, mode, op, val):
+            self.conditions[name] = self.Condition(name, con1_name, con2_name, mode, op, val)
             return self.conditions[name]
 
         def remove_condition(self,name):

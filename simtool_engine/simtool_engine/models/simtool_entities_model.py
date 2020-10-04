@@ -1,4 +1,4 @@
-""" simtool_entities.py contains the BasicFlowEntity class represents the
+""" simtool_entities_model.py contains the BasicFlowEntity class represents the
 entities that flow through the system. 
 
 Written by Aviv Elazar-Mittelman, July 2020
@@ -6,8 +6,8 @@ Written by Aviv Elazar-Mittelman, July 2020
 
 import simpy
 import logging
-from simtool_engine.models.simtool_logging import SimToolLogging
-from simtool_engine.models.simtool_events import SimtoolEvent
+from simtool_engine.util.simtool_logging import SimToolLogging
+from simtool_engine.util.simtool_events import SimtoolEvent
 
 evnt_logger = SimToolLogging.getEventLog()
 
@@ -57,8 +57,8 @@ class BasicFlowEntity(object):
             for ag in action_groups:
                 for name, ac in ag.actions.items():
                     try:
-                        encon = self.containers[ac.encon_name]
-                        nodecon = self.currentLoc.containers[ac.nodecon_name]
+                        encon = self.containers[ac.con1_name]
+                        nodecon = self.currentLoc.containers[ac.con2_name]
                     except KeyError as e:
                         print("")
                         print("KEY ERROR BLARG")
@@ -66,7 +66,7 @@ class BasicFlowEntity(object):
                         print("")
                         continue
 
-                    SimtoolEvent.EventEntityContainerAction(self.env,self,ac.op,self.currentLoc,ac.val,encon,nodecon)
+                    SimtoolEvent.EntityContainerAction(self.env,self,ac.op,self.currentLoc,ac.val,encon,nodecon)
                     if ac.op == "GIVE":
                         yield encon.con.put(ac.val)
                         yield nodecon.con.get(ac.val)
@@ -104,7 +104,7 @@ class BasicFlowEntity(object):
         self.travel_path.append(str(self.currentLoc))
         self.end_time = self.env.now
         #evnt_logger.info(f'\t {self} has reached endpoint {self.currentLoc}.',extra={'sim_time':self.env.now})
-        SimtoolEvent.EventEntityEnded(self.env,self,self.currentLoc)
+        SimtoolEvent.EntityEnded(self.env,self,self.currentLoc)
 
     def summary(self):
         containers = {}
