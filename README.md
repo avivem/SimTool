@@ -30,3 +30,6 @@ Two category of entities:
 Assumption:
 Wealthy people are more willing to enter the convention even if price is high but there is a chance they they will not attend
 Regular people may enter convention even if price is high but there is a lower probability of entering than wealthy people
+
+## Where to Begin?
+To start working with SimTool, launch the backend server by following instructions in simtool_engine, and launch the frontend interface from app.

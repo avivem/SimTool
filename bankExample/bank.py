@@ -1,3 +1,5 @@
+#This is an early example showing a goal we had / have to recreate in our own tool. This uses SimPy and uses the idea of processes rather than nodes in a graph.
+
 import simpy
 import random
 import numpy as np
