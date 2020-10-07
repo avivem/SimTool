@@ -126,7 +126,7 @@ class Node(object):
     def run(self):
         yield self.env.timeout(0)
 
-
+#NOTICE: Still being implemented.
 class GlobalNode(Node):
     """ GlobalNode is used to store resources for the environment. All nodes and
     entities will have a reference to it, but will never visit it as it is merely

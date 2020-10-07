@@ -1,5 +1,6 @@
 import simpy
 
+#Meant to replace String Resources. Still being implemented.
 class Resource:
 
     def __init__(self, env, name):
