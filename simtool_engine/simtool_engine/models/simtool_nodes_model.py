@@ -1,4 +1,4 @@
-""" simtool_nodes.py contains classes that represent points in a process graph.
+""" simtool_nodes_model.py contains classes that represent points in a process graph.
 The Node class is "abstract" and should be used to create usable child classes.
 
 StartingPoint represents points in the graph where entities with specific
@@ -19,11 +19,11 @@ import uuid
 import simpy
 import collections
 import logging
-from simtool_engine.models.simtool_entities import BasicFlowEntity
-from simtool_engine.models.simtool_logic import Logic
-from simtool_engine.models.simtool_containers import BasicContainer, BasicContainerBlueprint
-from simtool_engine.models.simtool_logging import SimToolLogging
-from simtool_engine.models.simtool_events import SimtoolEvent
+from simtool_engine.models.simtool_entities_model import BasicFlowEntity
+from simtool_engine.models.simtool_logic_model import Logic
+from simtool_engine.models.simtool_containers_model import BasicContainer, BasicContainerBlueprint
+from simtool_engine.util.simtool_logging import SimToolLogging
+from simtool_engine.util.simtool_events import SimtoolEvent
 import random
 import scipy.stats as stats
 import numpy as np
@@ -116,7 +116,7 @@ class Node(object):
     # (by name).
     # 
     # BOOL: allows for utilization of conditions and actions (Look at 
-    # simtool_logic.py)
+    # simtool_logic_model.py)
     def create_logic(self, split_policy):
         self.logic = Logic(split_policy)
 
@@ -125,6 +125,70 @@ class Node(object):
 
     def run(self):
         yield self.env.timeout(0)
+
+
+class GlobalNode(Node):
+    """ GlobalNode is used to store resources for the environment. All nodes and
+    entities will have a reference to it, but will never visit it as it is merely
+    a construct for storing resources meant to be shared with all existances."""
+
+    #For initial testing, I will hardcode a single instance in DataStore, but we
+    #may wish to allow multiple instances in the future.
+
+    def __init__(self,env, name, uid=None):
+        super().__init__(env = env, name = name, uid = uid)
+        self.containers = {}
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return f"{self.name}"
+
+    def add_container_bp(self, blueprint):
+        self.containers[blueprint.name] = blueprint.build(self.env, self)
+        return self.containers[blueprint.name]
+
+    def add_container(self, inputs):
+        self.containers[inputs["name"]] = BasicContainer(self.env, **inputs)
+        return self.containers[inputs["name"]]
+
+    def get_con(self, name):
+        return self.containers[name]
+
+    def next_dir(self, entity):
+        pass
+    
+    def interact(self, entity):
+        pass
+
+    def reset(self):
+        pass
+
+    def summary(self):
+        containers = {}
+        for name, con in self.containers.items():
+            containers[con.name] = con.summary()
+        return {
+            "name" : self.name,
+            "container summaries" : containers
+        }
+
+    def update(self, args):
+        for k,v in args.items():
+            setattr(self, k, v)
+        #If environment is changed, update containers.
+        if "env" in args:
+            for _,con in self.containers.items():
+                con.update({"env":self.env})
+
+    def serialize(self):
+        return {
+            "name" : self.name,
+            "uid" : self.uid,
+            "blueprints" : list([x.uid for _,x in self.containers.items() if x.blueprint != None]),
+            "containers" : list([x.serialize() for _,x in self.containers.items() if x.blueprint == None])
+        }
 
 
 class StartingPoint(Node):
@@ -161,7 +225,7 @@ class StartingPoint(Node):
     scipy.stats
     """
     def __init__(self,env,name, entity_name,generation, limit=float('inf'),uid=None):
-        super().__init__(env=env, name=name, uid=uid)
+        super().__init__(env, name, uid)
         self.entity_name = entity_name
         self.generation = generation
         self.directed_to = None
@@ -229,7 +293,7 @@ class StartingPoint(Node):
     def run(self):
         #evnt_logger.info(f'\t {self} starting entity generation',extra={'sim_time':self.env.now})
 
-        yield SimtoolEvent.EventStartEntityGeneration(self.env,self)
+        yield SimtoolEvent.StartEntityGeneration(self.env,self)
         #Optimize later using class references.
         while self.count < self.limit:
 
@@ -255,16 +319,17 @@ class StartingPoint(Node):
                     entity.add_container(con)
 
             self.env.process(entity.run())
-            yield SimtoolEvent.EventEntityCreated(self.env,self,entity)
+            yield SimtoolEvent.EntityCreated(self.env,self,entity)
             self.count += 1
-        yield SimtoolEvent.EventEndEntityGeneration(self.env, self)
+        yield SimtoolEvent.EndEntityGeneration(self.env, self)
 
     def summary(self):
         return {
             "name" : self.name,
             "number of entities created" : self.count
         }
-            
+
+           
             
 #A Node that represents a "cog in a machine" such as bank tellers in a bank, or
 #a dishwasher in a kitchen.
@@ -331,7 +396,7 @@ class BasicComponent(Node):
             #pprint.pprint(pathlist, sys.stderr)
             next_ind = random.randint(0, len(pathlist)-1)
             #evnt_logger.info(f'\t {entity} Going to {pathlist[next_ind]}', extra = {"sim_time":self.env.now})
-            SimtoolEvent.EventEntityNextPathDecided(self.env,entity,pathlist[next_ind])
+            SimtoolEvent.EntityNextPathDecided(self.env,entity,pathlist[next_ind])
             return (pathlist[next_ind], action_groups)          
         
         try:
@@ -342,7 +407,7 @@ class BasicComponent(Node):
     #Returns a timeout event which represents the amount of time a component
     #needs to do it's thing.
     def interact(self, entity):
-        SimtoolEvent.EventEntityNodeInteraction(self.env,entity,self)
+        SimtoolEvent.EntityNodeInteraction(self.env,entity,self)
         return (self.env.timeout(self.time_func),self.next_dir(entity))
 
     def reset(self):

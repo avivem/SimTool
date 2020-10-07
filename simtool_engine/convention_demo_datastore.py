@@ -1,4 +1,4 @@
-from simtool_engine.models.simtool_datastore import DataStore
+from simtool_engine.services import DataStore
 from pprint import pprint
 
 ds = DataStore()
@@ -199,8 +199,8 @@ ds.create_logic("tb", "BOOL")
 ds.create_condition_group("tb", "Conditions", ["end1"], ["end2"])
 have_enough_money = {
     "name" : "Have Enough Money",
-    "encon_name" : "Wallet",
-    "nodecon_name" : "Revenue",
+    "con1_name" : "Wallet",
+    "con2_name" : "Revenue",
     "mode" : "entity_value", 
     "op" : ">=",
     "val" : 18
@@ -209,16 +209,16 @@ ds.add_condition("tb", "Conditions", have_enough_money)
 ds.create_action_group("tb", "Conditions")
 take_money = {
     "name" : "Take money from Attendee",
-    "encon_name" : "Wallet",
-    "nodecon_name" : "Revenue",
+    "con1_name" : "Wallet",
+    "con2_name" : "Revenue",
     "op" : "TAKE",
     "val" : 18
 }
 ds.add_action("tb", "Conditions",take_money)
 give_ticket = {
     "name" : "Give Attendee Ticket",
-    "encon_name" : "Tickets",
-    "nodecon_name" : "Ticket Storage",
+    "con1_name" : "Tickets",
+    "con2_name" : "Ticket Storage",
     "op" : "GIVE",
     "val" : 1
 }

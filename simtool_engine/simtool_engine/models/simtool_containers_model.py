@@ -1,4 +1,4 @@
-""" simtool_containers.py defines Container classes which allow us to store
+""" simtool_containers_model.py defines Container classes which allow us to store
 amounts of resources (e.g. water, food, energy, tables), and associate them with
 specific entities / nodes.
 

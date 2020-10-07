@@ -13,7 +13,7 @@ def route_node():
     elif request.method == "POST":
         inputs = dict(request.json)
         tipe = request.json['type']
-        tipe = {"START" : app.ds.START, "STATION": app.ds.STATION, "END": app.ds.END}[tipe]
+        tipe = {"START" : app.ds.START, "STATION": app.ds.STATION, "END": app.ds.END, "GLOBAL": app.ds.GLOBAL}[tipe]
         del inputs['type']
         try:
             return app.ds.create_node(tipe,inputs)
@@ -30,7 +30,7 @@ def route_node():
     else:
         try:
             tipe = request.json["type"]
-            tipe = {"START" : app.ds.START, "STATION": app.ds.STATION, "END": app.ds.END}[tipe]
+            tipe = {"START" : app.ds.START, "STATION": app.ds.STATION, "END": app.ds.END, "GLOBAL": app.ds.GLOBAL}[tipe]
             return app.ds.delete_node(request.json["uid"],tipe)
         except ValueError as e:
             abort(400, str(e))
