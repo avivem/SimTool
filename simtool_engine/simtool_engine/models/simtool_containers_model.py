@@ -84,6 +84,8 @@ class BasicContainer(object):
         self.capacity = capacity
         self.blueprint = blueprint
         self.con = simpy.Container(env, float(capacity), float(init))
+        self.lock = simpy.Resource(env,1) #Lock for accessing the resource.
+        #Needs to be acquired before comparions and held till end of actions.
 
     def __str__(self):
         return f"<{self.name}>:({self.con.level})"
@@ -118,3 +120,15 @@ class BasicContainer(object):
             "capacity" : self.capacity,
             "blueprint" : self.blueprint
         }
+
+    def takeFrom(self, con, amount):
+        return [con.con.get(amount), self.con.put(amount)]  
+
+    def giveTo(self, con, amount):
+        return [self.con.get(amount), con.con.put(amount)]  
+
+    def add(self, amount):
+        return [self.con.put(amount)]
+
+    def remove(self, amount):
+        return [self.con.get(amount)]

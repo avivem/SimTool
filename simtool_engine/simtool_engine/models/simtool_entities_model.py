@@ -66,17 +66,32 @@ class BasicFlowEntity(object):
                         print("")
                         continue
 
+                    ##NEED TO FIX, since stations are "acting," taking is giving and vice versa
                     SimtoolEvent.EntityContainerAction(self.env,self,ac.op,self.currentLoc,ac.val,encon,nodecon)
-                    if ac.op == "GIVE":
-                        yield encon.con.put(ac.val)
-                        yield nodecon.con.get(ac.val)
-                    elif ac.op == "TAKE":
-                        yield encon.con.get(ac.val)
-                        yield nodecon.con.put(ac.val)
+                    if ac.op == "TAKE":
+                        acts = encon.giveTo(nodecon, ac.val)
+                        print(acts)
+                        for act in acts:
+                            yield act
+                        
+                    elif ac.op == "GIVE":
+                        acts = encon.takeFrom(nodecon, ac.val)
+                        print(acts)
+                        for act in acts:
+                            yield act
+                        
                     elif ac.op == "ADD":
-                        yield encon.con.put(ac.val)
+                        acts = encon.add(ac.val)
+                        print(acts)
+                        for act in acts:
+                            yield act
+                        
                     elif ac.op == "SUB":
-                        yield encon.con.get(ac.val)
+                        acts = encon.remove(ac.val)
+                        print(acts)
+                        for act in acts:
+                            yield act
+                        
                 
 
     def resources_snapshot(self):

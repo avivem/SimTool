@@ -66,7 +66,7 @@ class SimtoolEvent(object):
             if action == "GIVE" : 
                 evnt_logger.info(f"\t {currentLoc} has given {val} {encon.resource} from {nodecon} to {encon} of {entity}",extra={"sim_time":env.now})
             elif action == "TAKE" :
-                evnt_logger.info(f"\t {currentLoc} has taken {val} {encon.resource} from {nodecon} to {encon} of {entity}",extra={"sim_time":env.now})
+                evnt_logger.info(f"\t {currentLoc} has taken {val} {encon.resource} from {encon} to {nodecon} of {entity}",extra={"sim_time":env.now})
             elif action == "ADD" :
                 evnt_logger.info(f"\t {currentLoc} has added {val} {encon.resource} to {encon} of {entity}",extra={"sim_time":env.now})
             elif action == "SUB" :
