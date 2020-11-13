@@ -6,10 +6,14 @@ class Resource:
     def __init__(self, env, name):
         self.env = env
         self.name = name
+        self.activity = env.process(self.run)
+
+    def run(self):
+        pass
 
 class ChargedResource(Resource):
     """ Represents a Resource that costs another resource to use. For example,
-    An hourly employee needs to be paid, so the employee would be the resorce
+    An hourly employee needs to be paid, so the employee would be the resource
     """
     def __init__(self, env, name, glob_node, cost, time):
         super().__init__(env, name)

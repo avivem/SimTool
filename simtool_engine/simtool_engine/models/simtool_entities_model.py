@@ -5,7 +5,9 @@ Written by Aviv Elazar-Mittelman, July 2020
 """
 
 import simpy
+import sys
 import logging
+import contextlib
 from simtool_engine.util.simtool_logging import SimToolLogging
 from simtool_engine.util.simtool_events import SimtoolEvent
 
@@ -60,35 +62,31 @@ class BasicFlowEntity(object):
                         encon = self.containers[ac.con1_name]
                         nodecon = self.currentLoc.containers[ac.con2_name]
                     except KeyError as e:
-                        print("")
-                        print("KEY ERROR BLARG")
-                        print(e)
-                        print("")
-                        continue
+                        raise KeyError("Invalid container name: " + str(e))
 
                     ##NEED TO FIX, since stations are "acting," taking is giving and vice versa
                     SimtoolEvent.EntityContainerAction(self.env,self,ac.op,self.currentLoc,ac.val,encon,nodecon)
                     if ac.op == "TAKE":
                         acts = encon.giveTo(nodecon, ac.val)
-                        print(acts)
+                        #print(acts)
                         for act in acts:
                             yield act
                         
                     elif ac.op == "GIVE":
                         acts = encon.takeFrom(nodecon, ac.val)
-                        print(acts)
+                        #print(acts)
                         for act in acts:
                             yield act
                         
                     elif ac.op == "ADD":
                         acts = encon.add(ac.val)
-                        print(acts)
+                        #print(acts)
                         for act in acts:
                             yield act
                         
                     elif ac.op == "SUB":
                         acts = encon.remove(ac.val)
-                        print(acts)
+                        #print(acts)
                         for act in acts:
                             yield act
                         
@@ -105,15 +103,23 @@ class BasicFlowEntity(object):
             
             #Wait in line until the component is available.
             with self.currentLoc.resource.request() as req:
-                self.count += 1
-                self.travel_path.append(str(self.currentLoc))
-                #Tell environment I'm waiting.
-                yield req
-                (evnt, (next_dir, passed)) = self.currentLoc.interact(self)
-                self.env.process(self.act(passed))
-                yield evnt
-                self.currentLoc.entities.add(self)
-                self.currentLoc = next_dir
+                #Acquire locks for each resource of the container.
+                with contextlib.ExitStack() as stack:
+                    locks = self.currentLoc.get_con_locks()
+                    lock_requests = [stack.enter_context(lock.request()) for lock in locks]
+                    
+                    #Comment this line to disable locking.
+                    yield from lock_requests
+                    
+                    self.count += 1
+                    self.travel_path.append(str(self.currentLoc))
+                    #Tell environment I'm waiting.
+                    yield req
+                    (evnt, (next_dir, passed)) = self.currentLoc.interact(self)
+                    self.env.process(self.act(passed))
+                    yield evnt
+                    self.currentLoc.entities.add(self)
+                    self.currentLoc = next_dir
 
         self.currentLoc.entities.add(self)
         self.travel_path.append(str(self.currentLoc))

@@ -254,3 +254,15 @@ class Logic(object):
             "cond_groups": {name:group.serialize() for name,group in self.condition_groups.items()},
             "split_policy" : self.split_policy
         }
+
+    def get_con_names_to_lock(self):
+        con_names = []
+        for _,con_group in self.condition_groups.items():
+            for _,condition in con_group.conditions.items():
+                if (condition.con2_name):
+                    con_names.append(condition.con2_name)
+            if (con_group.action_group):
+                for _,action in con_group.action_group.actions.items():
+                    if (action.con2_name):
+                        con_names.append(action.con2_name)
+        return con_names

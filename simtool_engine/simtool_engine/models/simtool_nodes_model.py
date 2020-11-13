@@ -248,6 +248,7 @@ class StartingPoint(Node):
 
     def reset(self):
         self.count = 0
+        #TODO: wipe entity list
 
     #In order to build a container for each resource for each entity,
     #Need to know design of the container.
@@ -368,6 +369,11 @@ class BasicComponent(Node):
     def get_con(self, name):
         return self.containers[name]
 
+    def get_con_locks(self):
+        con_names = sorted(set(self.logic.get_con_names_to_lock()))
+        locks = [self.containers[x].lock for x in con_names]
+        return locks
+
     def next_dir(self, entity):
         path_list = sorted(self.directed_to.keys(), key=lambda x: x.name)
         
@@ -458,19 +464,24 @@ class EndingPoint(Node):
     def __repr__(self):
         return f"{self.name}"
     
+    def reset(self):
+        self.count = 0
+        self.entities = set()
+    
     def summary(self):
         encountered = {}
         for entity in self.entities:
             if not entity.start.name in encountered:
                 encountered[entity.start.name] = 0
             encountered[entity.start.name] += 1
+        entity_durations = [x.end_time-x.start_time for x in self.entities]
 
         return {
             "name" : self.name,
             "number of caught entities" : len(self.entities),
             "number of entities by start node" : encountered,
             "most common travel path" : collections.Counter(tuple(x.summary()['travelled path']) for x in self.entities).most_common(1)[0] if len(self.entities) > 0 else None,
-            "average entity duration." : np.mean([x.end_time-x.start_time for x in self.entities])
+            "average entity duration." : np.mean(entity_durations) if len(entity_durations) > 0 else None
         }
 
     def serialize(self):
