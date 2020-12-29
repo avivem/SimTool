@@ -16,6 +16,8 @@ import scipy.stats as stats
 import uuid
 import math
 
+import simtool_engine.ssimpy as ssimpy
+
 class BasicContainerBlueprint(object):
     """ BasicContainerBlueprint provides a template for creating containers.
     (Think of binding this in JavaScript). They have all the same info that
@@ -83,7 +85,8 @@ class BasicContainer(object):
         self.resource = resource
         self.capacity = capacity
         self.blueprint = blueprint
-        self.con = simpy.Container(env, float(capacity), float(init))
+        #self.con = simpy.Container(env, float(capacity), float(init))
+        self.con = ssimpy.ModifiedContainer(env, float(capacity), float(init), name, owner, resource)
         self.lock = simpy.Resource(env,1) #Lock for accessing the resource.
         #Needs to be acquired before comparions and held till end of actions.
 
@@ -121,14 +124,21 @@ class BasicContainer(object):
             "blueprint" : self.blueprint
         }
 
+    def get(self, amount):
+        return self.con.get(amount,self.name, self.owner, self.resource)
+
+    def put(self, amount):
+        return self.con.put(amount,self.name, self.owner, self.resource)
+    
     def takeFrom(self, con, amount):
-        return [con.con.get(amount), self.con.put(amount)]  
+        return [con.get(amount), self.put(amount)]  
 
     def giveTo(self, con, amount):
-        return [self.con.get(amount), con.con.put(amount)]  
+        return [self.get(amount), con.put(amount)]  
 
     def add(self, amount):
-        return [self.con.put(amount)]
+        return [self.put(amount)]
 
     def remove(self, amount):
-        return [self.con.get(amount)]
+        return [self.get(amount)]
+

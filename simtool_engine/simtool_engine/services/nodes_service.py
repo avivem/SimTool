@@ -21,7 +21,7 @@ class DSNodesServiceMixin:
 				"name" : node.name,
 				"uid" : uid,
 				"capacity" : node.capacity,
-				"time_func" : node.time_func
+				"interaction_time" : node.interaction_time
 			}
 		elif isinstance(node, EndingPoint):
 			return {

@@ -335,19 +335,18 @@ class StartingPoint(Node):
 #A Node that represents a "cog in a machine" such as bank tellers in a bank, or
 #a dishwasher in a kitchen.
 
-#TODO: add probability based time_func
 class BasicComponent(Node):
     """ BasicComponent represents "stations" in our simulation. Entities are
     able to visit stations and request to interact with them. stattions can
     interact with a specific number of entities at a time. Decisions about
     interactions are stored in the Logic reference.
     """
-    def __init__(self,env, name, capacity, time_func, uid=None):
+    def __init__(self,env, name, capacity, interaction_time, uid=None):
         super().__init__(env = env, name = name, uid = uid)
         self.name = name
         self.capacity = capacity
         self.resource = simpy.Resource(env,capacity)
-        self.time_func = time_func
+        self.interaction_time = interaction_time
         self.containers = {}
         self.count = 0
         self.entity_resources_before = {}
@@ -402,7 +401,7 @@ class BasicComponent(Node):
             #pprint.pprint(pathlist, sys.stderr)
             next_ind = random.randint(0, len(pathlist)-1)
             #evnt_logger.info(f'\t {entity} Going to {pathlist[next_ind]}', extra = {"sim_time":self.env.now})
-            SimtoolEvent.EntityNextPathDecided(self.env,entity,pathlist[next_ind])
+            #SimtoolEvent.EntityNextPathDecided(self.env,entity,pathlist[next_ind])
             return (pathlist[next_ind], action_groups)          
         
         try:
@@ -413,8 +412,16 @@ class BasicComponent(Node):
     #Returns a timeout event which represents the amount of time a component
     #needs to do it's thing.
     def interact(self, entity):
+        if not 'dist' in self.interaction_time:
+            tymeout = self.interaction_time['time']
+        elif self.interaction_time['dist'] == 'UNIFORM':
+            tymeout = stats.uniform.rvs(loc=self.interaction_time['loc'],scale=self.interaction_time['scale'])
+        elif self.interaction_time['dist'] == 'NORMAL':
+            tymeout = stats.norm.rvs(loc=self.interaction_time['loc'],scale=self.interaction_time['scale'])
+        elif self.interaction_time['dist'] == 'RANDINT':
+            tymeout = stats.randint.rvs(low=self.interaction_time['low'], high=self.interaction_time['high'])
         SimtoolEvent.EntityNodeInteraction(self.env,entity,self)
-        return (self.env.timeout(self.time_func),self.next_dir(entity))
+        return (self.env.timeout(tymeout),self.next_dir(entity))
 
     def reset(self):
         self.count = 0
@@ -444,7 +451,7 @@ class BasicComponent(Node):
             "name" : self.name,
             "uid" : self.uid,
             "capacity" : self.capacity,
-            "time_func" : self.time_func,
+            "interaction_time" : self.interaction_time,
             "dirto" : list({x.uid for x,_ in self.directed_to.items()}),
             "blueprints" : list([x.uid for _,x in self.containers.items() if x.blueprint != None]),
             "containers" : list([x.serialize() for _,x in self.containers.items() if x.blueprint == None]),

@@ -5,6 +5,7 @@ Written by Aviv Elazar-Mittelman, July 2020
 """
 
 import simpy
+import pprint
 import sys
 import logging
 import contextlib
@@ -56,36 +57,40 @@ class BasicFlowEntity(object):
         if self.currentLoc.logic.noconds():
             return None
         else:
+            pprint.pprint(action_groups)
             for ag in action_groups:
-                for name, ac in ag.actions.items():
+                for action in ag:
                     try:
-                        encon = self.containers[ac.con1_name]
-                        nodecon = self.currentLoc.containers[ac.con2_name]
+                        encon = self.containers[action.con1_name]
+                        print(str(self.name) + ":" + str(self.currentLoc))
+                        print(str(self.name) + ":" + str(self.currentLoc.containers))
+                        print(str(self.name) + ":" + str(action))
+                        nodecon = self.currentLoc.containers[action.con2_name]
                     except KeyError as e:
                         raise KeyError("Invalid container name: " + str(e))
 
-                    ##NEED TO FIX, since stations are "acting," taking is giving and vice versa
-                    SimtoolEvent.EntityContainerAction(self.env,self,ac.op,self.currentLoc,ac.val,encon,nodecon)
-                    if ac.op == "TAKE":
-                        acts = encon.giveTo(nodecon, ac.val)
+                    #TODO: create wrapper functions for simpy to log at correct time.
+                    SimtoolEvent.EntityContainerAction(self.env,self,action.op,self.currentLoc,action.val,encon,nodecon)
+                    if action.op == "TAKE":
+                        acts = encon.giveTo(nodecon, action.val)
                         #print(acts)
                         for act in acts:
                             yield act
                         
-                    elif ac.op == "GIVE":
-                        acts = encon.takeFrom(nodecon, ac.val)
+                    elif action.op == "GIVE":
+                        acts = encon.takeFrom(nodecon, action.val)
                         #print(acts)
                         for act in acts:
                             yield act
                         
-                    elif ac.op == "ADD":
-                        acts = encon.add(ac.val)
+                    elif action.op == "ADD":
+                        acts = encon.add(action.val)
                         #print(acts)
                         for act in acts:
                             yield act
                         
-                    elif ac.op == "SUB":
-                        acts = encon.remove(ac.val)
+                    elif action.op == "SUB":
+                        acts = encon.remove(action.val)
                         #print(acts)
                         for act in acts:
                             yield act
@@ -115,10 +120,11 @@ class BasicFlowEntity(object):
                     self.travel_path.append(str(self.currentLoc))
                     #Tell environment I'm waiting.
                     yield req
-                    (evnt, (next_dir, passed)) = self.currentLoc.interact(self)
-                    self.env.process(self.act(passed))
-                    yield evnt
+                    (tymeout, (next_dir, action_groups)) = self.currentLoc.interact(self)
+                    yield self.env.process(self.act(action_groups))
+                    yield tymeout
                     self.currentLoc.entities.add(self)
+                    SimtoolEvent.EntityNextPathDecided(self.env,self,next_dir)
                     self.currentLoc = next_dir
 
         self.currentLoc.entities.add(self)

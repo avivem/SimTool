@@ -7,6 +7,7 @@ Written by Aviv Elazar-Mittelman, July 2020
 import collections
 import simpy
 import operator
+import random
 
 class Logic(object):
     """ Every Node (except EndingPoints) have a reference to a Logic object
@@ -23,54 +24,14 @@ class Logic(object):
 
     #Named tuple class for returning actions and choice of paths.
     ResultTuple = collections.namedtuple('Result', ['action_groups','paths'])
-    def __init__(self, split_policy):
+    def __init__(self, split_policy, action_order_random = False):
         self.condition_groups = {}
         self.split_policy = split_policy
+        self.action_order_random = action_order_random
 
     #Check if no conditions.
     def noconds(self):
         return len(self.condition_groups) == 0
-
-    class ActionGroup(object):
-        """ ActionGroup holds a group of Action objects. Belongs to a single
-        ConditionGroup.
-        """
-        def __init__(self):
-            self.actions = {}
-        
-        class Action(object):
-            """ An Action object represents a single action that should take
-            place given the associated ConditionGroup returns True. An Action
-            can transfer resources between containers, or simply alter the level
-            of an entity's containers.
-            """
-            def __init__(self, name, con1_name, con2_name, op, val):
-                self.name = name
-                self.con1_name = con1_name
-                self.con2_name = con2_name
-                self.op = op
-                self.val = val
-            
-            def serialize(self):
-                return {
-                    "name" : self.name,
-                    "con1_name" : self.con1_name,
-                    "con2_name" : self.con2_name,
-                    "op" : self.op,
-                    "val" : self.val
-                }
-        
-        def add_action(self, name, con1_name, con2_name, op, val):
-            self.actions[name] = self.Action(name, con1_name, con2_name, op, val)
-            return self.actions[name]
-        
-        def remove_action(self, name):
-            del self.actions[name]
-
-        def serialize(self):
-            return {
-                "actions" : {name:action.serialize() for name,action in self.actions.items()}
-            }
 
     class ConditionGroup(object):
         """ ConditionGroup holds multiple Conditions. A ConditionGroup can be
@@ -81,12 +42,14 @@ class Logic(object):
         """
         PASS = 1000
         FAIL = 2000
-        def __init__(self, name, pass_paths, fail_paths):
+        def __init__(self, name, pass_paths, fail_paths, AND = True, action_order_random = False):
             self.name = name
             self.pass_paths = set(pass_paths)
             self.fail_paths = set(fail_paths)
-            self.AND = True
+            self.AND = AND
             self.conditions = {}
+            self.action_order_random = action_order_random
+            self.actions = {}
             self.action_group = None
 
         """ Conditions allow for comparing Entities and various other things.
@@ -176,6 +139,35 @@ class Logic(object):
                     "val": self.val,
                 }
 
+        class Action(object):
+            """ An Action object represents a single action that should take
+            place given the associated ConditionGroup returns True. An Action
+            can transfer resources between containers, or simply alter the level
+            of an entity's containers.
+            """
+            def __init__(self, name, con1_name, con2_name, op, val):
+                self.name = name
+                self.con1_name = con1_name
+                self.con2_name = con2_name
+                self.op = op
+                self.val = val
+            
+            def serialize(self):
+                return {
+                    "name" : self.name,
+                    "con1_name" : self.con1_name,
+                    "con2_name" : self.con2_name,
+                    "op" : self.op,
+                    "val" : self.val
+                }
+
+            def __str__(self):
+                return str(self.serialize())
+
+            def __repr__(self):
+                return str(self.serialize())
+                
+
         def addPath(self, uid, opt):
             if opt == Logic.ConditionGroup.PASS:
                 self.pass_paths.add(uid)
@@ -196,13 +188,12 @@ class Logic(object):
             del self.conditions[name]
             return None
 
-        def create_action_group(self):
-            self.action_group = Logic.ActionGroup()
-            return self.action_group
-        
-        def delete_action_group(self,name):
-            del self.action_group
+        def delete_actions(self,name):
+            self.actions = {}
             return None
+
+        def set_action_order_random(self, rand):
+            self.action_order_random = rand
 
         def eval(self, entity, node):
             results = []
@@ -217,17 +208,31 @@ class Logic(object):
         def flip_type(self):
             self.AND = not self.AND
 
+        def add_action(self, name, con1_name, con2_name, op, val):
+            self.actions[name] = self.Action(name, con1_name, con2_name, op, val)
+            return self.actions[name]
+        
+        def remove_action(self, name):
+            del self.actions[name]
+
         def serialize(self):
             return {
                 "name" : self.name,
                 "pass_paths" : [x.uid for x in self.pass_paths],
                 "fail_paths" : [x.uid for x in self.fail_paths],
                 "conditions" : {name:condition.serialize() for name,condition in self.conditions.items()},
-                "action_group" : self.action_group.serialize() if self.action_group != None else None
+                "actions" : {name:action.serialize() for name,action in self.actions.items()}
             }
+
+        def __str__(self):
+            return str(self.serialize())
+
+        def __repr__(self):
+            return str(self.serialize())
+        
     
-    def create_condition_group(self, name, pass_paths, fail_paths):
-        self.condition_groups[name] = Logic.ConditionGroup(name, pass_paths, fail_paths)
+    def create_condition_group(self, name, pass_paths, fail_paths, AND, action_order_random):
+        self.condition_groups[name] = Logic.ConditionGroup(name, pass_paths, fail_paths, AND, action_order_random)
         return self.condition_groups[name]
     
     def delete_condition_group(self,name):
@@ -238,16 +243,24 @@ class Logic(object):
         action_groups = []
         pass_paths = set()
         fail_paths = set()
-        for name,cond_group in self.condition_groups.items():
+        for _,cond_group in self.condition_groups.items():
             if cond_group.eval(entity, node):
                 pass_paths.update(cond_group.pass_paths)
-                action_groups.append(cond_group.action_group)
+                actions = list(cond_group.actions.values())
+                if cond_group.action_order_random:
+                    random.shuffle(actions)
+                action_groups.append(actions)
             else:
                 fail_paths.update(cond_group.fail_paths)
+        if (self.action_order_random):
+            random.shuffle(action_groups)
         if len(pass_paths) > 0:
             return self.ResultTuple(action_groups=action_groups, paths=pass_paths)
         else:
             return self.ResultTuple(action_groups=action_groups, paths=fail_paths)
+
+    def set_action_order_random(self, rand):
+        self.action_order_random = rand
 
     def serialize(self):
         return {

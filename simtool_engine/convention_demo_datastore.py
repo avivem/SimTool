@@ -94,14 +94,22 @@ ds.create_logic('poor_hotel', "ALPHA_SEQ")
 line1 = {
     "name" : "Convention Line 1",
     "capacity" : 50,
-    "time_func" : 1000,
+    "interaction_time" : {
+        "dist" : "NORMAL",
+        "loc" : 1000,
+        "scale" : 40
+    },
     "uid" : "line1"
 }
 
 line2 = {
     "name" : "Convention Line 2",
     "capacity" : 50,
-    "time_func" : 1000,
+    "interaction_time" : {
+        "dist" : "NORMAL",
+        "loc" : 1000,
+        "scale" : 40
+    },
     "uid" : "line2"
 }
 
@@ -113,14 +121,22 @@ ds.create_node(DataStore.STATION, line2)
 sec1 = {
     "name" : "Security 1",
     "capacity" : 10,
-    "time_func" : 100,
+    "interaction_time" : {
+        "dist" : "NORMAL",
+        "loc" : 100,
+        "scale" : 5
+    },
     "uid" : "sec1"
 }
 
 sec2 = {
     "name" : "Security 2",
     "capacity" : 10,
-    "time_func" : 100,
+    "interaction_time" : {
+        "dist" : "NORMAL",
+        "loc" : 100,
+        "scale" : 5
+    },
     "uid" : "sec2"
 }
 
@@ -132,7 +148,11 @@ ds.create_node(DataStore.STATION, sec2)
 tb = {
     "name" : "Ticket Booth",
     "capacity" : 2,
-    "time_func" : 10,
+    "interaction_time" : {
+        "dist" : "NORMAL",
+        "loc" : 50,
+        "scale" : 3
+    },
     "uid" : "tb"
 }
 
@@ -196,7 +216,7 @@ ds.create_container("tb",tickets)
 #Now its time to create the logic options for the ticket booth.
 
 ds.create_logic("tb", "BOOL")
-ds.create_condition_group("tb", "Conditions", ["end1"], ["end2"])
+ds.create_condition_group("tb", "Conditions", ["end1"], ["end2"], True, True)
 have_enough_money = {
     "name" : "Have Enough Money",
     "con1_name" : "Wallet",
@@ -206,7 +226,6 @@ have_enough_money = {
     "val" : 18
 }
 ds.add_condition("tb", "Conditions", have_enough_money)
-ds.create_action_group("tb", "Conditions")
 take_money = {
     "name" : "Take money from Attendee",
     "con1_name" : "Wallet",

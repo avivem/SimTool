@@ -149,7 +149,7 @@ class DataStore(Containers, Nodes, Logic):
             inputs = {
                 "name": node["name"],
                 "capacity": node["capacity"],
-                "time_func": node["time_func"],
+                "interaction_time": node["interaction_time"],
                 "uid": node["uid"]
             }
             self.create_node(DataStore.STATION, inputs)
@@ -209,14 +209,15 @@ class DataStore(Containers, Nodes, Logic):
                 for name, group in node["logic"]["cond_groups"].items():
                     pp = group["pass_paths"]
                     fp = group["fail_paths"]
-                    self.create_condition_group(uid, name, pp, fp)
+                    AND = group["AND"]
+                    action_order_random = group["action_order_random"]
+                    self.create_condition_group(uid, name, pp, fp, AND, action_order_random)
 
                     for cond_name, condition in group["conditions"].items():
                         self.add_condition(uid, name, condition)
 
-                    if not group["action_group"] == None:
-                        self.create_action_group(uid, name)
-                        for act_name, action in group["action_group"]["actions"].items():
+                    if not group["actions"] == {}:
+                        for act_name, action in group["actions"].items():
                             self.add_action(uid, name, action)
 
     # The run method is what starts the simulation. It takes an optional until parameter that tells when
@@ -263,11 +264,11 @@ class DataStore(Containers, Nodes, Logic):
         if summary: output.append(self.summary())
         return output
 
-	#Step through events without summary
+    #Step through events without summary
     def step(self, amount=1):
         return self._step(False, amount)
 
-	#Step through events with summary.
+    #Step through events with summary.
     def stepSum(self, amount=1):
         return self._step(True, amount)
 

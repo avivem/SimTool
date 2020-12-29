@@ -14,7 +14,7 @@ class DSLogicServiceMixin:
 		node.create_logic("RAND")
 
 	#To update a condition group, act as if the old one doesn't exist and create a new one.
-	def create_condition_group(self, node_uid, name, pass_paths, fail_paths):
+	def create_condition_group(self, node_uid, name, pass_paths, fail_paths, AND, action_order_random):
 		self.does_node_exist(node_uid)
 		node = self.nodes[node_uid]
 		if node.logic.split_policy in ["RAND", "ALPHA_SEQ"]:
@@ -23,8 +23,8 @@ class DSLogicServiceMixin:
 
 			pass_paths = [self.nodes[x] for x in pass_paths]
 			fail_paths = [self.nodes[x] for x in fail_paths]
-			con = node.logic.create_condition_group(name, pass_paths, fail_paths)
-			return f"{con.name} added to node {node.name}:{node_uid}"
+			con_group = node.logic.create_condition_group(name, pass_paths, fail_paths, AND, action_order_random)
+			return f"{con_group.name} added to node {node.name}:{node_uid}"
 
 	def delete_condition_group(self, node_uid, name):
 		self.does_node_exist(node_uid)
@@ -84,47 +84,36 @@ class DSLogicServiceMixin:
 			self.nodes[node_uid].logic.condition_groups[cond_group].remove_condition(name)
 			return f"Condition {cond.name} has been removed from Condition Group {cond_group} of {node.name}:{node_uid}."
 
-	def get_action_group(self, node_uid, cond_group):
+	def get_action_keys(self, node_uid, cond_group):
 		self.does_node_exist(node_uid)
 		node = self.nodes[node_uid]
 		if not cond_group in node.logic.condition_groups:
 			raise ValueError(f"{node.name}:{node_uid} does not have a Condition Group {cond_group}")
-		elif node.logic.condition_groups[cond_group].action_group == None:
-			raise ValueError(f"Condition Group {cond_group} of {node.name}:{node_uid} does not have an Action Group")
+		elif len(node.logic.condition_groups[cond_group].actions) == 0:
+			raise ValueError(f"Condition Group {cond_group} of {node.name}:{node_uid} does not have any actions")
 		else:
-			return node.logic.condition_groups[cond_group].action_group.keys()
-
-	#Each ConditionGroup can have one action group. All actions are executed sequentially if the
-	#ConditionGroup evaluates to True.
-	def create_action_group(self, node_uid, cond_group):
-		self.does_node_exist(node_uid)
-		node = self.nodes[node_uid]
-		if not cond_group in node.logic.condition_groups:
-			raise ValueError(f"{node.name}:{node_uid} does not have a Condition Group {cond_group}")
-		else:
-			node.logic.condition_groups[cond_group].create_action_group()
-			return f"Action Group created for Condition Group {cond_group} of {node.name}:{node_uid}"
+			return node.logic.condition_groups[cond_group].actions.keys()
 	
-	def delete_action_group(self, node_uid, cond_group):
+	def delete_actions(self, node_uid, cond_group):
 		self.does_node_exist(node_uid)
 		node = self.nodes[node_uid]
 		if not cond_group in node.logic.condition_groups:
 			raise ValueError(f"{node.name}:{node_uid} does not have a Condition Group {cond_group}")
 		else:
-			node.logic.condition_groups[cond_group].delete_action_group()
-			return f"Action Group deleted for Condition Group {cond_group} of {node.name}:{node_uid}"
+			node.logic.condition_groups[cond_group].delete_actions()
+			return f"Actions deleted for Condition Group {cond_group} of {node.name}:{node_uid}"
 
 	def get_action(self, node_uid, cond_group, name):
 		self.does_node_exist(node_uid)
 		node = self.nodes[node_uid]
 		if not cond_group in node.logic.condition_groups:
 			raise ValueError(f"{node.name}:{node_uid} does not have a Condition Group {cond_group}")
-		elif node.logic.condition_groups[cond_group].action_group == None:
-			raise ValueError(f"Condition Group {cond_group} of {node.name}:{node_uid} does not have an Action Group")
-		elif not name in node.logic.condition_groups[cond_group].action_group.actions:
+		elif len(node.logic.condition_groups[cond_group].actions) == 0:
+			raise ValueError(f"Condition Group {cond_group} of {node.name}:{node_uid} does not have any actions.")
+		elif not name in node.logic.condition_groups[cond_group].actions:
 			raise ValueError(f"Condition Group {cond_group} of {node.name}:{node_uid} does not have an action {name}")
 		else:
-			action = node.logic.condition_groups[cond_group].action_group.actions[name]
+			action = node.logic.condition_groups[cond_group].actions[name]
 			return {
 				"name" : name,
 				"owner" : node_uid,
@@ -140,10 +129,8 @@ class DSLogicServiceMixin:
 		node = self.nodes[node_uid]
 		if not cond_group in node.logic.condition_groups:
 			raise ValueError(f"{node.name}:{node_uid} does not have a Condition Group {cond_group}")
-		elif node.logic.condition_groups[cond_group].action_group == None:
-			raise ValueError(f"Condition Group {cond_group} of {node.name}:{node_uid} does not have an Action Group")
 		else:
-			action = node.logic.condition_groups[cond_group].action_group.add_action(**inputs)
+			action = node.logic.condition_groups[cond_group].add_action(**inputs)
 			return f"Action {action.name} has been added to Condition Group {cond_group} of {node.name}:{node_uid}"
 	
 	def remove_action(self, node_uid, cond_group, name):
@@ -151,11 +138,11 @@ class DSLogicServiceMixin:
 		node = self.nodes[node_uid]
 		if not cond_group in node.logic.condition_groups:
 			raise ValueError(f"{node.name}:{node_uid} does not have a Condition Group {cond_group}")
-		elif node.logic.condition_groups[cond_group].action_group == None:
-			raise ValueError(f"Condition Group {cond_group} of {node.name}:{node_uid} does not have an Action Group")
-		elif not name in node.logic.condition_groups[cond_group].action_group.actions:
+		elif len(node.logic.condition_groups[cond_group].actions) == 0:
+			raise ValueError(f"Condition Group {cond_group} of {node.name}:{node_uid} does not have any actions.")
+		elif not name in node.logic.condition_groups[cond_group].actions:
 			raise ValueError(f"Condition Group {cond_group} of {node.name}:{node_uid} does not have an action {name}")
 		else:
-			action = node.logic.condition_groups[cond_group].action_group.actions[name]
-			node.logic.condition_groups[cond_group].action_group.remove_action(name)
+			action = node.logic.condition_groups[cond_group].actions[name]
+			node.logic.condition_groups[cond_group].remove_action(name)
 			return f"Action {action.name} has been removed from Condition Group {cond_group} of {node.name}:{node_uid}"
